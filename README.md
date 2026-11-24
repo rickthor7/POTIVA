@@ -176,6 +176,13 @@ tetap bekerja saat di-refresh:
 Setiap `git push` ke `main` akan memicu deploy otomatis. Preview URL dibuat untuk
 setiap pull request.
 
+### Thumbnail / link preview
+
+`public/og-image.png` (1200×630) dipakai untuk preview tautan di WhatsApp, X, dan
+Facebook. Tag Open Graph dan Twitter sudah ada di `index.html`. Saat build di Vercel,
+placeholder `__SITE_URL__` otomatis diganti dengan domain produksi; untuk host lain,
+set environment variable `SITE_URL=https://domainmu.com`.
+
 ---
 
 ## ♿ Catatan aksesibilitas & responsif
