@@ -1,0 +1,59 @@
+:root {
+  /* ── Brand palette ─────────────────────────────── */
+  --forest: #174d35;
+  --forest-deep: #0f3624;
+  --forest-soft: #215f42;
+  --leaf: #3f8f55;
+  --leaf-dark: #2f7443;
+  --fresh: #a8d66d;
+  --fresh-soft: #c7e59c;
+  --mint: #eaf5e9;
+  --mint-deep: #d9ecda;
+  --cream: #fff8e8;
+  --cream-deep: #f7eed9;
+  --soil: #8b5e3c;
+  --soil-light: #c9794d;
+  --ink: #20312a;
+  --muted: #66756d;
+  --muted-light: #8b978f;
+  --border: #dce7de;
+  --white: #ffffff;
+  --danger: #c84c4c;
+  --danger-soft: #fbeaea;
+  --warning: #b7791f;
+  --warning-soft: #fcf3e0;
+  --sun: #f2b84b;
+  --sky: #d7eef2;
+  --pink: #f6b7a3;
+
+  /* ── Typography ────────────────────────────────── */
+  --font: 'Poppins', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.375rem;
+  --text-5xl: 3.25rem;
+  --text-6xl: 4.25rem;
+
+  /* ── Shape & elevation ─────────────────────────── */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 26px;
+  --r-2xl: 34px;
+  --r-pill: 999px;
+  --shadow-xs: 0 1px 2px rgba(23, 77, 53, 0.06);
+  --shadow-sm: 0 2px 6px rgba(23, 77, 53, 0.05), 0 10px 24px -16px rgba(23, 77, 53, 0.25);
+  --shadow-md: 0 4px 12px rgba(23, 77, 53, 0.06), 0 22px 44px -24px rgba(23, 77, 53, 0.35);
+  --shadow-lg: 0 30px 70px -30px rgba(23, 77, 53, 0.45);
+  --ring: 0 0 0 4px rgba(63, 143, 85, 0.16);
+
+  /* ── Layout ────────────────────────────────────── */
+  --nav-h: 76px;
+  --max-w: 1200px;
+  --gutter: 24px;
+}

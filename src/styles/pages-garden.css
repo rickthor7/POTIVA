@@ -1,0 +1,1204 @@
+/* ───────────────────────────────────────────────
+   My Garden
+   ─────────────────────────────────────────────── */
+.garden-play {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 18px;
+  padding: 18px 22px;
+  overflow: hidden;
+  border-radius: var(--r-xl);
+  background:
+    radial-gradient(80% 150% at 100% 0%, rgba(168, 214, 109, 0.34), transparent 62%),
+    radial-gradient(60% 120% at 0% 100%, rgba(168, 214, 109, 0.14), transparent 60%),
+    linear-gradient(120deg, #174d35 0%, #215f42 58%, #2f7443 100%);
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+
+.garden-play::after {
+  content: '';
+  position: absolute;
+  right: -40px;
+  top: -60px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 0 0 28px rgba(255, 255, 255, 0.04),
+    0 0 0 58px rgba(255, 255, 255, 0.03);
+  pointer-events: none;
+}
+
+.garden-play__mascot {
+  flex-shrink: 0;
+  width: 104px;
+  margin: -16px 0 -20px;
+  filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.22));
+}
+
+.garden-play__mascot svg {
+  width: 104px;
+  height: auto;
+}
+
+.garden-play__copy {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+.garden-play__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--fresh);
+  font-size: 0.56rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.garden-play__copy h2 {
+  margin: 6px 0 4px;
+  color: #fff;
+  font-size: 1.12rem;
+}
+
+.garden-play__copy p {
+  max-width: 560px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.7rem;
+  line-height: 1.55;
+}
+
+.garden-play__cta {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  background: var(--fresh);
+  color: var(--forest-deep);
+}
+
+.garden-play__cta:hover {
+  background: #b9e287;
+}
+
+@media (max-width: 760px) {
+  .garden-play {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .garden-play__mascot {
+    width: 78px;
+    margin: -12px 0 -14px -4px;
+  }
+
+  .garden-play__mascot svg {
+    width: 78px;
+  }
+
+  .garden-play__copy {
+    flex-basis: calc(100% - 90px);
+  }
+
+  .garden-play__cta {
+    width: 100%;
+  }
+}
+
+.plant-switch {
+  margin-bottom: 18px;
+  padding-bottom: 6px;
+}
+
+.plant-switch__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 15px;
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  text-align: left;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+.plant-switch__item:hover {
+  border-color: var(--fresh);
+}
+
+.plant-switch__item.is-active {
+  background: var(--forest);
+  border-color: var(--forest);
+  color: var(--white);
+}
+
+.plant-switch__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--fresh);
+  flex-shrink: 0;
+}
+
+.plant-switch__item span:last-child {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.plant-switch__item strong {
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.plant-switch__item small {
+  font-size: 0.6rem;
+  opacity: 0.7;
+}
+
+.garden-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 22px;
+  align-items: start;
+}
+
+.garden-main,
+.garden-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* Stage illustration */
+.garden-stage {
+  position: relative;
+  height: 430px;
+  border-radius: var(--r-2xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  isolation: isolate;
+}
+
+.garden-stage__sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #d9eef0 0%, #eaf5e9 55%, #f3f9ec 100%);
+}
+
+.garden-stage__sun {
+  position: absolute;
+  top: 44px;
+  right: 58px;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffe6a6, var(--sun));
+  box-shadow: 0 0 0 16px rgba(242, 184, 75, 0.14), 0 0 60px rgba(242, 184, 75, 0.5);
+  animation: float-soft 7s ease-in-out infinite;
+}
+
+.garden-stage__cloud {
+  position: absolute;
+  height: 22px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.garden-stage__cloud::before,
+.garden-stage__cloud::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.garden-stage__cloud::before {
+  left: 14px;
+  width: 34px;
+  height: 34px;
+}
+
+.garden-stage__cloud::after {
+  right: 16px;
+  width: 26px;
+  height: 26px;
+}
+
+.garden-stage__cloud--1 {
+  top: 58px;
+  left: 12%;
+  width: 110px;
+  animation: drift 26s linear infinite;
+}
+
+.garden-stage__cloud--2 {
+  top: 112px;
+  right: 26%;
+  width: 78px;
+  opacity: 0.7;
+  animation: drift 34s linear infinite reverse;
+}
+
+@keyframes drift {
+  0% { transform: translateX(-24px); }
+  50% { transform: translateX(24px); }
+  100% { transform: translateX(-24px); }
+}
+
+.garden-stage__hill {
+  position: absolute;
+  border-radius: 50% 50% 0 0;
+}
+
+.garden-stage__hill--back {
+  bottom: 96px;
+  left: -12%;
+  width: 72%;
+  height: 150px;
+  background: #cfe6bd;
+}
+
+.garden-stage__hill--front {
+  bottom: 78px;
+  right: -16%;
+  width: 86%;
+  height: 180px;
+  background: #bcdca4;
+}
+
+.garden-stage__fence {
+  position: absolute;
+  bottom: 118px;
+  left: 0;
+  right: 0;
+  height: 42px;
+  background: repeating-linear-gradient(
+    90deg,
+    #c9a87c 0 8px,
+    transparent 8px 26px
+  );
+  opacity: 0.5;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 30%);
+  mask-image: linear-gradient(180deg, transparent, #000 30%);
+}
+
+.garden-stage__ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 96px;
+  background: linear-gradient(180deg, #a9cf8f 0%, #8fc074 40%, #7cb165 100%);
+  border-radius: 46% 46% 0 0 / 30px 30px 0 0;
+}
+
+.garden-stage__ground::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.22) 1.4px, transparent 1.5px);
+  background-size: 22px 18px;
+  opacity: 0.5;
+}
+
+.garden-stage__plate {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 11px 15px;
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow-sm);
+  max-width: 240px;
+}
+
+.garden-stage__plate strong {
+  font-size: 0.85rem;
+}
+
+.garden-stage__plate > span {
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+.garden-stage__stage {
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--fresh);
+  color: var(--forest-deep) !important;
+  font-size: 0.55rem !important;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.garden-stage__growth {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 5px;
+}
+
+.garden-stage__growth .progress {
+  flex: 1;
+}
+
+.garden-stage__growth small {
+  font-size: 0.55rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.garden-stage__plant {
+  position: absolute;
+  bottom: 74px;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 18px 18px rgba(23, 77, 53, 0.18));
+  animation: sway 6s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.garden-stage.is-water .garden-stage__plant {
+  animation: plant-happy 0.8s ease;
+}
+
+.garden-stage.is-feed .garden-stage__plant {
+  animation: plant-happy 0.8s ease 0.2s;
+}
+
+@keyframes plant-happy {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  40% { transform: translateX(-50%) scale(1.045) rotate(-1deg); }
+  70% { transform: translateX(-50%) scale(1.02) rotate(1deg); }
+}
+
+.garden-fx {
+  position: absolute;
+  inset: -40px -30px 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.garden-fx--water i {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 14px;
+  border-radius: 50% 50% 60% 60%;
+  background: #6fc2dd;
+  opacity: 0;
+  animation: drop-fall 1.1s ease-in infinite;
+}
+
+.garden-fx--water i:nth-child(1) { left: 30%; animation-delay: 0s; }
+.garden-fx--water i:nth-child(2) { left: 44%; animation-delay: 0.22s; }
+.garden-fx--water i:nth-child(3) { left: 58%; animation-delay: 0.1s; }
+.garden-fx--water i:nth-child(4) { left: 68%; animation-delay: 0.36s; }
+
+@keyframes drop-fall {
+  0% { transform: translateY(0) scale(0.7); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(220px) scale(1); opacity: 0; }
+}
+
+.garden-fx--feed i {
+  position: absolute;
+  font-size: 1rem;
+  color: var(--fresh);
+  animation: sparkle-up 1.2s ease-out infinite;
+}
+
+.garden-fx--feed i:nth-child(1) { left: 32%; bottom: 90px; animation-delay: 0s; }
+.garden-fx--feed i:nth-child(2) { left: 50%; bottom: 120px; animation-delay: 0.25s; }
+.garden-fx--feed i:nth-child(3) { left: 64%; bottom: 96px; animation-delay: 0.45s; }
+
+@keyframes sparkle-up {
+  0% { transform: translateY(10px) scale(0.6); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(-46px) scale(1.1); opacity: 0; }
+}
+
+.garden-stage__mascot {
+  position: absolute;
+  bottom: 66px;
+  left: 20px;
+  z-index: 4;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.garden-bubble {
+  position: relative;
+  max-width: 148px;
+  margin-bottom: 34px;
+  padding: 9px 12px;
+  border-radius: 14px 14px 14px 3px;
+  background: rgba(255, 255, 255, 0.94);
+  font-size: 0.64rem;
+  line-height: 1.45;
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Actions */
+.garden-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.garden-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background: var(--white);
+  text-align: left;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.garden-action:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--mint-deep);
+  box-shadow: var(--shadow-sm);
+}
+
+.garden-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.garden-action__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 12px;
+}
+
+.garden-action--water .garden-action__icon {
+  background: #e3f2f7;
+  color: #3d8fa8;
+}
+
+.garden-action--feed .garden-action__icon {
+  background: var(--mint);
+  color: var(--leaf);
+}
+
+.garden-action--deco .garden-action__icon {
+  background: var(--cream-deep);
+  color: var(--soil);
+}
+
+.garden-action--mission .garden-action__icon {
+  background: #fbf0dc;
+  color: var(--warning);
+}
+
+.garden-action__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+  min-width: 0;
+}
+
+.garden-action__text strong {
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.garden-action__text small {
+  font-size: 0.6rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.garden-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 0.66rem;
+  color: var(--muted);
+  line-height: 1.55;
+  padding: 0 4px;
+}
+
+.garden-hint svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--leaf);
+}
+
+/* Plant detail */
+.plant-detail__needs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 0;
+  border-block: 1px solid var(--border);
+  margin: 4px 0 12px;
+}
+
+.need {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.need__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--need-tone) 13%, white);
+  color: var(--need-tone);
+}
+
+.need__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.need__labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.66rem;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+
+.need__labels strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.plant-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-bottom: 14px;
+}
+
+.plant-detail__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.62rem;
+  color: var(--muted);
+}
+
+.plant-detail__meta svg {
+  color: var(--leaf);
+}
+
+/* Wallet compact */
+.wallet-compact__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.wallet-compact__level,
+.wallet-compact__coins {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--forest);
+}
+
+.wallet-compact__coins {
+  color: var(--warning);
+}
+
+.wallet-compact__foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+.garden-tip {
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  background: var(--cream);
+  border: 1px solid var(--cream-deep);
+}
+
+.garden-tip__icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--warning);
+}
+
+.garden-tip p {
+  font-size: 0.68rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.garden-tip a {
+  color: var(--forest);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ───────────────────────────────────────────────
+   Plant Care
+   ─────────────────────────────────────────────── */
+.care-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 22px;
+  align-items: start;
+}
+
+.care-main,
+.care-side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.care-calendar__nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.week-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.week-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 9px 2px 8px;
+  border-radius: 13px;
+  border: 1.5px solid transparent;
+  background: #fafcf9;
+  transition: all 0.16s ease;
+}
+
+.week-day > span:first-child {
+  font-size: 0.56rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.week-day strong {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.week-day:hover {
+  background: var(--mint);
+}
+
+.week-day.is-today {
+  border-color: var(--mint-deep);
+}
+
+.week-day.is-active {
+  background: var(--forest);
+  border-color: var(--forest);
+  color: var(--white);
+}
+
+.week-day.is-active > span:first-child {
+  color: var(--fresh);
+}
+
+.week-day__dots {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 8px;
+  margin-top: 2px;
+}
+
+.week-day__dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--leaf);
+}
+
+.week-day__dots i.is-done {
+  background: var(--fresh);
+}
+
+.week-day__dots em {
+  font-style: normal;
+  font-size: 0.55rem;
+  color: var(--muted-light);
+  line-height: 1;
+}
+
+.week-day.is-active .week-day__dots i {
+  background: var(--fresh);
+}
+
+.week-day.is-active .week-day__dots i.is-done {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.week-day__badge {
+  position: absolute;
+  top: -4px;
+  right: -3px;
+  display: grid;
+  place-items: center;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: var(--r-pill);
+  background: var(--danger);
+  color: var(--white);
+  font-size: 0.5rem;
+  font-weight: 700;
+}
+
+.care-progress {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  background: var(--mint);
+  margin-bottom: 14px;
+}
+
+.care-progress__ring {
+  --p: 0%;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: conic-gradient(var(--leaf) var(--p), rgba(255, 255, 255, 0.6) 0);
+  position: relative;
+}
+
+.care-progress__ring::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: var(--white);
+}
+
+.care-progress__ring span {
+  position: relative;
+  z-index: 1;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--forest);
+}
+
+.care-progress strong {
+  display: block;
+  font-size: 0.8rem;
+}
+
+.care-progress p {
+  font-size: 0.66rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.care-empty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  border-radius: var(--r-lg);
+  border: 1px dashed var(--border);
+  background: #fbfdf9;
+}
+
+.care-empty > span {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--cream);
+  color: var(--warning);
+}
+
+.care-empty > div {
+  flex: 1;
+}
+
+.care-empty strong {
+  font-size: 0.78rem;
+}
+
+.care-empty p {
+  font-size: 0.66rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.upcoming-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upcoming-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: #fbfdf9;
+  border: 1px solid transparent;
+  transition: border-color 0.16s ease;
+}
+
+.upcoming-row:hover {
+  border-color: var(--mint-deep);
+}
+
+.upcoming-row__date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  line-height: 1.1;
+}
+
+.upcoming-row__date strong {
+  font-size: 0.76rem;
+}
+
+.upcoming-row__date small {
+  font-size: 0.52rem;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.upcoming-row__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--tint, var(--leaf)) 13%, white);
+  color: var(--tint, var(--leaf));
+}
+
+.upcoming-row__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.upcoming-row__info strong {
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.upcoming-row__info span {
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+.upcoming-row__when {
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: var(--leaf-dark);
+  flex-shrink: 0;
+}
+
+.care-upcoming__empty {
+  padding: 16px;
+  border-radius: 12px;
+  background: #fbfdf9;
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.setting-row:last-of-type {
+  border-bottom: 0;
+}
+
+.setting-row > div {
+  min-width: 0;
+}
+
+.setting-row strong {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.setting-row span {
+  font-size: 0.62rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.care-settings__time {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.care-settings__time label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.care-settings__time label svg {
+  color: var(--leaf);
+}
+
+.care-settings__time .input {
+  width: 116px;
+  min-height: 40px;
+  padding: 8px 10px;
+  font-size: 0.72rem;
+}
+
+.care-settings__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.6rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.care-settings__note svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.history-list li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.history-list__icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--mint);
+  color: var(--leaf);
+}
+
+.history-list li > div {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+
+.history-list strong {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.history-list span {
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+.tip-card--care {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+@media (max-width: 1080px) {
+  .garden-layout,
+  .care-grid {
+    grid-template-columns: minmax(0, 1fr) 292px;
+  }
+
+  .garden-stage {
+    height: 390px;
+  }
+}
+
+@media (max-width: 900px) {
+  .garden-layout,
+  .care-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .garden-side,
+  .care-side {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+@media (max-width: 680px) {
+  .garden-stage {
+    height: 340px;
+  }
+
+  .garden-stage__plant svg {
+    width: 240px;
+  }
+
+  .garden-stage__mascot {
+    left: 10px;
+    bottom: 56px;
+  }
+
+  .garden-stage__mascot > svg {
+    width: 104px;
+    height: auto;
+  }
+
+  .garden-bubble {
+    max-width: 118px;
+    font-size: 0.58rem;
+    margin-bottom: 22px;
+  }
+
+  .garden-stage__plate {
+    top: 14px;
+    left: 14px;
+    padding: 9px 12px;
+    max-width: 190px;
+  }
+
+  .garden-stage__sun {
+    top: 28px;
+    right: 24px;
+    width: 46px;
+    height: 46px;
+  }
+
+  .garden-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .garden-side,
+  .care-side {
+    display: flex;
+  }
+
+  .week-strip {
+    gap: 4px;
+  }
+
+  .week-day {
+    padding: 7px 0;
+    border-radius: 10px;
+  }
+
+  .week-day strong {
+    font-size: 0.75rem;
+  }
+
+  .care-calendar .panel-head {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .care-progress {
+    align-items: flex-start;
+  }
+}
