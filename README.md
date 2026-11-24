@@ -28,7 +28,9 @@ simulasi data yang tersimpan di browser — tanpa backend.
 
 ### 🎮 Mode game POTIVA Garden
 
-Dibuka dari halaman **My Garden** → tombol **Mainkan game**.
+Dibuka dari tombol **Game** melayang di kanan bawah (tersedia di semua halaman), lalu
+pilih **Mainkan sekarang** di popup pintasan. Bisa juga dari halaman **My Garden** →
+tombol **Mainkan game**.
 
 - Wajib **landscape** di ponsel; muncul gerbang "Putar HP ke landscape" bila masih portrait.
 - Otomatis meminta **layar penuh** dan **orientation lock** (best-effort; iOS memakai overlay penuh sebagai fallback).

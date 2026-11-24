@@ -995,6 +995,145 @@
   }
 }
 
+/* ── Game shortcut (floating) ─────────────────── */
+.game-shortcut {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 66;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.game-shortcut__fab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: 66px;
+  height: 66px;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #2f7443 0%, #174d35 100%);
+  color: #fff;
+  box-shadow:
+    0 14px 28px -10px rgba(23, 77, 53, 0.72),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.game-shortcut__fab:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 32px -10px rgba(23, 77, 53, 0.78);
+}
+
+.game-shortcut__fab span {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--fresh);
+}
+
+.game-shortcut__pop {
+  width: min(288px, calc(100vw - 32px));
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 60px -18px rgba(15, 54, 36, 0.4);
+  transform-origin: bottom right;
+  animation: gs-pop 0.18s ease-out;
+}
+
+@keyframes gs-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.game-shortcut__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: var(--mint);
+  color: var(--forest);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.game-shortcut__pop h3 {
+  margin: 8px 0 4px;
+  font-size: 1.02rem;
+  color: var(--forest);
+}
+
+.game-shortcut__pop p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.55;
+}
+
+.game-shortcut__hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 12px 0;
+}
+
+.game-shortcut__hints span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--r-pill);
+  background: var(--cream);
+  color: var(--forest-soft);
+  font-size: 0.58rem;
+  font-weight: 600;
+}
+
+.game-shortcut__play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  border-radius: 14px;
+  background: var(--forest);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 10px 20px -10px rgba(23, 77, 53, 0.7);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.game-shortcut__play:hover {
+  background: var(--forest-soft);
+  transform: translateY(-1px);
+}
+
+.game-shortcut__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  margin-top: 8px;
+  color: var(--leaf);
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.game-shortcut__link:hover {
+  color: var(--forest);
+}
+
 /* ── Mobile bottom nav / FAB ───────────────────── */
 .mobile-nav {
   display: none;
@@ -1089,8 +1228,31 @@
     box-shadow: 0 12px 24px -10px rgba(23, 77, 53, 0.65);
   }
 
+  .game-shortcut--app {
+    right: 16px;
+    bottom: calc(146px + env(safe-area-inset-bottom));
+  }
+
+  .game-shortcut--app .game-shortcut__fab {
+    width: 58px;
+    height: 58px;
+    border-radius: 19px;
+  }
+
+  .game-shortcut:not(.game-shortcut--app) {
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+
   .app-main {
     padding-bottom: 76px;
+  }
+}
+
+@media (max-height: 520px) {
+  .game-shortcut__pop {
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
   }
 }
 

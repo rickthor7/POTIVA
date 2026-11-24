@@ -4,6 +4,7 @@ import { ScanLine, Sprout } from 'lucide-react'
 import Navbar from './Navbar'
 import Footer from './Footer'
 import MobileNav from './MobileNav'
+import GameShortcut from './GameShortcut'
 import { useApp } from '../store/AppStore'
 
 function ScrollManager() {
@@ -35,6 +36,7 @@ export function PublicLayout() {
         <Outlet />
       </main>
       <Footer />
+      <GameShortcut />
     </div>
   )
 }
@@ -79,6 +81,7 @@ export function AppLayout() {
         <ScanLine size={23} />
         <span>Scan</span>
       </Link>
+      <GameShortcut app />
       <MobileNav />
     </div>
   )

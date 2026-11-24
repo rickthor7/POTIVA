@@ -59,7 +59,20 @@ export default function Garden() {
   const [params, setParams] = useSearchParams()
   const [now, setNow] = useState(Date.now())
   const [fx, setFx] = useState(null)
-  const [gameOpen, setGameOpen] = useState(false)
+  const [gameOpen, setGameOpen] = useState(() => params.has('play'))
+
+  useEffect(() => {
+    if (params.has('play')) setGameOpen(true)
+  }, [params])
+
+  const closeGame = () => {
+    setGameOpen(false)
+    if (params.has('play')) {
+      const next = new URLSearchParams(params)
+      next.delete('play')
+      setParams(next, { replace: true })
+    }
+  }
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000)
@@ -405,7 +418,7 @@ export default function Garden() {
         </aside>
       </div>
 
-      {gameOpen && <GardenGame plants={plants} onClose={() => setGameOpen(false)} />}
+      {gameOpen && <GardenGame plants={plants} onClose={closeGame} />}
     </div>
   )
 }
