@@ -164,12 +164,13 @@ export default function Garden() {
         </div>
         <div className="garden-play__copy">
           <span className="garden-play__eyebrow">
-            <Gamepad2 size={13} /> Mode petualangan
+            <Gamepad2 size={13} /> Mode petualangan Pixel 2D
           </span>
           <h2>Mainkan kebun Poti</h2>
           <p>
-            Joystick di kiri, tombol aksi di kanan. Jelajahi kebun, dekatkan Poti ke tanaman,
-            lalu rawat. Di HP, mainkan dalam posisi landscape.
+            Jelajahi kebun bergaya pixel art top-down! Seberangi jembatan sungai, kunjungi
+            Rumah Kebun, Kincir Angin, Stan Pasar, &amp; Rumah Kaca, lalu rawat tanamanmu di
+            petak ladang berpagar.
           </p>
         </div>
         <button

@@ -5,7 +5,6 @@ import {
   Apple,
   ArrowLeft,
   Bath,
-  Check,
   Coins,
   Droplets,
   Expand,
@@ -31,130 +30,202 @@ import {
   Zap,
 } from 'lucide-react'
 import { Mascot, PottedPlant, ProductArt } from './illustrations'
+import {
+  PIXEL_WORLD,
+  PixelBarn,
+  PixelBench,
+  PixelBirdhouse,
+  PixelCritter,
+  PixelFarmhouse,
+  PixelGreenhouse,
+  PixelLamp,
+  PixelMarketStall,
+  PixelScarecrow,
+  PixelTerrainCanvas,
+  PixelTree,
+  PixelWindmill,
+} from './PixelGardenArt'
 import { useApp } from '../store/AppStore'
 import { COSMETICS, levelFromXp } from '../data/appData'
 import { clamp } from '../lib/utils'
 
-const WORLD = { w: 2600, h: 1680 }
-const START = { x: 1300, y: 1260 }
-const SPEED = 350
-const REACH = 180
+const WORLD = { w: PIXEL_WORLD.w, h: PIXEL_WORLD.h }
+const START = { x: 1312, y: 540 }
+const SPEED = 340
+const REACH = 175
 const QUEST = { care: 3, water: 3, dew: 3 }
 
-// Every plant gets its own patch of the world so each biome feels alive.
+// Plants sit cleanly inside the 4 fenced garden quadrants first, then expand to greenhouse & meadow beds.
 const PLANT_SLOTS = [
-  { x: 1120, y: 1210 },
-  { x: 1390, y: 1170 },
-  { x: 1640, y: 1250 },
-  { x: 940, y: 1390 },
-  { x: 1760, y: 1420 },
-  { x: 1240, y: 1430 },
-  { x: 1500, y: 1450 },
-  { x: 2070, y: 900 },
-  { x: 620, y: 1150 },
-  { x: 1500, y: 580 },
-  { x: 880, y: 500 },
-  { x: 2310, y: 840 },
+  { x: 1096, y: 786 },
+  { x: 1496, y: 786 },
+  { x: 1096, y: 1080 },
+  { x: 1496, y: 1080 },
+  { x: 1188, y: 786 },
+  { x: 1588, y: 786 },
+  { x: 1188, y: 1080 },
+  { x: 1588, y: 1080 },
+  { x: 2040, y: 1440 },
+  { x: 1850, y: 1360 },
+  { x: 810, y: 1420 },
+  { x: 420, y: 690 },
 ]
 
 const DEW_SEED = [
-  { x: 1000, y: 760 },
-  { x: 1440, y: 540 },
-  { x: 2160, y: 900 },
-  { x: 700, y: 1320 },
-  { x: 1880, y: 1500 },
-  { x: 520, y: 380 },
-  { x: 2320, y: 1580 },
-  { x: 1100, y: 980 },
+  { x: 280, y: 580 },
+  { x: 840, y: 560 },
+  { x: 1620, y: 510 },
+  { x: 2120, y: 310 },
+  { x: 2380, y: 560 },
+  { x: 1840, y: 940 },
+  { x: 1960, y: 1470 },
+  { x: 980, y: 1460 },
 ]
 
-// Distinct neighbourhoods of the garden. x/y/w/h are world coordinates.
 const ZONES = [
-  { id: 'hutan', name: 'Hutan Lumut', hint: 'Jamur & embun', x: 0, y: 0, w: 920, h: 760 },
-  { id: 'padang', name: 'Padang Bunga', hint: 'Sarang lebah', x: 860, y: 0, w: 1000, h: 680 },
-  { id: 'kaca', name: 'Rumah Kaca', hint: 'Benih & bunga', x: 1840, y: 0, w: 760, h: 820 },
-  { id: 'rumah', name: 'Halaman Rumah', hint: 'Tempat Poti istirahat', x: 0, y: 700, w: 900, h: 620 },
-  { id: 'ladang', name: 'Ladang Utama', hint: 'Tanaman Poti', x: 820, y: 660, w: 1080, h: 850 },
-  { id: 'kolam', name: 'Kolam Senja', hint: 'Air & bebek', x: 1820, y: 800, w: 780, h: 880 },
-  { id: 'kompos', name: 'Kebun Kompos', hint: 'Nutrisi tanaman', x: 0, y: 1290, w: 900, h: 390 },
+  { id: 'hutan', name: 'Tebing Barat', hint: 'Padang bunga & anak tangga', x: 0, y: 0, w: 960, h: 760 },
+  { id: 'padang', name: 'Halaman Rumah', hint: 'Rumah utama Poti', x: 940, y: 0, w: 800, h: 580 },
+  { id: 'kincir', name: 'Bukit Kincir', hint: 'Jembatan batu & kincir angin', x: 1740, y: 0, w: 820, h: 660 },
+  { id: 'gudang', name: 'Gudang Barat', hint: 'Jembatan kayu & gudang', x: 0, y: 760, w: 860, h: 840 },
+  { id: 'ladang', name: 'Ladang Utama', hint: 'Petak tanaman berpagar', x: 860, y: 580, w: 880, h: 700 },
+  { id: 'pasar', name: 'Stan Pasar', hint: 'Hasil panen & tepi sungai', x: 1740, y: 660, w: 820, h: 420 },
+  { id: 'kaca', name: 'Rumah Kaca', hint: 'Kelinci, ayam & bibit', x: 1740, y: 1080, w: 820, h: 520 },
+  { id: 'buah', name: 'Kebun Buah', hint: 'Pohon buah & bunga liar', x: 860, y: 1280, w: 880, h: 320 },
 ]
 
-// Winding footpaths connect every neighbourhood.
-const PATHS = [
-  'M 520 970 C 720 1000 860 1130 1140 1210 S 1660 1190 1870 1010 S 2110 830 2190 790',
-  'M 1140 1210 C 1180 990 1180 720 1300 520 S 1510 330 1540 220',
-  'M 520 970 C 450 790 510 590 640 420 S 780 230 830 150',
-  'M 1870 1010 C 1990 1130 2110 1280 2190 1450',
-  'M 1140 1210 C 990 1370 760 1450 520 1500',
-  'M 640 420 C 820 360 1060 300 1290 330 S 1640 430 1830 530',
-]
-
-// Tap a landmark and Poti walks there to interact.
 const INTERACTIVE_SPOTS = [
   {
-    id: 'sumur',
-    name: 'Sumur Embun',
-    type: 'well',
-    x: 980,
-    y: 720,
+    id: 'rumah',
+    name: 'Rumah Kebun',
+    x: 1280,
+    y: 446,
     coins: 4,
     xp: 2,
     cooldown: 24000,
-    message: 'Air sumurnya segar! +4 koin · +2 XP',
+    message: 'Rumah hangat Poti! +4 koin · +2 XP',
   },
   {
-    id: 'sarang',
-    name: 'Sarang Lebah',
-    type: 'hive',
-    x: 1650,
-    y: 430,
+    id: 'orangsawah',
+    name: 'Orang-orangan',
+    x: 1312,
+    y: 924,
+    coins: 2,
+    xp: 2,
+    cooldown: 20000,
+    message: 'Tips: dekati tanaman di petak, lalu tekan E untuk menyiram 💧',
+  },
+  {
+    id: 'kincir',
+    name: 'Kincir Angin',
+    x: 2330,
+    y: 392,
     coins: 6,
     xp: 3,
     cooldown: 30000,
-    message: 'Madu manis! +6 koin · +3 XP',
+    message: 'Angin sepoi-sepoi memutar kincir! +6 koin · +3 XP',
   },
   {
-    id: 'kompos',
-    name: 'Tempat Kompos',
-    type: 'compost',
-    x: 640,
-    y: 1450,
-    coins: 3,
-    xp: 5,
-    cooldown: 26000,
-    message: 'Komposnya subur! +3 koin · +5 XP',
-  },
-  {
-    id: 'papan',
-    name: 'Papan Petunjuk',
-    type: 'sign',
-    x: 1260,
-    y: 990,
-    coins: 2,
-    xp: 1,
-    cooldown: 20000,
-    message: 'Tips: dekati tanaman, lalu tekan E untuk menyiram 💧',
-  },
-  {
-    id: 'air',
-    name: 'Mata Air',
-    type: 'fountain',
-    x: 2160,
-    y: 1010,
+    id: 'pasar',
+    name: 'Stan Pasar',
+    x: 2112,
+    y: 926,
     coins: 5,
-    xp: 2,
+    xp: 3,
     cooldown: 28000,
-    message: 'Bebek-bek senang! +5 koin · +2 XP',
+    message: 'Panen segar siap dipajang! +5 koin · +3 XP',
+  },
+  {
+    id: 'kaca',
+    name: 'Rumah Kaca',
+    x: 2316,
+    y: 1404,
+    coins: 4,
+    xp: 4,
+    cooldown: 26000,
+    message: 'Bibit di rumah kaca tumbuh subur! +4 koin · +4 XP',
+  },
+  {
+    id: 'gudang',
+    name: 'Gudang Kebun',
+    x: 208,
+    y: 1418,
+    coins: 3,
+    xp: 4,
+    cooldown: 24000,
+    message: 'Alat berkebun rapi tersimpan! +3 koin · +4 XP',
   },
 ]
 
-// Blocks that Poti cannot walk through (x/y is the top-left of the footprint).
+// Solid world footprints (buildings, fences, cliffs)
 const OBSTACLES = [
-  { x: 180, y: 560, w: 620, h: 440 }, // cottage
-  { x: 1980, y: 300, w: 440, h: 390 }, // greenhouse
-  { x: 1980, y: 1160, w: 560, h: 300 }, // pond
-  { x: 120, y: 1310, w: 380, h: 280 }, // tool shed
+  { x: 1112, y: 120, w: 336, h: 268 }, // Main Farmhouse
+  { x: 2266, y: 180, w: 128, h: 192 }, // Windmill tower
+  { x: 88, y: 1220, w: 240, h: 168 }, // Barn / Tool shed
+  { x: 2000, y: 760, w: 224, h: 140 }, // Market stall
+  { x: 2188, y: 1140, w: 256, h: 220 }, // Greenhouse
+  // Top-left cliff wall
+  { x: 384, y: 166, w: 608, h: 72 },
+  // Mid-left cliff wall split around wooden stairs (x: 292..392)
+  { x: 0, y: 882, w: 292, h: 78 },
+  { x: 392, y: 882, w: 64, h: 78 },
+  // Fenced garden outer rails with 4 wide gates
+  { x: 920, y: 612, w: 312, h: 24 }, // North-west rail
+  { x: 1384, y: 612, w: 320, h: 24 }, // North-east rail
+  { x: 920, y: 1204, w: 312, h: 24 }, // South-west rail
+  { x: 1384, y: 1204, w: 320, h: 24 }, // South-east rail
+  { x: 916, y: 612, w: 24, h: 244 }, // West-north rail
+  { x: 916, y: 984, w: 24, h: 244 }, // West-south rail
+  { x: 1684, y: 612, w: 24, h: 244 }, // East-north rail
+  { x: 1684, y: 984, w: 24, h: 244 }, // East-south rail
 ]
+
+const WEST_RIVER_WORLD = [
+  [-40, 432],
+  [368, 440],
+  [568, 496],
+  [648, 632],
+  [656, 848],
+  [624, 1144],
+  [584, 1440],
+  [560, 1648],
+]
+
+const EAST_RIVER_WORLD = [
+  [1872, -40],
+  [1872, 496],
+  [1952, 632],
+  [2176, 696],
+  [2608, 712],
+]
+
+const BRIDGES = [
+  { x: 528, y: 728, w: 240, h: 120 }, // West wooden bridge
+  { x: 1748, y: 272, w: 248, h: 128 }, // East stone arch bridge
+]
+
+function distToSegment(px, py, ax, ay, bx, by) {
+  const dx = bx - ax
+  const dy = by - ay
+  const lenSq = dx * dx + dy * dy
+  if (lenSq === 0) return Math.hypot(px - ax, py - ay)
+  const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lenSq))
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy))
+}
+
+function insideRiver(x, y) {
+  const onBridge = BRIDGES.some((b) => x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h)
+  if (onBridge) return false
+  for (const river of [WEST_RIVER_WORLD, EAST_RIVER_WORLD]) {
+    for (let i = 0; i < river.length - 1; i += 1) {
+      const d = distToSegment(x, y, river[i][0], river[i][1], river[i + 1][0], river[i + 1][1])
+      if (d < 46) return true
+    }
+  }
+  return false
+}
+
+const insideObstacle = (x, y) =>
+  OBSTACLES.some((o) => x > o.x && x < o.x + o.w && y > o.y && y < o.y + o.h) || insideRiver(x, y)
 
 const NEED_DECAY = { hunger: 0.9, fun: 1.05, energy: 0.7, clean: 0.6 }
 const CARE_GAIN = {
@@ -166,14 +237,14 @@ const CARE_GAIN = {
 
 const MOOD_LINES = {
   happy: [
-    'Hari yang cerah!',
+    'Hari yang cerah di kebun!',
     'Daunku segar sekali 🌿',
-    'Aku suka kebun ini!',
-    'Mau main bola?',
+    'Ayo cek petak sayuran!',
+    'Jembatan sungainya keren ya!',
     'Terima kasih sudah merawatku!',
   ],
-  hungry: ['Aku lapar…', 'Ada camilan? 🍎', 'Perutku berbunyi…'],
-  sleepy: ['Aku ngantuk…', 'Zzz…', 'Boleh aku tidur?'],
+  hungry: ['Aku lapar…', 'Ada apel kebun? 🍎', 'Perutku berbunyi…'],
+  sleepy: ['Aku ngantuk…', 'Zzz…', 'Boleh aku tidur sebentar?'],
   dirty: ['Daunku berdebu…', 'Waktunya mandi? 🫧', 'Aku ingin bersih lagi…'],
   sad: ['Aku bosan…', 'Temani aku main?', 'Kapan kita main lagi?'],
 }
@@ -194,122 +265,107 @@ const expressionFor = (kind) => {
   return 'happy'
 }
 
-const mulberry32 = (seed) => () => {
-  seed |= 0
-  seed = (seed + 0x6d2b79f5) | 0
-  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
-  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-  return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+const makeDew = (x, y) => {
+  if (x != null && y != null) {
+    return {
+      id: `dew_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      x,
+      y,
+    }
+  }
+  // Pick a walkable spot on land
+  for (let tries = 0; tries < 20; tries += 1) {
+    const cx = 160 + Math.random() * (WORLD.w - 320)
+    const cy = 260 + Math.random() * (WORLD.h - 420)
+    if (!insideObstacle(cx, cy)) {
+      return {
+        id: `dew_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        x: cx,
+        y: cy,
+      }
+    }
+  }
+  return {
+    id: `dew_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    x: 1312,
+    y: 540,
+  }
 }
-
-const makeDew = (x, y) => ({
-  id: `dew_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-  x: x ?? 180 + Math.random() * (WORLD.w - 360),
-  y: y ?? 300 + Math.random() * (WORLD.h - 440),
-})
 
 const zoneAt = (x, y) =>
   [...ZONES].reverse().find((z) => x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h) ||
   ZONES[4]
 
-const buildDecor = () => {
-  const rnd = mulberry32(20261126)
-  const palette = ['#f6b7a3', '#fff3d0', '#c7e59c', '#e9b6d3', '#f7d98a', '#bfe0f5']
-  const spread = (count, insetX, insetY) =>
-    Array.from({ length: count }, () => ({
-      x: insetX + rnd() * (WORLD.w - insetX * 2),
-      y: insetY + rnd() * (WORLD.h - insetY * 2),
-    }))
+const WORLD_TREES = [
+  // Top-left & cliff trees
+  { x: 140, y: 190, v: 'oak', s: 1.05 },
+  { x: 470, y: 170, v: 'pine', s: 0.92 },
+  { x: 840, y: 180, v: 'oak', s: 1.12 },
+  { x: 1000, y: 240, v: 'pine', s: 0.95 },
+  // Near farmhouse & sakura
+  { x: 1620, y: 160, v: 'sakura', s: 1.15 },
+  { x: 1730, y: 220, v: 'pine', s: 0.92 },
+  // Near windmill & east river
+  { x: 2140, y: 165, v: 'apple', s: 1.05 },
+  { x: 2480, y: 520, v: 'oak', s: 1.08 },
+  // West meadow
+  { x: 110, y: 580, v: 'apple', s: 1.05 },
+  { x: 420, y: 600, v: 'orange', s: 1.0 },
+  { x: 105, y: 1030, v: 'oak', s: 1.02 },
+  // Near greenhouse & market
+  { x: 2490, y: 960, v: 'sakura', s: 1.12 },
+  // Bottom fruit orchard
+  { x: 1140, y: 1470, v: 'apple', s: 1.12 },
+  { x: 1480, y: 1470, v: 'orange', s: 1.12 },
+  { x: 740, y: 1480, v: 'oak', s: 1.0 },
+  { x: 1960, y: 1520, v: 'apple', s: 1.04 },
+]
 
-  const tufts = spread(320, 40, 100).map((p) => ({ ...p, s: 0.65 + rnd() * 0.8, d: rnd() * 4 }))
-  const flowers = spread(90, 70, 150).map((p) => ({
-    ...p,
-    c: palette[Math.floor(rnd() * palette.length)],
-    s: 0.65 + rnd() * 0.65,
-  }))
-  const stones = spread(46, 90, 170).map((p) => ({ ...p, s: 0.55 + rnd() * 0.95 }))
+const WORLD_LAMPS = [
+  { x: 830, y: 660 },
+  { x: 1740, y: 820 },
+  { x: 1740, y: 1160 },
+  { x: 1780, y: 240 },
+  { x: 2050, y: 260 },
+  { x: 820, y: 1210 },
+]
 
-  // Dense flower carpets mark the meadow and the greenhouse garden.
-  const flowerBeds = [
-    { x: 1300, y: 480, n: 26 },
-    { x: 1740, y: 520, n: 22 },
-    { x: 2220, y: 730, n: 18 },
-    { x: 1160, y: 1340, n: 20 },
-    { x: 1560, y: 1320, n: 18 },
-    { x: 740, y: 1180, n: 16 },
-    { x: 1980, y: 1560, n: 14 },
-  ]
-  for (const bed of flowerBeds) {
-    for (let i = 0; i < bed.n; i += 1) {
-      const angle = rnd() * Math.PI * 2
-      const radius = 18 + rnd() * 96
-      flowers.push({
-        x: bed.x + Math.cos(angle) * radius,
-        y: bed.y + Math.sin(angle) * radius * 0.65,
-        c: palette[Math.floor(rnd() * palette.length)],
-        s: 0.55 + rnd() * 0.55,
-      })
-    }
-  }
+const WORLD_BENCHES = [
+  { x: 1080, y: 470 },
+  { x: 2150, y: 260 },
+  { x: 2060, y: 1150 },
+]
 
-  // Forest canopy hugs the left/top edge; a few trees frame the other zones.
-  const trees = [
-    [70, 520, 1.12], [90, 760, 1], [110, 1010, 1.18], [80, 1220, 1.05],
-    [210, 300, 0.95], [330, 180, 1.08], [470, 120, 1], [620, 220, 0.9],
-    [760, 130, 1.12], [900, 240, 0.92], [1030, 350, 0.82], [1180, 160, 0.96],
-    [1420, 130, 0.88], [1680, 180, 0.94], [1840, 280, 0.86], [2520, 260, 1.14],
-    [2540, 620, 1], [2510, 980, 1.08], [2540, 1320, 1.12], [2500, 1600, 1.16],
-    [2220, 1620, 1], [1840, 1640, 1.08], [1500, 1620, 0.95], [1120, 1640, 1.02],
-    [760, 1640, 1.1], [420, 1600, 0.95], [1080, 420, 0.72], [1810, 780, 0.78],
-  ].map(([x, y, s]) => ({ x, y, s }))
+const WORLD_BIRDHOUSES = [
+  { x: 350, y: 660 },
+  { x: 650, y: 100 },
+  { x: 2240, y: 380 },
+  { x: 2020, y: 1240 },
+]
 
-  const bushes = [
-    [250, 860, 1.05], [190, 1150, 1.1], [360, 1240, 0.9], [620, 950, 0.85],
-    [880, 700, 0.95], [1040, 540, 0.82], [1260, 640, 0.78], [1520, 700, 0.9],
-    [1780, 660, 0.92], [1940, 860, 0.84], [2260, 820, 0.88], [2420, 1020, 0.95],
-    [2300, 1520, 1.05], [1980, 1540, 0.9], [1660, 1520, 0.86], [1320, 1540, 0.94],
-    [980, 1520, 0.88], [740, 1540, 1], [520, 1240, 0.8], [1380, 1080, 0.72],
-    [1560, 1160, 0.76], [960, 1360, 0.74], [2070, 1000, 0.78], [590, 460, 0.9],
-  ].map(([x, y, s]) => ({ x, y, s }))
+const WORLD_CRITTERS = [
+  { kind: 'chicken', x: 860, y: 440, d: '0s' },
+  { kind: 'chicken', x: 910, y: 465, d: '1.1s' },
+  { kind: 'chicken', x: 1730, y: 220, d: '0.6s' },
+  { kind: 'rabbit', x: 2010, y: 1210, d: '0.3s' },
+  { kind: 'rabbit', x: 2090, y: 1270, d: '1.4s' },
+  { kind: 'rabbit', x: 620, y: 88, d: '0.9s' },
+  { kind: 'duck', x: 2040, y: 560, d: '0s' },
+  { kind: 'duck', x: 2480, y: 690, d: '1.5s' },
+  { kind: 'duck', x: 120, y: 440, d: '0.8s' },
+]
 
-  const mushrooms = [
-    [330, 560, 1], [520, 420, 0.82], [280, 720, 0.9], [700, 340, 0.76],
-    [820, 620, 0.86], [420, 980, 0.8], [640, 1340, 0.92], [360, 1480, 0.84],
-    [880, 1460, 0.78], [1080, 600, 0.72], [1420, 360, 0.8], [1720, 620, 0.74],
-    [1960, 1560, 0.9], [2280, 1480, 0.82], [2420, 1280, 0.88], [1860, 940, 0.76],
-    [740, 1080, 0.8], [1280, 760, 0.7], [1600, 1380, 0.82], [540, 260, 0.86],
-  ].map(([x, y, s]) => ({ x, y, s }))
-
-  const reeds = [
-    [2010, 1240], [2100, 1290], [2190, 1250], [2290, 1290], [2380, 1230],
-    [2020, 1480], [2140, 1510], [2260, 1490], [2380, 1470], [2480, 1380],
-    [1960, 1380], [2320, 1580],
-  ].map(([x, y], i) => ({ x, y, s: 0.8 + (i % 4) * 0.12 }))
-
-  const crates = [
-    [300, 1180, 0.9], [390, 1210, 0.7], [2150, 700, 0.85], [2230, 730, 0.7],
-    [1730, 1220, 0.8], [980, 1120, 0.72],
-  ].map(([x, y, s]) => ({ x, y, s }))
-
-  const lanterns = [
-    [720, 900], [1160, 1060], [1560, 1060], [1900, 920], [2180, 820],
-    [1080, 700], [1420, 480], [620, 1280],
-  ].map(([x, y]) => ({ x, y }))
-
-  const flies = [
-    [980, 900, 0, '#f6b7a3'], [1260, 1160, 3.5, '#ffe6a6'], [820, 1280, 6.2, '#c7e59c'],
-    [1580, 1080, 2.2, '#ffe6a6'], [640, 1120, 4.4, '#bfe0f5'], [2120, 1180, 7.1, '#f6b7a3'],
-    [1440, 500, 5.2, '#fff3d0'], [480, 480, 8.4, '#c7e59c'], [2280, 760, 1.6, '#ffe6a6'],
-  ].map(([x, y, d, c]) => ({ x, y, d, c }))
-
-  return { tufts, flowers, stones, trees, flies, bushes, mushrooms, reeds, crates, lanterns }
-}
+const WORLD_BUTTERFLIES = [
+  [1040, 460, 0, '#f6b7a3'],
+  [1310, 860, 2.4, '#ffe6a6'],
+  [1580, 1400, 5.1, '#c7e59c'],
+  [780, 740, 1.8, '#bfe0f5'],
+  [2160, 960, 4.2, '#f7b4c8'],
+  [360, 1180, 6.3, '#ffe6a6'],
+]
 
 const cooldownLeft = (timestamp, ms, now) =>
   timestamp ? Math.max(0, Math.ceil((ms - (now - timestamp)) / 1000)) : 0
-
-const insideObstacle = (x, y) =>
-  OBSTACLES.some((o) => x > o.x && x < o.x + o.w && y > o.y && y < o.y + o.h)
 
 function Joystick({ onChange, disabled }) {
   const baseRef = useRef(null)
@@ -427,6 +483,60 @@ function MiniAvatar() {
   )
 }
 
+function PixelMinimap({ plants, dew, playerDotRef }) {
+  return (
+    <div className="g-minimap" aria-hidden="true">
+      <svg viewBox={`0 0 ${WORLD.w} ${WORLD.h}`} shapeRendering="crispEdges">
+        <rect width={WORLD.w} height={WORLD.h} fill="#79b53d" />
+        {/* Rivers */}
+        <polyline
+          points={WEST_RIVER_WORLD.map((p) => p.join(',')).join(' ')}
+          fill="none"
+          stroke="#4fa4d8"
+          strokeWidth="120"
+          strokeLinejoin="round"
+        />
+        <polyline
+          points={EAST_RIVER_WORLD.map((p) => p.join(',')).join(' ')}
+          fill="none"
+          stroke="#4fa4d8"
+          strokeWidth="120"
+          strokeLinejoin="round"
+        />
+        {/* Bridges */}
+        <rect x="528" y="728" width="240" height="120" fill="#c78c52" />
+        <rect x="1748" y="272" width="248" height="128" fill="#b8beb8" />
+        {/* Central Fenced Garden */}
+        <rect x="928" y="624" width="768" height="592" fill="#8d5935" stroke="#c88c58" strokeWidth="24" />
+        {/* Buildings */}
+        <rect x="1112" y="120" width="336" height="268" fill="#2c5858" />
+        <rect x="2266" y="180" width="128" height="192" fill="#965a33" />
+        <rect x="88" y="1220" width="240" height="168" fill="#9a643d" />
+        <rect x="2000" y="760" width="224" height="140" fill="#5da65e" />
+        <rect x="2188" y="1140" width="256" height="220" fill="#9cd8cf" />
+        {/* Dewdrops */}
+        {dew.map((d) => (
+          <circle key={d.id} cx={d.x} cy={d.y} r="36" fill="#89e4ff" />
+        ))}
+        {/* POTIVA Plants */}
+        {plants.map((p) => (
+          <circle key={p.id} cx={p.x} cy={p.y} r="52" fill="#a8d66d" stroke="#174d35" strokeWidth="18" />
+        ))}
+        {/* Player dot updated directly in RAF */}
+        <circle
+          ref={playerDotRef}
+          cx={START.x}
+          cy={START.y}
+          r="66"
+          fill="#ffdf5d"
+          stroke="#3a2315"
+          strokeWidth="22"
+        />
+      </svg>
+    </div>
+  )
+}
+
 function PlantFx({ kind }) {
   if (kind === 'water') {
     return (
@@ -504,221 +614,6 @@ function PetFx({ kind }) {
   )
 }
 
-function CottageArt() {
-  return (
-    <svg className="g-cottage" viewBox="0 0 620 440" aria-hidden="true">
-      <defs>
-        <linearGradient id="cottageWall" x1="0" y1="0" x2="0" y2="1">
-          <stop stopColor="#FFF7E6" />
-          <stop offset="1" stopColor="#F1E1C3" />
-        </linearGradient>
-        <linearGradient id="cottageRoof" x1="0" y1="0" x2="0" y2="1">
-          <stop stopColor="#4B9A60" />
-          <stop offset="1" stopColor="#256B41" />
-        </linearGradient>
-        <linearGradient id="cottageGlow" x1="0" y1="0" x2="0" y2="1">
-          <stop stopColor="#FFEDB6" />
-          <stop offset="1" stopColor="#F7C96B" />
-        </linearGradient>
-      </defs>
-      <ellipse cx="310" cy="420" rx="282" ry="20" fill="#174D35" opacity="0.18" />
-      <rect x="452" y="66" width="46" height="120" rx="9" fill="#C97A50" />
-      <rect x="444" y="58" width="62" height="18" rx="7" fill="#A85E38" />
-      <g className="g-smoke" fill="#FFF8E8">
-        <circle cx="475" cy="44" r="9" opacity="0.55" />
-        <circle cx="486" cy="26" r="12" opacity="0.38" />
-        <circle cx="472" cy="8" r="15" opacity="0.22" />
-      </g>
-      <rect x="62" y="176" width="496" height="240" rx="20" fill="url(#cottageWall)" />
-      <rect x="62" y="176" width="496" height="14" rx="7" fill="#E7D5B4" />
-      <path d="M28 190 310 34l282 156-20 30-262-142L48 220Z" fill="url(#cottageRoof)" />
-      <path d="M48 220 310 78l262 142" stroke="#174D35" strokeWidth="6" opacity="0.22" fill="none" />
-
-      <g>
-        <rect x="112" y="244" width="108" height="94" rx="14" fill="#6E4A34" />
-        <rect x="120" y="252" width="92" height="78" rx="10" fill="url(#cottageGlow)" />
-        <path d="M166 252v78M120 291h92" stroke="#FFF8E8" strokeWidth="6" opacity="0.85" />
-        <rect x="104" y="334" width="124" height="18" rx="8" fill="#A85E38" />
-        <g fill="#A8D66D">
-          <circle cx="128" cy="332" r="8" />
-          <circle cx="150" cy="328" r="9" />
-          <circle cx="172" cy="332" r="8" />
-          <circle cx="194" cy="328" r="9" />
-        </g>
-      </g>
-
-      <g>
-        <rect x="400" y="244" width="108" height="94" rx="14" fill="#6E4A34" />
-        <rect x="408" y="252" width="92" height="78" rx="10" fill="url(#cottageGlow)" />
-        <path d="M454 252v78M408 291h92" stroke="#FFF8E8" strokeWidth="6" opacity="0.85" />
-        <rect x="392" y="334" width="124" height="18" rx="8" fill="#A85E38" />
-        <g fill="#F6B7A3">
-          <circle cx="416" cy="332" r="8" />
-          <circle cx="438" cy="328" r="9" />
-          <circle cx="460" cy="332" r="8" />
-          <circle cx="482" cy="328" r="9" />
-        </g>
-      </g>
-
-      <path d="M258 416V316c0-28 23-50 52-50s52 22 52 50v100Z" fill="#8A5A3A" />
-      <path d="M268 416V318c0-22 19-42 42-42s42 20 42 42v98Z" fill="#A16B45" />
-      <circle cx="336" cy="368" r="5" fill="#F2C572" />
-      <rect x="248" y="408" width="124" height="12" rx="6" fill="#B7A184" />
-
-      <g transform="translate(214 196)">
-        <rect width="192" height="46" rx="14" fill="#174D35" />
-        <path d="M34 32V18" stroke="#A8D66D" strokeWidth="3" strokeLinecap="round" />
-        <path d="M34 23c0-6 4-10 11-10 0 6-4 10-11 10Z" fill="#A8D66D" />
-        <text x="56" y="30" fontFamily="Poppins, sans-serif" fontSize="19" fontWeight="700" fill="#EAF5E9">
-          Kebun Poti
-        </text>
-      </g>
-
-      <path d="M92 190c-8 26 6 44 24 52M528 190c8 26-6 44-24 52" stroke="#3F8F55" strokeWidth="5" fill="none" opacity="0.5" strokeLinecap="round" />
-      <g fill="#7CBB58" opacity="0.8">
-        <ellipse cx="104" cy="218" rx="10" ry="6" transform="rotate(-28 104 218)" />
-        <ellipse cx="518" cy="222" rx="10" ry="6" transform="rotate(28 518 222)" />
-      </g>
-    </svg>
-  )
-}
-
-function GreenhouseArt() {
-  return (
-    <svg className="g-greenhouse" viewBox="0 0 440 390" aria-hidden="true">
-      <ellipse cx="220" cy="372" rx="196" ry="16" fill="#174D35" opacity="0.16" />
-      <rect x="52" y="140" width="336" height="224" rx="18" fill="#DFF3E8" opacity="0.75" />
-      <path d="M52 150 220 42l168 108" fill="#CDEBDD" opacity="0.6" />
-      <path d="M52 150 220 42l168 108" stroke="#3F8F55" strokeWidth="8" fill="none" strokeLinejoin="round" />
-      <path d="M52 140v224M388 140v224M220 42v322M52 230h336" stroke="#3F8F55" strokeWidth="6" opacity="0.8" />
-      <rect x="52" y="352" width="336" height="18" rx="9" fill="#8FBF77" />
-      <g fill="#4F9A5D">
-        <ellipse cx="112" cy="318" rx="34" ry="26" />
-        <ellipse cx="150" cy="326" rx="24" ry="18" />
-        <ellipse cx="316" cy="316" rx="30" ry="24" />
-        <ellipse cx="278" cy="326" rx="22" ry="16" />
-      </g>
-      <g fill="#A8D66D">
-        <ellipse cx="120" cy="300" rx="16" ry="12" />
-        <ellipse cx="308" cy="300" rx="14" ry="11" />
-      </g>
-      <rect x="184" y="238" width="72" height="118" rx="12" fill="#B7E0C9" stroke="#3F8F55" strokeWidth="5" />
-      <circle cx="242" cy="300" r="4" fill="#3F8F55" />
-      <path d="M80 160 170 300" stroke="#fff" strokeWidth="10" opacity="0.25" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function ShedArt() {
-  return (
-    <svg className="g-shed" viewBox="0 0 380 280" aria-hidden="true">
-      <ellipse cx="190" cy="264" rx="172" ry="13" fill="#174D35" opacity="0.16" />
-      <path d="M24 96 190 18l166 78-16 24-150-64-150 64Z" fill="#2F7443" />
-      <rect x="34" y="98" width="312" height="160" rx="12" fill="#E6C99B" />
-      <path d="M34 98h312v14H34Z" fill="#C9A87C" />
-      <path d="M44 110h292M44 150h292M44 190h292" stroke="#B9946B" strokeWidth="3" opacity="0.55" />
-      <rect x="140" y="146" width="100" height="112" rx="8" fill="#9E6B47" />
-      <path d="M150 158h80v88h-80Z" fill="#B4835A" />
-      <path d="M190 158v88" stroke="#7A5337" strokeWidth="4" />
-      <circle cx="182" cy="206" r="4" fill="#F2C572" />
-      <circle cx="198" cy="206" r="4" fill="#F2C572" />
-      <g transform="translate(250 178)">
-        <rect width="54" height="62" rx="6" fill="#B86B41" />
-        <path d="M4 12h46M4 30h46M4 48h46" stroke="#8B5E3C" strokeWidth="4" />
-      </g>
-      <g transform="translate(70 188)">
-        <circle cx="18" cy="18" r="18" fill="#8FC96E" />
-        <circle cx="42" cy="18" r="18" fill="#6BAF5B" />
-        <circle cx="30" cy="4" r="16" fill="#A8D66D" />
-      </g>
-      <rect x="20" y="250" width="340" height="10" rx="5" fill="#A88459" />
-    </svg>
-  )
-}
-
-function SpotArt({ type }) {
-  if (type === 'well') {
-    return (
-      <svg viewBox="0 0 140 130" aria-hidden="true">
-        <ellipse cx="70" cy="118" rx="56" ry="9" fill="#174D35" opacity="0.15" />
-        <path d="M34 44h72l-8 64H42Z" fill="#B9B2A3" />
-        <path d="M34 44h72l-2 16H36Z" fill="#D4CEC0" />
-        <ellipse cx="70" cy="46" rx="36" ry="12" fill="#5B8FA0" />
-        <ellipse cx="70" cy="46" rx="27" ry="8" fill="#A8DCE8" />
-        <path d="M26 46V18h88v28" stroke="#9E6B47" strokeWidth="9" fill="none" strokeLinejoin="round" />
-        <path d="M20 20 70 2l50 18" stroke="#5F8F55" strokeWidth="11" fill="none" strokeLinejoin="round" />
-        <path d="M70 8v34" stroke="#9E6B47" strokeWidth="4" />
-        <rect x="54" y="40" width="32" height="24" rx="5" fill="#C9794D" />
-        <path d="M62 40v24M78 40v24" stroke="#8B5E3C" strokeWidth="3" />
-      </svg>
-    )
-  }
-  if (type === 'hive') {
-    return (
-      <svg viewBox="0 0 130 120" aria-hidden="true">
-        <ellipse cx="65" cy="108" rx="50" ry="8" fill="#174D35" opacity="0.15" />
-        <path d="M34 96c0-38 10-66 31-66s31 28 31 66Z" fill="#E5B96B" />
-        <path d="M38 80h54M40 64h50M44 48h42M50 34h30" stroke="#B9863E" strokeWidth="5" />
-        <ellipse cx="65" cy="96" rx="24" ry="7" fill="#6E4A34" />
-        <circle cx="65" cy="96" r="4" fill="#2F231A" />
-        <g fill="#F2C572">
-          <circle cx="24" cy="76" r="4" /><circle cx="30" cy="54" r="3.5" />
-          <circle cx="104" cy="70" r="4" /><circle cx="98" cy="48" r="3.5" />
-        </g>
-        <g stroke="#2F3E36" strokeWidth="2.2" fill="none">
-          <path d="M18 74q-8-6-12 2M18 74q-8 4-12-2" />
-          <path d="M110 68q8-6 12 2M110 68q8 4 12-2" />
-        </g>
-      </svg>
-    )
-  }
-  if (type === 'compost') {
-    return (
-      <svg viewBox="0 0 140 120" aria-hidden="true">
-        <ellipse cx="70" cy="108" rx="56" ry="9" fill="#174D35" opacity="0.15" />
-        <path d="M24 46h92l-8 56H32Z" fill="#8B5E3C" />
-        <path d="M24 46h92l-2 14H26Z" fill="#A87550" />
-        <ellipse cx="70" cy="48" rx="46" ry="12" fill="#4E3826" />
-        <ellipse cx="70" cy="48" rx="37" ry="8" fill="#6B4A30" />
-        <g fill="#7CBB58">
-          <ellipse cx="52" cy="44" rx="10" ry="5" transform="rotate(-18 52 44)" />
-          <ellipse cx="88" cy="50" rx="9" ry="5" transform="rotate(14 88 50)" />
-        </g>
-        <path d="M44 68l-8 20M96 68l8 20" stroke="#C9A87C" strokeWidth="4" opacity="0.7" />
-        <path d="M58 30V14M80 30V10" stroke="#3F8F55" strokeWidth="3" strokeLinecap="round" />
-        <path d="M58 20c0-6 4-10 10-10 0 6-4 10-10 10Z" fill="#A8D66D" />
-        <path d="M80 16c0-6-4-10-10-10 0 6 4 10 10 10Z" fill="#3F8F55" />
-      </svg>
-    )
-  }
-  if (type === 'sign') {
-    return (
-      <svg viewBox="0 0 120 120" aria-hidden="true">
-        <ellipse cx="60" cy="110" rx="40" ry="7" fill="#174D35" opacity="0.14" />
-        <rect x="54" y="40" width="12" height="66" rx="5" fill="#8B5E3C" />
-        <path d="M16 20h88l-8 46H24Z" fill="#C9794D" stroke="#8B5E3C" strokeWidth="4" />
-        <path d="M38 34h44M38 46h34M38 58h40" stroke="#FFF3D0" strokeWidth="4" strokeLinecap="round" opacity="0.9" />
-        <path d="M60 20c0-10 6-16 16-16 0 10-6 16-16 16Z" fill="#A8D66D" />
-      </svg>
-    )
-  }
-  return (
-    <svg viewBox="0 0 150 120" aria-hidden="true">
-      <ellipse cx="75" cy="108" rx="62" ry="9" fill="#174D35" opacity="0.14" />
-      <path d="M14 92h122l-12 14H26Z" fill="#A9A297" />
-      <ellipse cx="75" cy="90" rx="61" ry="16" fill="#D9EEF1" />
-      <ellipse cx="75" cy="90" rx="48" ry="11" fill="#9FD3DE" />
-      <path d="M75 90V32" stroke="#9E6B47" strokeWidth="11" strokeLinecap="round" />
-      <path d="M75 30c0-14 9-24 22-24 0 14-9 24-22 24Z" fill="#A8D66D" />
-      <path d="M75 42c0-10-7-17-17-17 0 10 7 17 17 17Z" fill="#3F8F55" />
-      <path d="M62 62q13 8 26 0" stroke="#FFF" strokeWidth="5" fill="none" opacity="0.7" strokeLinecap="round" />
-      <g fill="#FFF8E8" opacity="0.85">
-        <circle cx="52" cy="60" r="3" /><circle cx="98" cy="54" r="3.5" /><circle cx="110" cy="68" r="2.6" />
-      </g>
-    </svg>
-  )
-}
-
 const COSMETIC_SLOTS = [
   { id: 'hat', label: 'Kepala' },
   { id: 'face', label: 'Mata' },
@@ -755,6 +650,7 @@ export default function GardenGame({ plants, onClose }) {
   const rootRef = useRef(null)
   const worldRef = useRef(null)
   const playerEl = useRef(null)
+  const playerDotRef = useRef(null)
   const introBtnRef = useRef(null)
   const stick = useRef({ x: 0, y: 0 })
   const waypoint = useRef(null)
@@ -801,12 +697,10 @@ export default function GardenGame({ plants, onClose }) {
     [],
   )
 
-  const scale = clamp(viewport.h / 780, 0.62, 1.18)
-  const plantArt = Math.round(168 * scale)
-  const playerArt = Math.round(150 * scale)
+  const scale = clamp(viewport.h / 780, 0.62, 1.16)
+  const plantArt = Math.round(138 * scale)
+  const playerArt = Math.round(126 * scale)
   const level = levelFromXp(wallet.xp)
-
-  const decor = useMemo(buildDecor, [])
 
   const placed = useMemo(
     () =>
@@ -815,8 +709,8 @@ export default function GardenGame({ plants, onClose }) {
         const lap = Math.floor(index / PLANT_SLOTS.length)
         return {
           ...plant,
-          x: clamp(slot.x + lap * 90, 120, WORLD.w - 120),
-          y: clamp(slot.y + lap * 70, 260, WORLD.h - 90),
+          x: clamp(slot.x + lap * 80, 120, WORLD.w - 120),
+          y: clamp(slot.y + lap * 64, 240, WORLD.h - 90),
         }
       }),
     [plants],
@@ -882,7 +776,6 @@ export default function GardenGame({ plants, onClose }) {
     reactionTimer.current = window.setTimeout(() => setReaction(null), 1700)
   }, [])
 
-  // Tap/touch navigation: Poti walks to the tapped spot or plant.
   const interactSpot = useCallback(
     (spot) => {
       if (phaseRef.current !== 'playing') return
@@ -906,8 +799,8 @@ export default function GardenGame({ plants, onClose }) {
       if (phaseRef.current !== 'playing' || portrait || sleepingRef.current || wardrobeRef.current)
         return
       pendingSpot.current = null
-      const tx = clamp(x, 80, WORLD.w - 80)
-      const ty = clamp(y, 150, WORLD.h - 60)
+      const tx = clamp(x, 70, WORLD.w - 70)
+      const ty = clamp(y, 120, WORLD.h - 60)
       waypoint.current = insideObstacle(tx, ty) ? null : { x: tx, y: ty }
       if (!waypoint.current) return
       setMarker({ ...waypoint.current, id: Date.now() })
@@ -922,12 +815,12 @@ export default function GardenGame({ plants, onClose }) {
     (spot) => {
       if (phaseRef.current !== 'playing' || portrait) return
       const p = player.current
-      if (Math.hypot(spot.x - p.x, spot.y - p.y) < REACH + 30) {
+      if (Math.hypot(spot.x - p.x, spot.y - p.y) < REACH + 40) {
         pendingSpot.current = null
         interactSpot(spot)
         return
       }
-      goTo(spot.x, spot.y + 26, `Menuju ${spot.name}`)
+      goTo(spot.x, spot.y + 24, `Menuju ${spot.name}`)
       pendingSpot.current = spot
     },
     [goTo, interactSpot, portrait],
@@ -978,7 +871,6 @@ export default function GardenGame({ plants, onClose }) {
     }
   }, [])
 
-  // Track container size and decide whether the rotate gate is needed.
   useEffect(() => {
     const el = rootRef.current
     if (!el) return undefined
@@ -1028,12 +920,12 @@ export default function GardenGame({ plants, onClose }) {
         else if (el?.webkitRequestFullscreen) el.webkitRequestFullscreen()
       }
     } catch {
-      /* iOS Safari and embedded browsers may refuse — the overlay still fills the screen. */
+      /* ignore */
     }
     try {
       if (screen.orientation?.lock) await screen.orientation.lock('landscape')
     } catch {
-      /* Orientation lock needs fullscreen support; the rotate gate handles the rest. */
+      /* ignore */
     }
   }, [])
 
@@ -1069,7 +961,7 @@ export default function GardenGame({ plants, onClose }) {
 
   const start = async () => {
     setPhase('playing')
-    say('Halo! Aku Poti 🌱 Rawat aku ya!', 3400)
+    say('Halo! Selamat datang di Kebun Pixel Poti 🌱', 3400)
     await requestFullscreen()
   }
 
@@ -1102,7 +994,6 @@ export default function GardenGame({ plants, onClose }) {
     say('Aku bangun! 🌞', 2200)
   }, [react, say])
 
-  // Session challenge: care for Poti, water plants and collect dew.
   useEffect(() => {
     if (phase !== 'playing' || questAwarded.current || !questDone) return
     questAwarded.current = true
@@ -1111,7 +1002,6 @@ export default function GardenGame({ plants, onClose }) {
     flash('Tantangan kebun selesai! +40 koin · +30 XP 🎉', 'cheer')
   }, [phase, questDone, actions, flash])
 
-  // Needs slowly decay so caring for Poti keeps mattering.
   useEffect(() => {
     if (phase !== 'playing') return undefined
     const id = setInterval(() => {
@@ -1125,7 +1015,6 @@ export default function GardenGame({ plants, onClose }) {
     return () => clearInterval(id)
   }, [phase])
 
-  // Idle chatter keeps Poti feeling alive.
   useEffect(() => {
     if (phase !== 'playing' || sleeping) return undefined
     const id = setInterval(() => {
@@ -1136,7 +1025,6 @@ export default function GardenGame({ plants, onClose }) {
     return () => clearInterval(id)
   }, [phase, sleeping, say, bubble])
 
-  // Blinking eyes.
   useEffect(() => {
     const id = setInterval(() => {
       setBlink(true)
@@ -1151,8 +1039,7 @@ export default function GardenGame({ plants, onClose }) {
   const care = (kind) => {
     if (phaseRef.current !== 'playing' || wardrobeRef.current) return
     if (sleepingRef.current) {
-      if (kind === 'sleep') wake()
-      else wake()
+      wake()
       return
     }
     if (kind === 'sleep') {
@@ -1267,7 +1154,6 @@ export default function GardenGame({ plants, onClose }) {
     say('Embun terkumpul · +2 koin · +1 XP', 2200)
   }
 
-  // Respawn a few dew drops while playing so exploring stays rewarding.
   useEffect(() => {
     if (phase !== 'playing') return undefined
     const id = setInterval(() => {
@@ -1276,7 +1162,6 @@ export default function GardenGame({ plants, onClose }) {
     return () => clearInterval(id)
   }, [phase])
 
-  // Keyboard support: WASD/arrows to move, 1-4 to care, E/F for plants.
   useEffect(() => {
     const down = (e) => {
       const k = e.key.toLowerCase()
@@ -1309,7 +1194,7 @@ export default function GardenGame({ plants, onClose }) {
       window.removeEventListener('keyup', up)
       window.removeEventListener('blur', blur)
     }
-  }, [])
+  }, [openWardrobe])
 
   useEffect(() => {
     const onKey = (e) => {
@@ -1325,7 +1210,7 @@ export default function GardenGame({ plants, onClose }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  // Game loop. Movement and camera are written straight to the DOM for smoothness.
+  // Game loop: smooth 60fps player motion, bridge/river collision, and camera follow.
   useEffect(() => {
     let raf
     let last = performance.now()
@@ -1369,8 +1254,8 @@ export default function GardenGame({ plants, onClose }) {
         }
         if (mag > 0.14) {
           const strength = Math.min(1, mag)
-          const nextX = clamp(p.x + (ix / mag) * SPEED * strength * dt, 80, WORLD.w - 80)
-          const nextY = clamp(p.y + (iy / mag) * SPEED * strength * dt, 150, WORLD.h - 60)
+          const nextX = clamp(p.x + (ix / mag) * SPEED * strength * dt, 64, WORLD.w - 64)
+          const nextY = clamp(p.y + (iy / mag) * SPEED * strength * dt, 100, WORLD.h - 48)
           if (!insideObstacle(nextX, p.y)) p.x = nextX
           if (!insideObstacle(p.x, nextY)) p.y = nextY
           if (Math.abs(ix) > 0.22) p.facing = ix > 0 ? 1 : -1
@@ -1417,10 +1302,15 @@ export default function GardenGame({ plants, onClose }) {
         playerEl.current.style.zIndex = String(Math.round(p.y))
       }
 
+      if (playerDotRef.current) {
+        playerDotRef.current.setAttribute('cx', String(Math.round(p.x)))
+        playerDotRef.current.setAttribute('cy', String(Math.round(p.y)))
+      }
+
       const vw = viewportRef.current.w
       const vh = viewportRef.current.h
       const targetX = clamp(p.x - vw / 2, 0, Math.max(0, WORLD.w - vw))
-      const targetY = clamp(p.y - vh * 0.66, 0, Math.max(0, WORLD.h - vh))
+      const targetY = clamp(p.y - vh * 0.58, 0, Math.max(0, WORLD.h - vh))
       cam.current.x += (targetX - cam.current.x) * Math.min(1, dt * 7)
       cam.current.y += (targetY - cam.current.y) * Math.min(1, dt * 7)
       if (worldRef.current) {
@@ -1434,12 +1324,11 @@ export default function GardenGame({ plants, onClose }) {
     return () => cancelAnimationFrame(raf)
   }, [])
 
-  // Place the camera on the player as soon as the container is measured.
   useEffect(() => {
     const vw = viewport.w
     const vh = viewport.h
     cam.current.x = clamp(player.current.x - vw / 2, 0, Math.max(0, WORLD.w - vw))
-    cam.current.y = clamp(player.current.y - vh * 0.66, 0, Math.max(0, WORLD.h - vh))
+    cam.current.y = clamp(player.current.y - vh * 0.58, 0, Math.max(0, WORLD.h - vh))
     if (worldRef.current) {
       worldRef.current.style.transform = `translate3d(${-cam.current.x}px, ${-cam.current.y}px, 0)`
     }
@@ -1456,238 +1345,143 @@ export default function GardenGame({ plants, onClose }) {
   return createPortal(
     <div
       ref={rootRef}
-      className={`game ${sleeping ? 'is-sleeping' : ''}`}
+      className={`game game--pixel ${sleeping ? 'is-sleeping' : ''}`}
       role="dialog"
       aria-modal="true"
-      aria-label="Mode petualangan POTIVA Garden"
+      aria-label="Mode petualangan Kebun Pixel POTIVA"
       data-phase={phase}
     >
       <div className="g-viewport" onClick={onViewClick}>
         <div
-          className="g-world"
+          className="g-world g-world--pixel"
           ref={worldRef}
           style={{ width: `${WORLD.w}px`, height: `${WORLD.h}px` }}
         >
-          <div className="g-ground" aria-hidden="true" />
-          {ZONES.map((z) => (
+          {/* Pixel-art base terrain: grass tiles, rivers, bridges, cliffs, cobblestones, crops & fences */}
+          <PixelTerrainCanvas />
+
+          {/* Animated water pixel sparkles */}
+          <div className="g-px-ripples" aria-hidden="true">
+            <span style={{ left: 260, top: 430 }} />
+            <span style={{ left: 640, top: 620 }} />
+            <span style={{ left: 610, top: 1080 }} />
+            <span style={{ left: 565, top: 1410 }} />
+            <span style={{ left: 1870, top: 160 }} />
+            <span style={{ left: 2150, top: 690 }} />
+            <span style={{ left: 2420, top: 710 }} />
+          </div>
+
+          {/* Pixel-art Buildings */}
+          <div className="g-px-building-wrap" style={{ left: 1056, top: 44, width: 448, height: 384, zIndex: 380 }}>
+            <PixelFarmhouse />
+          </div>
+          <div className="g-px-building-wrap" style={{ left: 2170, top: 24, width: 320, height: 384, zIndex: 370 }}>
+            <PixelWindmill />
+          </div>
+          <div className="g-px-building-wrap" style={{ left: 48, top: 1120, width: 320, height: 304, zIndex: 1380 }}>
+            <PixelBarn />
+          </div>
+          <div className="g-px-building-wrap" style={{ left: 1968, top: 688, width: 288, height: 256, zIndex: 900 }}>
+            <PixelMarketStall />
+          </div>
+          <div className="g-px-building-wrap" style={{ left: 2140, top: 1020, width: 352, height: 384, zIndex: 1360 }}>
+            <PixelGreenhouse />
+          </div>
+
+          {/* Central Scarecrow & Watering Can */}
+          <div className="g-px-scarecrow-wrap" style={{ left: 1312, top: 916, zIndex: 916 }}>
+            <PixelScarecrow />
+          </div>
+
+          {/* Pixel-art Trees (oak, apple, orange, sakura, pine) */}
+          {WORLD_TREES.map((t, i) => (
             <div
-              key={z.id}
-              className={`g-zone g-zone--${z.id}`}
-              style={{ left: z.x, top: z.y, width: z.w, height: z.h }}
-              aria-hidden="true"
+              key={`ptree-${i}`}
+              className="g-px-tree-wrap"
+              style={{
+                left: t.x,
+                top: t.y,
+                width: Math.round(192 * t.s),
+                height: Math.round(224 * t.s),
+                zIndex: Math.round(t.y),
+              }}
             >
-              <span className="g-zone__label">
-                <Leaf size={11} /> {z.name}
-              </span>
+              <PixelTree variant={t.v} />
             </div>
           ))}
-          <span className="g-hill g-hill--1" aria-hidden="true" />
-          <span className="g-hill g-hill--2" aria-hidden="true" />
-          <span className="g-cloudshadow g-cloudshadow--1" aria-hidden="true" />
-          <span className="g-cloudshadow g-cloudshadow--2" aria-hidden="true" />
-          <span className="g-cloudshadow g-cloudshadow--3" aria-hidden="true" />
 
-          <svg
-            className="g-path"
-            viewBox={`0 0 ${WORLD.w} ${WORLD.h}`}
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            {PATHS.map((d, i) => (
-              <g key={`path-${i}`}>
-                <path
-                  d={d}
-                  fill="none"
-                  stroke="#a99168"
-                  strokeWidth="132"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  opacity="0.3"
-                />
-                <path
-                  d={d}
-                  fill="none"
-                  stroke="#dcc79e"
-                  strokeWidth="116"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  opacity="0.92"
-                />
-                <path
-                  d={d}
-                  fill="none"
-                  stroke="#f5e9cd"
-                  strokeWidth="5"
-                  strokeDasharray="16 28"
-                  strokeLinecap="round"
-                  opacity="0.7"
-                />
-              </g>
-            ))}
-          </svg>
-
-          <CottageArt />
-          <GreenhouseArt />
-          <ShedArt />
-
-          <svg className="g-lights" viewBox="0 0 700 160" aria-hidden="true">
-            <rect x="12" y="30" width="12" height="120" rx="5" fill="#9E6B47" />
-            <rect x="676" y="20" width="12" height="130" rx="5" fill="#9E6B47" />
-            <path d="M18 38C150 132 470 132 682 28" stroke="#7C5A3C" strokeWidth="4" fill="none" />
-            {[
-              [80, 66],
-              [170, 94],
-              [265, 110],
-              [350, 116],
-              [440, 112],
-              [530, 100],
-              [610, 78],
-              [662, 52],
-            ].map(([cx, cy], i) => (
-              <circle
-                key={i}
-                className="g-bulb"
-                cx={cx}
-                cy={cy}
-                r="7"
-                fill="#FFE6A6"
-                style={{ animationDelay: `${i * 0.22}s` }}
-              />
-            ))}
-          </svg>
-
-          <div className="g-pond" aria-hidden="true">
-            <span className="g-pond__pad g-pond__pad--1" />
-            <span className="g-pond__pad g-pond__pad--2" />
-            <span className="g-pond__pad g-pond__pad--3" />
-            <span className="g-duck">
-              <i />
-              <b />
-              <em />
-            </span>
-          </div>
-
-          <span className="g-bench" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </span>
-
-          <div className="g-dock" aria-hidden="true">
-            <i /><i /><i /><i /><i />
-          </div>
-          <div className="g-arch" aria-hidden="true">
-            <i /><i /><span />
-          </div>
-
-          {decor.stones.map((stone, i) => (
-            <span
-              key={`stone-${i}`}
-              className="g-stone"
-              aria-hidden="true"
-              style={{ left: stone.x, top: stone.y, '--s': stone.s }}
-            />
-          ))}
-          {decor.tufts.map((tuft, i) => (
-            <span
-              key={`tuft-${i}`}
-              className="g-tuft"
-              aria-hidden="true"
-              style={{ left: tuft.x, top: tuft.y, '--s': tuft.s, '--d': `${tuft.d}s` }}
-            />
-          ))}
-          {decor.flowers.map((flower, i) => (
-            <span
-              key={`flower-${i}`}
-              className="g-flower"
-              aria-hidden="true"
-              style={{ left: flower.x, top: flower.y, '--s': flower.s, '--c': flower.c }}
-            />
-          ))}
-          {decor.bushes.map((bush, i) => (
-            <span
-              key={`bush-${i}`}
-              className="g-bush"
-              aria-hidden="true"
-              style={{ left: bush.x, top: bush.y, '--s': bush.s, zIndex: Math.round(bush.y) }}
-            />
-          ))}
-          {decor.mushrooms.map((mushroom, i) => (
-            <span
-              key={`mushroom-${i}`}
-              className="g-mushroom"
-              aria-hidden="true"
-              style={{ left: mushroom.x, top: mushroom.y, '--s': mushroom.s }}
-            />
-          ))}
-          {decor.trees.map((tree, i) => (
-            <span
-              key={`tree-${i}`}
-              className="g-tree"
-              aria-hidden="true"
-              style={{ left: tree.x, top: tree.y, '--s': tree.s, zIndex: Math.round(tree.y) }}
+          {/* Wooden Lamps, Benches & Birdhouses */}
+          {WORLD_LAMPS.map((l, i) => (
+            <div
+              key={`lamp-${i}`}
+              className="g-px-prop"
+              style={{ left: l.x, top: l.y, width: 54, height: 96, zIndex: Math.round(l.y) }}
             >
-              <span className="g-tree__shadow" />
-              <span className="g-tree__trunk" />
-              <span className="g-tree__crown g-tree__crown--1" />
-              <span className="g-tree__crown g-tree__crown--2" />
-              <span className="g-tree__crown g-tree__crown--3" />
-            </span>
+              <PixelLamp />
+            </div>
           ))}
-
-          {decor.reeds.map((reed, i) => (
-            <span
-              key={`reed-${i}`}
-              className="g-reed"
-              aria-hidden="true"
-              style={{ left: reed.x, top: reed.y, '--s': reed.s, zIndex: Math.round(reed.y) }}
+          {WORLD_BENCHES.map((b, i) => (
+            <div
+              key={`bench-${i}`}
+              className="g-px-prop"
+              style={{ left: b.x, top: b.y, width: 96, height: 54, zIndex: Math.round(b.y) }}
             >
-              <i /><i /><i />
-            </span>
+              <PixelBench />
+            </div>
           ))}
-          {decor.crates.map((crate, i) => (
-            <span
-              key={`crate-${i}`}
-              className="g-crate"
-              aria-hidden="true"
-              style={{ left: crate.x, top: crate.y, '--s': crate.s, zIndex: Math.round(crate.y) }}
-            />
-          ))}
-          {decor.lanterns.map((lantern, i) => (
-            <span
-              key={`lantern-${i}`}
-              className="g-lantern"
-              aria-hidden="true"
-              style={{ left: lantern.x, top: lantern.y, zIndex: Math.round(lantern.y) }}
+          {WORLD_BIRDHOUSES.map((bh, i) => (
+            <div
+              key={`bh-${i}`}
+              className="g-px-prop"
+              style={{ left: bh.x, top: bh.y, width: 48, height: 72, zIndex: Math.round(bh.y) }}
             >
-              <i />
-            </span>
+              <PixelBirdhouse />
+            </div>
           ))}
 
-          <div className="g-fence" aria-hidden="true" />
+          {/* Animated Pixel Critters (chickens, bunnies, ducks) */}
+          {WORLD_CRITTERS.map((c, i) => (
+            <div
+              key={`crit-${i}`}
+              className="g-px-critter-wrap"
+              style={{
+                left: c.x,
+                top: c.y,
+                width: 48,
+                height: 48,
+                zIndex: Math.round(c.y),
+                animationDelay: c.d,
+              }}
+            >
+              <PixelCritter kind={c.kind} />
+            </div>
+          ))}
 
+          {/* Interactive Landmark Signposts */}
           {INTERACTIVE_SPOTS.map((spot) => {
             const left = spotLeft(spot)
             return (
               <button
                 key={spot.id}
                 type="button"
-                className={`g-spot g-spot--${spot.type} ${left > 0 ? 'is-cooling' : ''}`}
-                style={{ left: spot.x, top: spot.y, zIndex: Math.round(spot.y) }}
+                className={`g-px-spot ${left > 0 ? 'is-cooling' : ''}`}
+                style={{ left: spot.x, top: spot.y, zIndex: Math.round(spot.y) + 20 }}
                 onClick={(event) => {
                   event.stopPropagation()
                   goToSpot(spot)
                 }}
                 aria-label={`${spot.name}${left > 0 ? `, tersedia dalam ${left} detik` : ''}`}
               >
-                <span className="g-spot__art"><SpotArt type={spot.type} /></span>
-                <span className="g-spot__name">{spot.name}</span>
-                {left > 0 && <span className="g-spot__timer">{left}s</span>}
-                {left === 0 && <span className="g-spot__hint">Klik untuk menjelajah</span>}
+                <span className="g-px-spot__pin">
+                  <Sparkles size={11} />
+                </span>
+                <span className="g-px-spot__name">{spot.name}</span>
+                {left > 0 && <span className="g-px-spot__timer">{left}s</span>}
               </button>
             )
           })}
 
+          {/* Collectible Dewdrops */}
           {dew.map((drop) => (
             <button
               key={drop.id}
@@ -1704,10 +1498,11 @@ export default function GardenGame({ plants, onClose }) {
             </button>
           ))}
 
+          {/* POTIVA Plants inside Pixel Planter Beds */}
           {placed.map((plant) => (
             <div
               key={plant.id}
-              className={`g-plant ${activeId === plant.id ? 'is-active' : ''} ${
+              className={`g-plant g-plant--pixel ${activeId === plant.id ? 'is-active' : ''} ${
                 plant.x > WORLD.w * 0.6 ? 'is-left' : ''
               }`}
               style={{ left: plant.x, top: plant.y, zIndex: Math.round(plant.y) }}
@@ -1716,16 +1511,16 @@ export default function GardenGame({ plants, onClose }) {
               aria-label={`Menuju ${plant.name}`}
               onClick={(event) => {
                 event.stopPropagation()
-                goTo(plant.x, plant.y + 30, `Menuju ${plant.name}`)
+                goTo(plant.x, plant.y + 34, `Menuju ${plant.name}`)
               }}
               onKeyDown={(event) => {
                 if (event.key !== 'Enter' && event.key !== ' ') return
                 event.preventDefault()
                 event.stopPropagation()
-                goTo(plant.x, plant.y + 30, `Menuju ${plant.name}`)
+                goTo(plant.x, plant.y + 34, `Menuju ${plant.name}`)
               }}
             >
-              <span className="g-plant__bed" aria-hidden="true" />
+              <span className="g-plant__bed g-plant__bed--pixel" aria-hidden="true" />
               <span className="g-plant__ring" aria-hidden="true" />
               <div className="g-plant__art" style={{ width: plantArt }}>
                 <PottedPlant
@@ -1739,17 +1534,18 @@ export default function GardenGame({ plants, onClose }) {
               <div className="g-plant__label">
                 <strong>{plant.name}</strong>
                 {needsBars(plant)}
-                {activeId === plant.id && <em>Tekan tombol aksi</em>}
+                {activeId === plant.id && <em>Tekan E siram · F pupuk</em>}
               </div>
             </div>
           ))}
 
+          {/* Butterflies */}
           <div className="g-flies" aria-hidden="true">
-            {decor.flies.map((fly, i) => (
+            {WORLD_BUTTERFLIES.map(([bx, by, d, c], i) => (
               <span
                 key={`fly-${i}`}
                 className="g-fly"
-                style={{ left: fly.x, top: fly.y, '--d': `${fly.d}s`, '--c': fly.c }}
+                style={{ left: bx, top: by, '--d': `${d}s`, '--c': c }}
               >
                 <i />
                 <i />
@@ -1769,6 +1565,7 @@ export default function GardenGame({ plants, onClose }) {
             </span>
           )}
 
+          {/* Poti Character */}
           <div
             className="g-player"
             ref={playerEl}
@@ -1891,34 +1688,38 @@ export default function GardenGame({ plants, onClose }) {
             <NeedMeter icon={Sparkles} label="Bersih" value={needs.clean} tone="#C58BD8" />
           </div>
 
-          <div className={`g-target ${active ? 'is-active' : ''}`} aria-live="polite">
-            {active ? (
-              <>
-                <span className="g-target__name">
-                  <Leaf size={14} /> {active.name}
-                </span>
-                <span className="g-target__stat">
-                  <Droplets size={13} /> {active.needs.water}%
-                </span>
-                <span className="g-target__stat">
-                  <Sprout size={13} /> {active.needs.nutrient}%
-                </span>
+          <div className="g-center-hud">
+            <div className={`g-target ${active ? 'is-active' : ''}`} aria-live="polite">
+              {active ? (
+                <>
+                  <span className="g-target__name">
+                    <Leaf size={14} /> {active.name}
+                  </span>
+                  <span className="g-target__stat">
+                    <Droplets size={13} /> {active.needs.water}%
+                  </span>
+                  <span className="g-target__stat">
+                    <Sprout size={13} /> {active.needs.nutrient}%
+                  </span>
+                  <span className="g-target__hint">
+                    {waterCd > 0 ? `Siram siap ${waterCd}s` : 'Siap dirawat'}
+                  </span>
+                </>
+              ) : (
                 <span className="g-target__hint">
-                  {waterCd > 0 ? `Siram siap ${waterCd}s` : 'Siap dirawat'}
+                  <Move size={14} /> Dekati tanaman di petak untuk merawat
                 </span>
-              </>
-            ) : (
-              <span className="g-target__hint">
-                <Move size={14} /> Dekati tanaman untuk merawat
-              </span>
-            )}
+              )}
+            </div>
+
+            <div className="g-zonechip" aria-live="polite">
+              <MapPin size={12} />
+              <strong>{zone.name}</strong>
+              <span>{zone.hint}</span>
+            </div>
           </div>
 
-          <div className="g-zonechip" aria-live="polite">
-            <MapPin size={13} />
-            <strong>{zone.name}</strong>
-            <span>{zone.hint}</span>
-          </div>
+          <PixelMinimap plants={placed} dew={dew} playerDotRef={playerDotRef} />
 
           <Joystick onChange={onStick} disabled={portrait || sleeping} />
 
@@ -1975,19 +1776,19 @@ export default function GardenGame({ plants, onClose }) {
         <div className="g-overlay">
           <div className="g-card g-intro" role="document">
             <span className="g-intro__badge">
-              <Gamepad2 size={14} /> Mode petualangan
+              <Gamepad2 size={14} /> Kebun Pixel 2D
             </span>
             <h2>Kebun Poti</h2>
             <p className="g-intro__lead">
-              Poti sekarang punya kebutuhan! Beri makan, ajak main, mandikan, dan
-              tidurkan. Jelajahi tujuh area kebun lewat jalur setapak, klik penanda
-              seru, siram tanaman, dan kumpulkan embun. Buka aksesori Poti di Lemari Gaya.
+              Jelajahi kebun bergaya pixel art top-down! Seberangi jembatan kayu &amp; batu,
+              kunjungi Rumah Kebun, Kincir Angin, Stan Pasar, dan Rumah Kaca, lalu rawat
+              tanamanmu di petak ladang berpagar.
             </p>
             <div className="g-intro__controls">
               <div>
                 <span className="g-intro__ico g-intro__ico--stick"><Move size={18} /></span>
                 <strong>Joystick kiri</strong>
-                <small>Jalan keliling kebun</small>
+                <small>Jelajahi kebun &amp; jembatan</small>
               </div>
               <div>
                 <span className="g-intro__ico g-intro__ico--act"><Apple size={18} /></span>
@@ -1996,8 +1797,8 @@ export default function GardenGame({ plants, onClose }) {
               </div>
               <div>
                 <span className="g-intro__ico g-intro__ico--dew"><Heart size={18} /></span>
-                <strong>Elus Poti</strong>
-                <small>Ketuk Poti untuk bermanja</small>
+                <strong>Siram &amp; elus</strong>
+                <small>Rawat tanaman di ladang</small>
               </div>
             </div>
             <div className="g-intro__actions">
@@ -2017,7 +1818,7 @@ export default function GardenGame({ plants, onClose }) {
             <p className="g-intro__keys">
               Keyboard: <kbd>WASD</kbd>/panah gerak · <kbd>1</kbd> makan · <kbd>2</kbd> main ·{' '}
               <kbd>3</kbd> mandi · <kbd>4</kbd> tidur · <kbd>P</kbd> elus · <kbd>E</kbd> siram ·{' '}
-              <kbd>F</kbd> pupuk · <kbd>G</kbd> gaya · klik tanaman atau penanda untuk berjalan
+              <kbd>F</kbd> pupuk · <kbd>G</kbd> gaya · klik peta, tanaman, atau penanda lokasi
             </p>
           </div>
         </div>
@@ -2070,7 +1871,6 @@ export default function GardenGame({ plants, onClose }) {
           </div>
         </div>
       )}
-
 
       {wardrobeOpen && (
         <div className="g-overlay g-overlay--wardrobe">
