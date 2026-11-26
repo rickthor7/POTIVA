@@ -3,10 +3,12 @@ import { Link, useSearchParams } from 'react-router-dom'
 import {
   ArrowRight,
   Check,
+  Gamepad2,
   HelpCircle,
   Leaf,
   ScanLine,
   Search,
+  Shirt,
   ShoppingBag,
   Sparkles,
   Sprout,
@@ -29,7 +31,7 @@ export default function Shop() {
   )
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState('populer')
-  const { cartItems, cartCount, cartSubtotal, actions } = useApp()
+  const { cartItems, cartCount, cartSubtotal, actions, potiLook } = useApp()
   const { openCart } = useUI()
 
   const filtered = useMemo(() => {
@@ -37,9 +39,10 @@ export default function Shop() {
       const q = search.trim().toLowerCase()
       return q ? `${p.name} ${p.category} ${p.description}`.toLowerCase().includes(q) : true
     })
+    const priceOf = (p) => (p.cosmetic ? p.coinPrice : p.price)
     return list.sort((a, b) => {
-      if (sort === 'murah') return a.price - b.price
-      if (sort === 'mahal') return b.price - a.price
+      if (sort === 'murah') return priceOf(a) - priceOf(b)
+      if (sort === 'mahal') return priceOf(b) - priceOf(a)
       return b.sold - a.sold
     })
   }, [category, search, sort])
@@ -55,13 +58,34 @@ export default function Shop() {
       <PageHeader
         eyebrow="POTIVA Shop"
         title="Lengkapi kebutuhan menanammu."
-        subtitle="Pot, benih, dan perawatan yang diuji untuk pemula. Setiap produk fisik membawa QR Plant ID."
+        subtitle="Pot, benih, perawatan, dan gaya Poti. Produk fisik membawa QR Plant ID; aksesori Poti dibuka dengan koin kebun."
         actions={
           <button className="btn btn--primary" onClick={openCart}>
             <ShoppingBag size={17} /> Keranjang {cartCount > 0 && <span className="btn__count">{cartCount}</span>}
           </button>
         }
       />
+
+      {category === 'Gaya Poti' && (
+        <section className="shop-style-banner">
+          <div className="shop-style-banner__art">
+            <Mascot size={112} waving={false} look={potiLook} />
+          </div>
+          <div className="shop-style-banner__copy">
+            <span className="eyebrow">
+              <Shirt size={13} /> Gaya Poti
+            </span>
+            <h2>Dandani Poti dengan koin kebunmu.</h2>
+            <p>
+              Setiap aksesori langsung tersimpan di akun. Buka Lemari Gaya saat bermain untuk
+              memakai atau melepasnya kapan saja.
+            </p>
+          </div>
+          <Link to="/garden?play=1" className="btn btn--primary">
+            <Gamepad2 size={16} /> Buka game
+          </Link>
+        </section>
+      )}
 
       <div className="shop-promo">
         <span>

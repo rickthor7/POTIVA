@@ -202,7 +202,114 @@ export const PRODUCTS = [
   },
 ]
 
-export const PRODUCT_CATEGORIES = ['Semua', 'Pot', 'Benih', 'Perawatan']
+export const COSMETICS = [
+  {
+    id: 'gaya-topi-jerami',
+    name: 'Topi Jerami',
+    category: 'Gaya Poti',
+    price: 0,
+    coinPrice: 55,
+    stock: 999,
+    rating: 4.9,
+    sold: 1240,
+    art: 'gaya-topi-jerami',
+    tag: 'Favorit',
+    slot: 'hat',
+    cosmetic: true,
+    description:
+      'Topi jerami ringan untuk Poti berkebun di bawah matahari. Bikin penampilan Poti langsung terasa seperti petani sungguhan.',
+    includes: ['Topi jerami untuk Poti', 'Bisa dipakai & dilepas kapan saja', 'Tersimpan di akunmu'],
+  },
+  {
+    id: 'gaya-mahkota-bunga',
+    name: 'Mahkota Bunga',
+    category: 'Gaya Poti',
+    price: 0,
+    coinPrice: 95,
+    stock: 999,
+    rating: 4.8,
+    sold: 640,
+    art: 'gaya-mahkota-bunga',
+    tag: 'Spesial',
+    slot: 'hat',
+    cosmetic: true,
+    description:
+      'Mahkota dari bunga kebun pilihan. Cocok untuk Poti yang ingin tampil manis saat festival panen.',
+    includes: ['Mahkota bunga untuk Poti', 'Detail kelopak warna-warni', 'Bisa dipakai & dilepas kapan saja'],
+  },
+  {
+    id: 'gaya-kacamata',
+    name: 'Kacamata Bulat',
+    category: 'Gaya Poti',
+    price: 0,
+    coinPrice: 50,
+    stock: 999,
+    rating: 4.9,
+    sold: 980,
+    art: 'gaya-kacamata',
+    tag: 'Pemula friendly',
+    slot: 'face',
+    cosmetic: true,
+    description:
+      'Kacamata bulat bergaya klasik. Poti jadi terlihat lebih pintar dan siap mengamati daun satu per satu.',
+    includes: ['Kacamata bulat untuk Poti', 'Lensa bening dengan kilau lembut', 'Bisa dipakai & dilepas kapan saja'],
+  },
+  {
+    id: 'gaya-syal-daun',
+    name: 'Syal Daun',
+    category: 'Gaya Poti',
+    price: 0,
+    coinPrice: 60,
+    stock: 999,
+    rating: 4.7,
+    sold: 520,
+    art: 'gaya-syal-daun',
+    tag: null,
+    slot: 'neck',
+    cosmetic: true,
+    description:
+      'Syal lembut bermotif daun untuk menemani Poti saat udara kebun mulai sejuk. Warnanya segar dan mudah dipadukan.',
+    includes: ['Syal daun untuk Poti', 'Bahan lembut dan ringan', 'Bisa dipakai & dilepas kapan saja'],
+  },
+  {
+    id: 'gaya-rompi',
+    name: 'Rompi Kebun',
+    category: 'Gaya Poti',
+    price: 0,
+    coinPrice: 85,
+    stock: 999,
+    rating: 4.8,
+    sold: 410,
+    art: 'gaya-rompi',
+    tag: 'Koleksi baru',
+    slot: 'body',
+    cosmetic: true,
+    description:
+      'Rompi kebun dengan banyak kantong kecil. Poti siap membawa benih, tali, dan camilan kebun sekaligus.',
+    includes: ['Rompi kebun untuk Poti', 'Detail jahitan dan kancing', 'Bisa dipakai & dilepas kapan saja'],
+  },
+  {
+    id: 'gaya-tas',
+    name: 'Tas Kebun',
+    category: 'Gaya Poti',
+    price: 0,
+    coinPrice: 75,
+    stock: 999,
+    rating: 4.6,
+    sold: 360,
+    art: 'gaya-tas',
+    tag: null,
+    slot: 'back',
+    cosmetic: true,
+    description:
+      'Tas punggung kecil untuk perlengkapan berkebun Poti. Muat sekop mini, sarung tangan, dan botol air.',
+    includes: ['Tas kebun untuk Poti', 'Tali bahu yang lucu', 'Bisa dipakai & dilepas kapan saja'],
+  },
+]
+
+PRODUCTS.push(...COSMETICS)
+
+export const PRODUCT_CATEGORIES = ['Semua', 'Pot', 'Benih', 'Perawatan', 'Gaya Poti']
 
 export const EBOOKS = [
   {

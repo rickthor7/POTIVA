@@ -35,7 +35,7 @@ const REPEATS = ['Sekali', 'Harian', 'Setiap 2 hari', 'Mingguan', '2 minggu seka
 
 export default function Care() {
   usePageTitle('Plant Care')
-  const { plants, tasks, settings, careHistory, getPlant, actions } = useApp()
+  const { plants, tasks, settings, careHistory, getPlant, potiLook, actions } = useApp()
   const toast = useToast()
   const today = todayISO()
   const [selectedDate, setSelectedDate] = useState(today)
@@ -351,7 +351,7 @@ export default function Care() {
 
           <section className="card card--pad tip-card tip-card--care">
             <div className="tip-card__mascot">
-              <Mascot size={82} waving={false} />
+              <Mascot size={82} waving={false} look={potiLook} />
             </div>
             <div className="tip-card__body">
               <span className="eyebrow">Kata Poti</span>

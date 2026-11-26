@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { PRODUCTS, EBOOKS, SPECIES, TASK_TYPES, JOURNALS, COMMUNITY_POSTS } from '../data/appData'
+import { PRODUCTS, EBOOKS, SPECIES, TASK_TYPES, JOURNALS, COMMUNITY_POSTS, COSMETICS } from '../data/appData'
 import { addDays, todayISO, clamp } from '../lib/utils'
 
 const STORAGE_KEY = 'potiva.state.v1'
@@ -167,6 +167,8 @@ const seedState = () => ({
     },
   ],
   ownedEbooks: ['menanam-cabai'],
+  ownedCosmetics: ['gaya-topi-jerami'],
+  potiLook: { hat: 'gaya-topi-jerami' },
   likedPosts: [],
   missions: seedMissions(),
   settings: {
@@ -574,6 +576,38 @@ export function AppProvider({ children }) {
             ...s,
             ownedEbooks: [...s.ownedEbooks, ebookId],
             wallet: award(s.wallet, 15, 10),
+          }
+        }),
+
+      equipCosmetic: (productId) =>
+        setState((s) => {
+          const item = COSMETICS.find((c) => c.id === productId)
+          if (!item || !s.ownedCosmetics.includes(productId)) return s
+          return {
+            ...s,
+            potiLook: { ...s.potiLook, [item.slot]: productId },
+          }
+        }),
+
+      unequipCosmetic: (slot) =>
+        setState((s) => ({
+          ...s,
+          potiLook: { ...s.potiLook, [slot]: null },
+        })),
+
+      buyCosmeticWithCoins: (productId) =>
+        setState((s) => {
+          const item = COSMETICS.find((c) => c.id === productId)
+          if (!item) return s
+          if (s.ownedCosmetics.includes(productId)) {
+            return { ...s, potiLook: { ...s.potiLook, [item.slot]: productId } }
+          }
+          if (s.wallet.coins < item.coinPrice) return s
+          return {
+            ...s,
+            wallet: { ...s.wallet, coins: s.wallet.coins - item.coinPrice },
+            ownedCosmetics: [...s.ownedCosmetics, productId],
+            potiLook: { ...s.potiLook, [item.slot]: productId },
           }
         }),
 

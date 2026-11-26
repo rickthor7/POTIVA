@@ -35,7 +35,7 @@ const ACTIVITIES = ['Catatan', 'Periksa', 'Siram', 'Pupuk', 'Repotting', 'Pangka
 
 export default function Journal() {
   usePageTitle('Plant Journal')
-  const { journals, plants, getPlant, actions } = useApp()
+  const { journals, plants, getPlant, potiLook, actions } = useApp()
   const toast = useToast()
   const [plantFilter, setPlantFilter] = useState('all')
   const [stageFilter, setStageFilter] = useState('all')
@@ -257,7 +257,7 @@ export default function Journal() {
 
           <section className="card card--pad tip-card">
             <div className="tip-card__mascot">
-              <Mascot size={86} waving={false} />
+              <Mascot size={86} waving={false} look={potiLook} />
             </div>
             <div className="tip-card__body">
               <span className="eyebrow">Tips jurnal</span>

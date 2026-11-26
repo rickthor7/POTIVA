@@ -46,6 +46,7 @@ export default function Dashboard() {
     getPlant,
     getProduct,
     ownedEbooks,
+    potiLook,
     actions,
   } = useApp()
 
@@ -313,7 +314,7 @@ export default function Dashboard() {
 
           <section className="card card--pad tip-card">
             <div className="tip-card__mascot">
-              <Mascot size={86} waving={false} />
+              <Mascot size={86} waving={false} look={potiLook} />
             </div>
             <div className="tip-card__body">
               <span className="eyebrow">Kata Poti</span>

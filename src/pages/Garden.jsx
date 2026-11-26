@@ -54,7 +54,7 @@ function NeedBar({ icon: Icon, label, value, tone }) {
 
 export default function Garden() {
   usePageTitle('My Garden')
-  const { plants, wallet, missions, getSpecies, actions } = useApp()
+  const { plants, wallet, missions, getSpecies, potiLook, actions } = useApp()
   const toast = useToast()
   const [params, setParams] = useSearchParams()
   const [now, setNow] = useState(Date.now())
@@ -160,7 +160,7 @@ export default function Garden() {
 
       <section className="garden-play">
         <div className="garden-play__mascot" aria-hidden="true">
-          <Mascot size={104} />
+          <Mascot size={104} look={potiLook} />
         </div>
         <div className="garden-play__copy">
           <span className="garden-play__eyebrow">
@@ -247,7 +247,7 @@ export default function Garden() {
             </div>
 
             <div className="garden-stage__mascot">
-              <Mascot size={150} />
+              <Mascot size={150} look={potiLook} />
               <span className="garden-bubble">
                 {selected.needs.water < 40
                   ? 'Media mungkin mulai kering. Cek dulu, ya!'

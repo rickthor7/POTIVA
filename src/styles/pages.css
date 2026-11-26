@@ -426,6 +426,43 @@
   border-radius: 11px;
 }
 
+.product-card__coins {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.product-card__coins svg {
+  color: var(--warning);
+}
+
+.product-card__owned {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 11px;
+  background: var(--mint);
+  color: var(--leaf);
+}
+
+.product-card__owned-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  background: var(--forest);
+  color: var(--fresh);
+}
+
+.cosmetic-art {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
 /* ── Ebook card ────────────────────────────────── */
 .ebook-grid {
   display: grid;

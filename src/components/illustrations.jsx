@@ -45,7 +45,14 @@ export function Sprout({ size = 28, color = '#3F8F55' }) {
 }
 
 /* ── Mascot: Poti ───────────────────────────────── */
-export function Mascot({ size = 180, className = '', waving = true, expression = 'happy' }) {
+export function Mascot({
+  size = 180,
+  className = '',
+  waving = true,
+  expression = 'happy',
+  blink = false,
+  look = {},
+}) {
   const uid = useId().replace(/:/g, '')
   const body = `mascotBody-${uid}`
   const apron = `mascotApron-${uid}`
@@ -101,6 +108,17 @@ export function Mascot({ size = 180, className = '', waving = true, expression =
           <circle cx="170" cy="79" r="11" fill="#FBF5E6" stroke="#E7DDC8" strokeWidth="1.6" />
         </g>
 
+        {/* backpack (behind the body) */}
+        {look.back === 'gaya-tas' && (
+          <g>
+            <rect x="142" y="116" width="32" height="50" rx="13" fill="#C9794D" stroke="#A85E38" strokeWidth="2" />
+            <rect x="147" y="128" width="22" height="17" rx="6" fill="#A85E38" />
+            <path d="M149 119c0-9 5-15 11-15s11 6 11 15" stroke="#8B5E3C" strokeWidth="5" fill="none" strokeLinecap="round" />
+            <path d="M155 149v10M161 149v10" stroke="#F2D79B" strokeWidth="2.4" strokeLinecap="round" />
+            <path d="M151 132h14" stroke="#F2D79B" strokeWidth="2" strokeLinecap="round" opacity=".8" />
+          </g>
+        )}
+
         {/* body */}
         <path
           d="M100 34c31 0 54 27 54 70 0 48-19 88-54 88s-54-40-54-88c0-43 23-70 54-70Z"
@@ -110,16 +128,51 @@ export function Mascot({ size = 180, className = '', waving = true, expression =
 
         {/* face */}
         <g>
-          <circle cx="81" cy="101" r="6.2" fill="#20312A" />
-          <circle cx="119" cy="101" r="6.2" fill="#20312A" />
-          <circle cx="83" cy="98.6" r="2.1" fill="#FFFFFF" />
-          <circle cx="121" cy="98.6" r="2.1" fill="#FFFFFF" />
+          {expression === 'love' ? (
+            <>
+              <path d="M81 97c-3-4-9-3-9 2 0 4 5 7 9 10 4-3 9-6 9-10 0-5-6-6-9-2Z" fill="#E4635A" />
+              <path d="M119 97c-3-4-9-3-9 2 0 4 5 7 9 10 4-3 9-6 9-10 0-5-6-6-9-2Z" fill="#E4635A" />
+            </>
+          ) : blink || expression === 'sleepy' ? (
+            <>
+              <path d="M74 101q7 6 14 0" stroke="#20312A" strokeWidth="3.4" strokeLinecap="round" fill="none" />
+              <path d="M112 101q7 6 14 0" stroke="#20312A" strokeWidth="3.4" strokeLinecap="round" fill="none" />
+            </>
+          ) : expression === 'surprised' ? (
+            <>
+              <circle cx="81" cy="101" r="8" fill="#20312A" />
+              <circle cx="119" cy="101" r="8" fill="#20312A" />
+              <circle cx="83.4" cy="98.2" r="2.6" fill="#FFFFFF" />
+              <circle cx="121.4" cy="98.2" r="2.6" fill="#FFFFFF" />
+            </>
+          ) : (
+            <>
+              <circle cx="81" cy="101" r="6.2" fill="#20312A" />
+              <circle cx="119" cy="101" r="6.2" fill="#20312A" />
+              <circle cx="83" cy="98.6" r="2.1" fill="#FFFFFF" />
+              <circle cx="121" cy="98.6" r="2.1" fill="#FFFFFF" />
+            </>
+          )}
+
           <ellipse cx="68" cy="114" rx="7.5" ry="4.2" fill="#F0A58E" opacity="0.55" />
           <ellipse cx="132" cy="114" rx="7.5" ry="4.2" fill="#F0A58E" opacity="0.55" />
-          {expression === 'happy' ? (
-            <path d="M90 115q10 10 20 0" stroke="#20312A" strokeWidth="4" strokeLinecap="round" fill="none" />
+
+          {expression === 'hungry' ? (
+            <ellipse cx="100" cy="119" rx="6" ry="7.5" fill="#20312A" />
+          ) : expression === 'sad' ? (
+            <path d="M91 121q9-8 18 0" stroke="#20312A" strokeWidth="4" strokeLinecap="round" fill="none" />
+          ) : expression === 'dirty' ? (
+            <>
+              <path d="M91 118q5 5 9 0t9 0" stroke="#20312A" strokeWidth="3.4" strokeLinecap="round" fill="none" />
+              <circle cx="70" cy="107" r="3.4" fill="#B9A98A" opacity="0.8" />
+              <circle cx="134" cy="109" r="2.6" fill="#B9A98A" opacity="0.7" />
+            </>
+          ) : expression === 'sleepy' ? (
+            <ellipse cx="100" cy="119" rx="4.2" ry="3.2" fill="#20312A" />
+          ) : expression === 'surprised' ? (
+            <circle cx="100" cy="119" r="4.6" fill="#20312A" />
           ) : (
-            <circle cx="100" cy="119" r="4.5" fill="#20312A" />
+            <path d="M90 115q10 10 20 0" stroke="#20312A" strokeWidth="4" strokeLinecap="round" fill="none" />
           )}
         </g>
 
@@ -131,6 +184,79 @@ export function Mascot({ size = 180, className = '', waving = true, expression =
         <path d="M83 137c5-11 29-11 34 0" stroke="#174D35" strokeWidth="5" strokeLinecap="round" fill="none" />
         <rect x="86" y="155" width="28" height="19" rx="6" fill="#FFFFFF" opacity="0.14" />
         <path d="M100 164c0-6 4-10 10-10 0 6-4 10-10 10Z" fill="#EAF5E9" />
+
+        {/* gardener vest */}
+        {look.body === 'gaya-rompi' && (
+          <g>
+            <path
+              d="M58 118c-9 26-7 64 5 80 8 2 14-3 16-11l-6-62Z"
+              fill="#C9794D"
+              stroke="#A85E38"
+              strokeWidth="2"
+            />
+            <path
+              d="M142 118c9 26 7 64-5 80-8 2-14-3-16-11l6-62Z"
+              fill="#C9794D"
+              stroke="#A85E38"
+              strokeWidth="2"
+            />
+            <path d="M70 128l3 52M130 128l-3 52" stroke="#F2D79B" strokeWidth="2" strokeDasharray="4 5" />
+            <circle cx="73" cy="150" r="2.4" fill="#FFF8E8" />
+            <circle cx="127" cy="150" r="2.4" fill="#FFF8E8" />
+          </g>
+        )}
+
+        {/* leaf scarf */}
+        {look.neck === 'gaya-syal-daun' && (
+          <g>
+            <path
+              d="M68 128c18 12 46 12 64 0l5 14c-22 13-52 13-74 0Z"
+              fill="#A8D66D"
+              stroke="#3F8F55"
+              strokeWidth="2"
+            />
+            <path d="M95 141l-5 30 13 4 7-30" fill="#7CBB58" stroke="#3F8F55" strokeWidth="2" />
+            <path d="M100 148c0-5 3-8 8-8 0 5-3 8-8 8Z" fill="#EAF5E9" />
+          </g>
+        )}
+
+        {/* round glasses */}
+        {look.face === 'gaya-kacamata' && (
+          <g>
+            <circle cx="81" cy="101" r="12.5" fill="rgba(255,255,255,0.3)" stroke="#2F3E36" strokeWidth="3" />
+            <circle cx="119" cy="101" r="12.5" fill="rgba(255,255,255,0.3)" stroke="#2F3E36" strokeWidth="3" />
+            <path d="M93.5 101h13" stroke="#2F3E36" strokeWidth="3" />
+            <path d="M68.5 99l-10-3M131.5 99l10-3" stroke="#2F3E36" strokeWidth="3" strokeLinecap="round" />
+            <path d="M75 96c2-2 5-2 7-1M113 96c2-2 5-2 7-1" stroke="#FFFFFF" strokeWidth="2" opacity=".85" strokeLinecap="round" />
+          </g>
+        )}
+
+        {/* straw hat */}
+        {look.hat === 'gaya-topi-jerami' && (
+          <g>
+            <ellipse cx="100" cy="62" rx="48" ry="13" fill="#E8C27A" stroke="#C99A4E" strokeWidth="2" />
+            <path d="M66 60c0-24 14-38 34-38s34 14 34 38Z" fill="#F2D79B" />
+            <path d="M66 60h68" stroke="#C99A4E" strokeWidth="5" strokeLinecap="round" />
+            <path d="M80 40c5 9 12 13 20 13s15-4 20-13" stroke="#D8B36A" strokeWidth="3" fill="none" strokeLinecap="round" />
+            <path d="M74 64c8 5 18 8 26 8s18-3 26-8" stroke="#C99A4E" strokeWidth="2" fill="none" opacity=".6" />
+          </g>
+        )}
+
+        {/* flower crown */}
+        {look.hat === 'gaya-mahkota-bunga' && (
+          <g>
+            <path d="M62 62q38 16 76 0" stroke="#3F8F55" strokeWidth="5" fill="none" strokeLinecap="round" />
+            {[68, 84, 100, 116, 132].map((x, i) => (
+              <g key={x} transform={`translate(${x} ${56 + (i % 2) * 4})`}>
+                <circle cx="0" cy="-6" r="5" fill={i % 2 ? '#F6B7A3' : '#FFF3D0'} />
+                <circle cx="6" cy="0" r="5" fill={i % 2 ? '#FFF3D0' : '#F6B7A3'} />
+                <circle cx="0" cy="6" r="5" fill={i % 2 ? '#F6B7A3' : '#FFF3D0'} />
+                <circle cx="-6" cy="0" r="5" fill={i % 2 ? '#FFF3D0' : '#F6B7A3'} />
+                <circle r="3.2" fill="#F2B84B" />
+              </g>
+            ))}
+          </g>
+        )}
       </g>
     </svg>
   )
@@ -484,7 +610,25 @@ export function QRPattern({ size = 156, className = '' }) {
 }
 
 /* ── Product illustrations ─────────────────────── */
+const COSMETIC_SLOT_BY_ART = {
+  'gaya-topi-jerami': 'hat',
+  'gaya-mahkota-bunga': 'hat',
+  'gaya-kacamata': 'face',
+  'gaya-syal-daun': 'neck',
+  'gaya-rompi': 'body',
+  'gaya-tas': 'back',
+}
+
 export function ProductArt({ type, className = '' }) {
+  const cosmeticSlot = COSMETIC_SLOT_BY_ART[type]
+  if (cosmeticSlot) {
+    return (
+      <span className={`cosmetic-art ${className}`.trim()} aria-hidden="true">
+        <Mascot size={140} waving={false} look={{ [cosmeticSlot]: type }} />
+      </span>
+    )
+  }
+
   const common = (children, bg = '#EAF5E9') => (
     <svg viewBox="0 0 200 200" className={className} aria-hidden="true">
       <circle cx="100" cy="100" r="88" fill={bg} />
