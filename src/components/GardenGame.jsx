@@ -883,6 +883,7 @@ export default function GardenGame({ plants, onClose }) {
   const [harvestStoreOpen, setHarvestStoreOpen] = useState(false)
   const [shopOpen, setShopOpen] = useState(false)
   const [shopCat, setShopCat] = useState('Semua')
+  const [shopSeedChoice, setShopSeedChoice] = useState('Kangkung')
   const [carrying, setCarrying] = useState(null)
   const [plantingAnim, setPlantingAnim] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
@@ -1764,7 +1765,8 @@ export default function GardenGame({ plants, onClose }) {
   }
 
   const addShopToCart = (item) => {
-    actions.addToCart(item.id)
+    const chosenVariant = item.seedOptions?.length ? shopSeedChoice : null
+    actions.addToCart(item.id, 1, chosenVariant ? { variant: chosenVariant } : undefined)
     setShopOpen(false)
     const kind = item.speciesId
       ? 'seed'
@@ -1775,10 +1777,15 @@ export default function GardenGame({ plants, onClose }) {
       kind,
       productId: item.id,
       speciesId: item.speciesId || null,
-      label: item.name,
+      label: chosenVariant ? `${item.name} (${chosenVariant})` : item.name,
     })
     react('happy')
-    say(`${item.name} masuk keranjang & dibawa Poti! 🛒`, 3000)
+    say(
+      chosenVariant
+        ? `${item.name} (Benih ${chosenVariant}) masuk keranjang & dibawa Poti! 🛒`
+        : `${item.name} masuk keranjang & dibawa Poti! 🛒`,
+      3000,
+    )
   }
 
   const redeemVoucher = (tplId) => {
@@ -3623,6 +3630,20 @@ export default function GardenGame({ plants, onClose }) {
                           <small className="g-shop-stock">
                             Di tas: {ownedSeed || ownedSupply}
                           </small>
+                        )}
+                        {item.seedOptions?.length > 0 && (
+                          <select
+                            className="g-shop-seed-select"
+                            value={shopSeedChoice}
+                            onChange={(e) => setShopSeedChoice(e.target.value)}
+                            aria-label="Pilih varian benih"
+                          >
+                            {item.seedOptions.map((opt) => (
+                              <option key={opt} value={opt}>
+                                Benih: {opt}
+                              </option>
+                            ))}
+                          </select>
                         )}
                       </div>
                       <div className="g-shop-item-acts">

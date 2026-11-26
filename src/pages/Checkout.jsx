@@ -69,8 +69,8 @@ export default function Checkout() {
 
   const snapshot = useMemo(
     () =>
-      cartItems.map(({ product, qty }) => ({
-        name: product.name,
+      cartItems.map(({ product, qty, variant }) => ({
+        name: variant ? `${product.name} · Benih ${variant}` : product.name,
         qty,
         price: product.price,
         art: product.art,
@@ -449,13 +449,16 @@ export default function Checkout() {
               </div>
             </div>
             <ul className="checkout-items">
-              {cartItems.map(({ product, qty }) => (
-                <li key={product.id}>
+              {cartItems.map(({ product, qty, variant }) => (
+                <li key={`${product.id}-${variant || 'std'}`}>
                   <span className="checkout-items__thumb">
                     <ProductArt type={product.art} />
                   </span>
                   <div>
-                    <strong>{product.name}</strong>
+                    <strong>
+                      {product.name}
+                      {variant ? ` · Benih ${variant}` : ''}
+                    </strong>
                     <span>
                       {qty}× {formatIDR(product.price)}
                     </span>

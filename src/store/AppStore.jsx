@@ -159,11 +159,11 @@ const seedState = () => ({
       date: daysAgoISO(12),
       status: 'Selesai',
       items: [
-        { productId: 'pot-mini', name: 'Pot Mini Terra', qty: 1, price: 15000 },
+        { productId: 'pot-mini', name: 'Potiva Mini Plant Kit', qty: 1, price: 6000 },
         { productId: 'benih-cabai', name: 'Benih Cabai Milo', qty: 2, price: 5000 },
       ],
       shipping: 9000,
-      total: 34000,
+      total: 25000,
       address: 'Jl. Cihampelas No. 24, Bandung',
       courier: 'JNE Reguler',
       payment: 'Transfer Bank',
@@ -763,31 +763,40 @@ export function AppProvider({ children }) {
           missions: bumpMission(s.missions, 'learn'),
         })),
 
-      addToCart: (productId, qty = 1) =>
+      addToCart: (productId, qty = 1, meta = {}) =>
         setState((s) => {
-          const existing = s.cart.find((c) => c.productId === productId)
+          const variant = meta?.variant || null
+          const existing = s.cart.find(
+            (c) => c.productId === productId && (c.variant || null) === variant,
+          )
           return {
             ...s,
             cart: existing
               ? s.cart.map((c) =>
-                  c.productId === productId ? { ...c, qty: c.qty + qty } : c,
+                  c.productId === productId && (c.variant || null) === variant
+                    ? { ...c, qty: c.qty + qty }
+                    : c,
                 )
-              : [...s.cart, { productId, qty }],
+              : [...s.cart, { productId, qty, variant }],
           }
         }),
 
-      setCartQty: (productId, qty) =>
+      setCartQty: (productId, qty, variant = null) =>
         setState((s) => ({
           ...s,
           cart: s.cart.map((c) =>
-            c.productId === productId ? { ...c, qty: clamp(qty, 1, 20) } : c,
+            c.productId === productId && (c.variant || null) === (variant || null)
+              ? { ...c, qty: clamp(qty, 1, 20) }
+              : c,
           ),
         })),
 
-      removeFromCart: (productId) =>
+      removeFromCart: (productId, variant = null) =>
         setState((s) => ({
           ...s,
-          cart: s.cart.filter((c) => c.productId !== productId),
+          cart: s.cart.filter(
+            (c) => !(c.productId === productId && (c.variant || null) === (variant || null)),
+          ),
         })),
 
       clearCart: () => setState((s) => ({ ...s, cart: [] })),
@@ -799,7 +808,8 @@ export function AppProvider({ children }) {
             const product = PRODUCTS.find((p) => p.id === c.productId)
             return {
               productId: c.productId,
-              name: product?.name || 'Produk',
+              variant: c.variant || null,
+              name: c.variant ? `${product?.name || 'Produk'} (${c.variant})` : product?.name || 'Produk',
               qty: c.qty,
               price: product?.price || 0,
               speciesId: product?.speciesId || null,

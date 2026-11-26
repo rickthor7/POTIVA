@@ -36,6 +36,7 @@ export default function ProductDetail() {
   const toast = useToast()
   const navigate = useNavigate()
   const [qty, setQty] = useState(1)
+  const [selectedSeed, setSelectedSeed] = useState(() => product?.seedOptions?.[0] || null)
 
   if (!product) {
     return (
@@ -57,12 +58,20 @@ export default function ProductDetail() {
   const canBuyCosmetic = wallet.coins >= product.coinPrice
   const canBuySeedCoin = isSeed && wallet.coins >= product.coinPrice
 
+  const seedChoice = product.seedOptions?.length
+    ? selectedSeed && product.seedOptions.includes(selectedSeed)
+      ? selectedSeed
+      : product.seedOptions[0]
+    : null
+
   const add = () => {
-    actions.addToCart(product.id, qty)
+    actions.addToCart(product.id, qty, seedChoice ? { variant: seedChoice } : undefined)
     toast(
       isSeed
         ? `${qty}× ${product.name} masuk keranjang. Setelah checkout, benih juga masuk Kebun Poti!`
-        : `${qty}× ${product.name} masuk keranjang.`,
+        : seedChoice
+          ? `${qty}× ${product.name} (Benih: ${seedChoice}) masuk keranjang.`
+          : `${qty}× ${product.name} masuk keranjang.`,
       { title: 'Ditambahkan 🛒' },
     )
     openCart()
@@ -81,7 +90,7 @@ export default function ProductDetail() {
   }
 
   const buyNow = () => {
-    actions.addToCart(product.id, qty)
+    actions.addToCart(product.id, qty, seedChoice ? { variant: seedChoice } : undefined)
     navigate('/checkout')
   }
 
@@ -190,6 +199,26 @@ export default function ProductDetail() {
               ))}
             </ul>
           </div>
+
+          {product.seedOptions?.length > 0 && (
+            <div className="pdp__variants">
+              <h3>Pilih varian benih ({seedChoice})</h3>
+              <div className="pdp__variant-list" role="radiogroup" aria-label="Pilihan benih">
+                {product.seedOptions.map((seed) => (
+                  <button
+                    key={seed}
+                    type="button"
+                    role="radio"
+                    aria-checked={seedChoice === seed}
+                    className={`chip pdp__variant-chip ${seedChoice === seed ? 'is-active' : ''}`}
+                    onClick={() => setSelectedSeed(seed)}
+                  >
+                    <Sprout size={14} /> {seed}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {isCosmetic ? (
             <div className="pdp__buy pdp__buy--cosmetic">

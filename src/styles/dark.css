@@ -242,6 +242,7 @@
 :root[data-theme='dark'] .pdp__gallery,
 :root[data-theme='dark'] .pdp__perks > div,
 :root[data-theme='dark'] .pdp__ship > div,
+:root[data-theme='dark'] .pdp__includes,
 :root[data-theme='dark'] .auth-panel,
 :root[data-theme='dark'] .guest-banner {
   background: #15261e;

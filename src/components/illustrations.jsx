@@ -562,6 +562,14 @@ const COSMETIC_SLOT_BY_ART = {
   'gaya-tas': 'back',
 }
 
+const POT_PHOTO_BY_ART = {
+  'pot-mini': '/products/6k.png',
+  'pot-besar': '/products/7k.png',
+  'pot-large': '/products/7k.png',
+  'pot-gantung': '/products/13k.png',
+  'hanging-pot': '/products/13k.png',
+}
+
 export function ProductArt({ type, className = '' }) {
   const cosmeticSlot = COSMETIC_SLOT_BY_ART[type]
   if (cosmeticSlot) {
@@ -569,6 +577,18 @@ export function ProductArt({ type, className = '' }) {
       <span className={`cosmetic-art ${className}`.trim()} aria-hidden="true">
         <Mascot size={140} waving={false} look={{ [cosmeticSlot]: type }} />
       </span>
+    )
+  }
+
+  const photoSrc = POT_PHOTO_BY_ART[type]
+  if (photoSrc) {
+    return (
+      <img
+        src={photoSrc}
+        alt=""
+        className={`product-photo ${className}`.trim()}
+        loading="lazy"
+      />
     )
   }
 

@@ -745,9 +745,19 @@
 
 .cart-row__art {
   width: 80px;
+  height: 80px;
+  display: grid;
+  place-items: center;
   border-radius: 10px;
   overflow: hidden;
   background: var(--mint);
+}
+
+.cart-row__art .product-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
 }
 
 .cart-row__info {

@@ -3919,9 +3919,27 @@ body.g-fs-lock {
   overflow: hidden;
 }
 
-.g-wardrobe__thumb .cosmetic-art {
+.g-wardrobe__thumb .cosmetic-art,
+.g-wardrobe__thumb .product-photo {
   width: 100%;
   height: 100%;
+  object-fit: contain;
+}
+
+.g-wardrobe__thumb .product-photo {
+  padding: 4px;
+}
+
+.g-shop-seed-select {
+  margin-top: 4px;
+  padding: 3px 6px;
+  border-radius: 7px;
+  border: 1.5px solid #c9d8c2;
+  background: #fff;
+  color: var(--forest-deep);
+  font-size: 0.56rem;
+  font-weight: 600;
+  max-width: 100%;
 }
 
 .g-wardrobe__thumb .mascot {

@@ -59,19 +59,20 @@ export default function CartDrawer() {
         ) : (
           <>
             <div className="drawer__items">
-              {cartItems.map(({ product, qty }) => (
-                <div key={product.id} className="cart-row">
+              {cartItems.map(({ product, qty, variant }) => (
+                <div key={`${product.id}-${variant || 'std'}`} className="cart-row">
                   <div className="cart-row__art">
                     <ProductArt type={product.art} />
                   </div>
                   <div className="cart-row__info">
                     <Link to={`/shop/${product.id}`} onClick={closeCart} className="cart-row__name">
                       {product.name}
+                      {variant ? ` · Benih ${variant}` : ''}
                     </Link>
                     <span className="cart-row__price">{formatIDR(product.price)}</span>
                     <div className="qty">
                       <button
-                        onClick={() => actions.setCartQty(product.id, qty - 1)}
+                        onClick={() => actions.setCartQty(product.id, qty - 1, variant)}
                         disabled={qty <= 1}
                         aria-label={`Kurangi jumlah ${product.name}`}
                       >
@@ -79,7 +80,7 @@ export default function CartDrawer() {
                       </button>
                       <span>{qty}</span>
                       <button
-                        onClick={() => actions.setCartQty(product.id, qty + 1)}
+                        onClick={() => actions.setCartQty(product.id, qty + 1, variant)}
                         aria-label={`Tambah jumlah ${product.name}`}
                       >
                         <Plus size={13} />
@@ -88,7 +89,7 @@ export default function CartDrawer() {
                   </div>
                   <button
                     className="cart-row__remove"
-                    onClick={() => actions.removeFromCart(product.id)}
+                    onClick={() => actions.removeFromCart(product.id, variant)}
                     aria-label={`Hapus ${product.name}`}
                   >
                     <Trash2 size={16} />

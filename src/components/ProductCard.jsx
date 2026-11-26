@@ -16,11 +16,14 @@ export default function ProductCard({ product, compact = false }) {
   const addToCart = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    actions.addToCart(product.id)
+    const seedChoice = product.seedOptions?.[0] || null
+    actions.addToCart(product.id, 1, seedChoice ? { variant: seedChoice } : undefined)
     toast(
       isSeed
         ? `${product.name} masuk keranjang. Setelah checkout, benih juga masuk Kebun Poti!`
-        : `${product.name} masuk keranjang.`,
+        : seedChoice
+          ? `${product.name} (Benih: ${seedChoice}) masuk keranjang. Buka produk untuk ganti pilihan benih.`
+          : `${product.name} masuk keranjang.`,
       { title: 'Ditambahkan 🛒' },
     )
   }
@@ -88,6 +91,8 @@ export default function ProductCard({ product, compact = false }) {
               <span className="product-card__stock">
                 {ownedSeeds > 0 ? `Di Tas Benih: ${ownedSeeds}` : 'Bisa ditanam di Kebun Poti'}
               </span>
+            ) : product.seedOptions?.length ? (
+              <span className="product-card__stock">Pilih 9 varian benih</span>
             ) : (
               product.stock < 20 && <span className="product-card__stock">Stok {product.stock}</span>
             )}

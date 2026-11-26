@@ -208,16 +208,19 @@ export default function Shop() {
             ) : (
               <>
                 <ul className="shop-cart-list">
-                  {cartItems.slice(0, 3).map(({ product, qty }) => (
-                    <li key={product.id}>
+                  {cartItems.slice(0, 3).map(({ product, qty, variant }) => (
+                    <li key={`${product.id}-${variant || 'std'}`}>
                       <span className="shop-cart-list__qty">{qty}×</span>
                       <div>
-                        <strong>{product.name}</strong>
+                        <strong>
+                          {product.name}
+                          {variant ? ` (${variant})` : ''}
+                        </strong>
                         <span>{formatIDR(product.price * qty)}</span>
                       </div>
                       <button
                         className="shop-cart-list__remove"
-                        onClick={() => actions.removeFromCart(product.id)}
+                        onClick={() => actions.removeFromCart(product.id, variant)}
                         aria-label={`Hapus ${product.name}`}
                       >
                         ×

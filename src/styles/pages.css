@@ -346,13 +346,20 @@
   overflow: hidden;
 }
 
-.product-card__media svg {
+.product-card__media svg,
+.product-card__media .product-photo {
   width: 100%;
   height: 100%;
+  object-fit: contain;
   transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
-.product-card:hover .product-card__media svg {
+.product-card__media .product-photo {
+  padding: 16px;
+}
+
+.product-card:hover .product-card__media svg,
+.product-card:hover .product-card__media .product-photo {
   transform: scale(1.05) translateY(-2px);
 }
 

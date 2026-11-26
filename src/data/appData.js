@@ -93,34 +93,48 @@ export const TASK_TYPES = {
   prune: { label: 'Pangkas ringan', icon: 'prune', color: '#8B5E3C', xp: 15, coins: 12 },
 }
 
+export const POT_SEED_OPTIONS = [
+  'Kangkung',
+  'Daun Bawang',
+  'Bunga Matahari',
+  'Sawi Caisim',
+  'Bunga Zinnia',
+  'Terong Ungu',
+  'Kemangi',
+  'Bayam',
+  'Cabai',
+]
+
 export const PRODUCTS = [
   {
     id: 'pot-mini',
-    name: 'Pot Mini Terra',
+    name: 'Potiva Mini Plant Kit',
     category: 'Pot',
-    price: 15000,
+    price: 6000,
     stock: 42,
     rating: 4.9,
     sold: 1240,
     art: 'pot-mini',
+    image: '/products/6k.png',
     tag: 'Best seller',
     description:
-      'Pot keramik mini 12 cm dengan lubang drainase dan tatakan. Pas untuk meja kerja atau ambang jendela sempit.',
-    includes: ['1 pot keramik 12 cm', 'Tatakan kayu', 'Panduan tanam pemula', 'Siap untuk Kebun Poti'],
+      'POTIVA Mini Plant Kit praktis & hemat. Sudah lengkap dengan pot mini terbungkus kain tile estetik, tanah repack, dan benih siap tanam.',
+    includes: ['1 Pot mini POTIVA', 'Tanah repack siap semai', 'Benih pilihan', 'Siap untuk Kebun Poti'],
   },
   {
     id: 'pot-besar',
-    name: 'Pot Besar Rimba',
+    name: 'Pot Motif Stroberi POTIVA',
     category: 'Pot',
-    price: 30000,
+    price: 7000,
     stock: 28,
     rating: 4.8,
     sold: 860,
-    art: 'pot-large',
-    tag: 'Favorit',
+    art: 'pot-besar',
+    image: '/products/7k.png',
+    tag: 'Motif Lucu',
     description:
-      'Pot tanah liat 20 cm untuk tanaman yang butuh ruang akar lebih lega. Warna earthy, tahan panas, dan breathable.',
-    includes: ['1 pot tanah liat 20 cm', 'Drainase ganda', 'Panduan repotting', 'Siap untuk Kebun Poti'],
+      'Pot cantik bertekstur dengan lukisan motif stroberi lucu. Pembelian ini mendapatkan pot saja dengan motif (tanpa tanah & benih).',
+    includes: ['1 Pot saja dengan motif stroberi', 'Lubang drainase rapi', 'Siap untuk Kebun Poti'],
   },
   {
     id: 'benih-cabai',
@@ -265,17 +279,24 @@ export const PRODUCTS = [
   },
   {
     id: 'pot-gantung',
-    name: 'Pot Gantung Awan',
+    name: 'POTIVA Plant Kit Lengkap',
     category: 'Pot',
-    price: 27000,
-    stock: 17,
-    rating: 4.7,
-    sold: 265,
-    art: 'hanging-pot',
-    tag: null,
+    price: 13000,
+    stock: 24,
+    rating: 4.9,
+    sold: 540,
+    art: 'pot-gantung',
+    image: '/products/13k.png',
+    tag: 'Pilih Benih',
+    seedOptions: POT_SEED_OPTIONS,
     description:
-      'Pot gantung ringan dengan tali katun. Solusi hijau untuk area tanpa meja, cocok untuk mint dan basil.',
-    includes: ['1 pot gantung 15 cm', 'Tali katun 80 cm', 'Kait besi', 'Siap untuk Kebun Poti'],
+      'Paket tanam lengkap dengan pot bermotif hati dibalut kain goni lucu! Berisi pot, tanah repack, dan benih yang bebas kamu pilih: Kangkung, Daun Bawang, Bunga Matahari, Sawi Caisim, Bunga Zinnia, Terong Ungu, Kemangi, Bayam, atau Cabai.',
+    includes: [
+      '1 Pot bermotif + balutan goni lucu',
+      'Tanah repack siap tanam',
+      '1 Paket benih pilihan (9 varian bebas pilih)',
+      'Siap untuk Kebun Poti',
+    ],
   },
 ]
 
