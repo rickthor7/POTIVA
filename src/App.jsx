@@ -12,7 +12,6 @@ import ProductDetail from './pages/ProductDetail'
 import Checkout from './pages/Checkout'
 import Community from './pages/Community'
 import Account from './pages/Account'
-import Scan from './pages/Scan'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -36,7 +35,6 @@ export default function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/community" element={<Community />} />
         <Route path="/account" element={<Account />} />
-        <Route path="/scan" element={<Scan />} />
       </Route>
     </Routes>
   )

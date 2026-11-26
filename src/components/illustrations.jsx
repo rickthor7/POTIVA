@@ -552,63 +552,6 @@ export function HeroScene({ className = '' }) {
   )
 }
 
-/* ── QR pattern (decorative demo code) ─────────── */
-export function QRPattern({ size = 156, className = '' }) {
-  const modules = []
-  const n = 21
-  const finder = (r, c) =>
-    (r < 7 && c < 7) || (r < 7 && c >= n - 7) || (r >= n - 7 && c < 7)
-  const isFinderDark = (r, c) => {
-    const rr = r < 7 ? r : r - (n - 7)
-    const cc = c < 7 ? c : c - (n - 7)
-    if (rr < 0 || cc < 0 || rr > 6 || cc > 6) return false
-    const ring = Math.max(Math.abs(rr - 3), Math.abs(cc - 3))
-    return ring === 3 || ring <= 1
-  }
-  for (let r = 0; r < n; r++) {
-    for (let c = 0; c < n; c++) {
-      if (finder(r, c)) continue
-      const on = (r * 7 + c * 13 + r * c * 3 + (r % 3) * (c % 5)) % 5 < 2
-      if (on) modules.push([r, c])
-    }
-  }
-  const cell = 6
-  const pad = 14
-  return (
-    <svg width={size} height={size} viewBox="0 0 160 160" className={className} aria-label="Contoh QR Plant ID">
-      <rect width="160" height="160" rx="18" fill="#FFFFFF" />
-      {[
-        [0, 0],
-        [0, n - 7],
-        [n - 7, 0],
-      ].map(([r, c]) => (
-        <g key={`${r}-${c}`} transform={`translate(${pad + c * cell} ${pad + r * cell})`}>
-          <rect width={cell * 7} height={cell * 7} rx="3" fill="#174D35" />
-          <rect x={cell} y={cell} width={cell * 5} height={cell * 5} rx="2" fill="#FFFFFF" />
-          <rect x={cell * 2} y={cell * 2} width={cell * 3} height={cell * 3} rx="1.5" fill="#174D35" />
-        </g>
-      ))}
-      {modules.map(([r, c]) => (
-        <rect
-          key={`${r}-${c}`}
-          x={pad + c * cell}
-          y={pad + r * cell}
-          width={cell - 1}
-          height={cell - 1}
-          rx="1.4"
-          fill="#174D35"
-        />
-      ))}
-      <g transform="translate(80 80)">
-        <circle r="14" fill="#FFFFFF" />
-        <path d="M0 8V-2" stroke="#3F8F55" strokeWidth="3" strokeLinecap="round" />
-        <path d="M0 1c0-5 3-8 8-8 0 5-3 8-8 8Z" fill="#A8D66D" />
-        <path d="M0 5c0-4-3-7-7-7 0 4 3 7 7 7Z" fill="#3F8F55" />
-      </g>
-    </svg>
-  )
-}
-
 /* ── Product illustrations ─────────────────────── */
 const COSMETIC_SLOT_BY_ART = {
   'gaya-topi-jerami': 'hat',

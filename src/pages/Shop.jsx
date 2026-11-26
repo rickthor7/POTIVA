@@ -6,7 +6,6 @@ import {
   Gamepad2,
   HelpCircle,
   Leaf,
-  ScanLine,
   Search,
   Shirt,
   ShoppingBag,
@@ -60,7 +59,7 @@ export default function Shop() {
       <PageHeader
         eyebrow="POTIVA Shop"
         title="Lengkapi kebutuhan menanammu."
-        subtitle="Pot, benih, perawatan, dan gaya Poti. Produk fisik membawa QR Plant ID; aksesori Poti dibuka dengan koin kebun."
+        subtitle="Pot, benih, perawatan, dan gaya Poti. Benih & perawatan dapat langsung dipakai di Kebun Poti 2D; aksesori Poti dibuka dengan koin kebun."
         actions={
           <button className="btn btn--primary" onClick={openCart}>
             <ShoppingBag size={17} /> Keranjang {cartCount > 0 && <span className="btn__count">{cartCount}</span>}
@@ -118,7 +117,7 @@ export default function Shop() {
           <Check size={16} /> Garansi produk aman sampai tujuan
         </span>
         <span>
-          <Sparkles size={16} /> QR Plant ID di setiap pot &amp; benih
+          <Sparkles size={16} /> Benih &amp; pupuk siap pakai di Kebun Poti
         </span>
         {shopVouchers.length > 0 && (
           <span className="shop-promo__voucher">
@@ -257,10 +256,10 @@ export default function Shop() {
           <section className="shop-scan-card">
             <Mascot size={92} waving={false} />
             <div>
-              <strong>Sudah punya produk POTIVA?</strong>
-              <p>Scan QR di kemasan untuk mengaktifkan Plant ID.</p>
-              <Link to="/scan" className="btn btn--cream btn--sm">
-                <ScanLine size={15} /> Scan sekarang
+              <strong>Mainkan Kebun Poti 2D!</strong>
+              <p>Beli benih atau pupuk lalu tanam dan panen voucher diskon di kebun virtual.</p>
+              <Link to="/garden?play=1" className="btn btn--cream btn--sm">
+                <Gamepad2 size={15} /> Buka game kebun
               </Link>
             </div>
           </section>

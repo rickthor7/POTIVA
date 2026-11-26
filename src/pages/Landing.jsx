@@ -6,10 +6,10 @@ import {
   Check,
   Coins,
   Droplets,
+  Gamepad2,
   Heart,
   Leaf,
   NotebookPen,
-  ScanLine,
   ShoppingBag,
   Sparkles,
   Sprout,
@@ -28,7 +28,6 @@ import {
   LeafPattern,
   Mascot,
   PottedPlant,
-  QRPattern,
   Sprout as SproutIcon,
 } from '../components/illustrations'
 import ProductCard from '../components/ProductCard'
@@ -38,20 +37,20 @@ const STEPS = [
   {
     icon: ShoppingBag,
     title: 'Pilih & beli produk',
-    text: 'Pot atau benih POTIVA datang dengan QR Plant ID unik di kemasannya.',
+    text: 'Pot, media tanam, pupuk, atau benih POTIVA siap membantumu mulai berkebun.',
     note: 'Pot Mini · Benih Cabai · Paket Pemula',
   },
   {
-    icon: ScanLine,
-    title: 'Pindai QR-nya',
-    text: 'Buka halaman aktivasi, konfirmasi jenis tanaman, dan mulai dari tanggal tanammu.',
-    note: 'Butuh 30 detik · tanpa ribet',
+    icon: Gamepad2,
+    title: 'Tanam di Kebun Poti',
+    text: 'Buka taman virtual 2D multiplayer dan tanam langsung benih pilihanmu di kebun.',
+    note: '32 petak tanam · tanpa ribet',
   },
   {
     icon: Sprout,
-    title: 'Rawat & tumbuhkan',
-    text: 'Ikuti jadwal perawatan, isi jurnal, dan lihat taman virtualmu bertumbuh.',
-    note: 'Pengingat · jurnal · XP & reward',
+    title: 'Rawat & panen hadiah',
+    text: 'Ikuti jadwal perawatan, isi jurnal, panen hasil kebunmu, dan tukar voucher diskon.',
+    note: 'Pengingat · jurnal · voucher 10–15%',
   },
 ]
 
@@ -114,7 +113,7 @@ export default function Landing() {
             </h1>
             <p className="hero__lead">
               Bersama POTIVA, menanam jadi lebih mudah, menyenangkan, dan bermakna.
-              Pindai produkmu, rawat taman virtual, dan catat setiap pertumbuhan — semuanya
+              Tanam benihmu, rawat taman virtual, dan catat setiap pertumbuhan — semuanya
               di satu tempat.
             </p>
             <div className="hero__cta">
@@ -149,13 +148,15 @@ export default function Landing() {
               <HeroScene />
             </div>
             <div className="float-card float-card--qr">
-              <QRPattern size={46} />
+              <span className="float-card__icon float-card__icon--fresh">
+                <Sprout size={20} />
+              </span>
               <div>
-                <strong>Plant ID aktif</strong>
+                <strong>Kebun Poti 2D</strong>
                 <span>Pot Mini · Cabai Milo</span>
               </div>
               <span className="float-card__status">
-                <Check size={11} /> Terhubung
+                <Check size={11} /> Aktif
               </span>
             </div>
             <div className="float-card float-card--xp">
@@ -556,8 +557,8 @@ export default function Landing() {
               <Link to={loggedIn ? '/app' : '/masuk'} className="btn btn--cream btn--lg">
                 Mulai Sekarang <ArrowRight size={18} />
               </Link>
-              <Link to="/scan" className="btn btn--outline btn--lg cta-banner__scan">
-                <ScanLine size={18} /> Scan QR Produk
+              <Link to="/garden?play=1" className="btn btn--outline btn--lg cta-banner__scan">
+                <Gamepad2 size={18} /> Main Kebun Poti
               </Link>
             </div>
           </div>

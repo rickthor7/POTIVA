@@ -153,14 +153,14 @@ export default function Garden() {
         <div className="card card--pad empty">
           <EmptyArt variant="garden" />
           <h3>Belum ada tanaman yang sedang tumbuh</h3>
-          <p>Beli benih di POTIVA Shop, tanam di Kebun Poti, atau scan QR produk POTIVA.</p>
+          <p>Beli benih di POTIVA Shop lalu tanam langsung di Kebun Poti 2D.</p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
             <Link to="/shop?kategori=Benih" className="btn btn--primary">
               <Sprout size={17} /> Beli Benih di Shop
             </Link>
-            <Link to="/scan" className="btn btn--outline">
-              <Sparkles size={17} /> Scan produk POTIVA
-            </Link>
+            <button type="button" className="btn btn--outline" onClick={() => setGameOpen(true)}>
+              <Play size={17} /> Buka Kebun Poti
+            </button>
           </div>
         </div>
         {gameOpen && <GardenGame plants={plants} onClose={closeGame} />}
@@ -179,9 +179,9 @@ export default function Garden() {
             <Link to="/journal" className="btn btn--outline">
               <Leaf size={17} /> Catat progres
             </Link>
-            <Link to="/scan" className="btn btn--primary">
-              <Sparkles size={17} /> Tambah tanaman
-            </Link>
+            <button type="button" className="btn btn--primary" onClick={() => setGameOpen(true)}>
+              <Sparkles size={17} /> Tanam di Kebun Poti
+            </button>
           </>
         }
       />

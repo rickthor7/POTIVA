@@ -43,8 +43,8 @@ const TABS = [
 
 const FAQ = [
   {
-    q: 'Bagaimana cara mengaktifkan Plant ID?',
-    a: 'Buka halaman Scan, arahkan kamera ke QR pada kemasan POTIVA, lalu konfirmasi jenis tanaman dan tanggal tanam. Bisa juga masukkan kode secara manual.',
+    q: 'Bagaimana cara menanam tanaman baru di POTIVA?',
+    a: 'Beli benih di POTIVA Shop atau lewat bangunan Toko POTIVA di dalam game Kebun Poti, lalu klik petak tanah kosong untuk menanam benih pilihanmu.',
   },
   {
     q: 'Apakah progres game sama dengan kondisi tanaman asli?',
@@ -272,7 +272,7 @@ export default function Account() {
               <h2>Tanamanmu</h2>
               <p>{plants.length} profil tanaman aktif.</p>
             </div>
-            <Link to="/scan" className="btn btn--primary btn--sm">
+            <Link to="/garden?play=1" className="btn btn--primary btn--sm">
               <Plus size={15} /> Tambah tanaman
             </Link>
           </div>
@@ -280,9 +280,9 @@ export default function Account() {
             <div className="card card--pad empty">
               <EmptyArt variant="garden" />
               <h3>Belum ada tanaman</h3>
-              <p>Scan QR produk POTIVA untuk memulai.</p>
-              <Link to="/scan" className="btn btn--primary">
-                Scan produk
+              <p>Beli benih di Shop atau langsung buka Kebun Poti 2D untuk menanam.</p>
+              <Link to="/garden?play=1" className="btn btn--primary">
+                Buka Kebun Poti
               </Link>
             </div>
           ) : (
@@ -497,8 +497,8 @@ export default function Account() {
               <a href="mailto:halo@potiva.id" className="btn btn--outline btn--sm btn--block">
                 <Mail size={14} /> halo@potiva.id
               </a>
-              <Link to="/scan" className="btn btn--ghost btn--sm btn--block">
-                <Leaf size={14} /> Panduan scan QR
+              <Link to="/library" className="btn btn--ghost btn--sm btn--block">
+                <Leaf size={14} /> Panduan berkebun
               </Link>
             </section>
             <section className="card card--pad account-side__help">

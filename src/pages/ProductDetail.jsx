@@ -11,7 +11,6 @@ import {
   Minus,
   Package,
   Plus,
-  ScanLine,
   ShieldCheck,
   Shirt,
   ShoppingBag,
@@ -140,8 +139,8 @@ export default function ProductDetail() {
             ) : (
               <>
                 <div>
-                  <ScanLine size={19} />
-                  <span>QR Plant ID</span>
+                  <Sparkles size={19} />
+                  <span>Produk Pilihan</span>
                 </div>
                 <div>
                   <Droplets size={19} />
@@ -340,11 +339,11 @@ export default function ProductDetail() {
         <div className="pdp__art-note">
           <PottedPlant width={90} growth={60} potTone="cream" />
           <p>
-            Setiap pembelian pot atau benih POTIVA menyertakan QR untuk mengaktifkan profil
-            tanaman digital di My Garden.
+            Rawat tanamanmu sambil bermain di Kebun Poti 2D, kumpulkan koin, dan tukar hasil panen
+            menjadi voucher diskon POTIVA.
           </p>
-          <Link to="/scan" className="btn btn--outline btn--sm">
-            <ScanLine size={15} /> Coba scan demo
+          <Link to="/garden?play=1" className="btn btn--outline btn--sm">
+            <Gamepad2 size={15} /> Buka Kebun Poti
           </Link>
         </div>
       )}

@@ -10,7 +10,7 @@ import {
   Flame,
   Leaf,
   Plus,
-  ScanLine,
+  ShoppingBag,
   Sprout,
   Trophy,
   Zap,
@@ -77,8 +77,8 @@ export default function Dashboard() {
         subtitle="Ini ringkasan kebunmu hari ini. Mulai dari yang paling kecil, ya."
         actions={
           <>
-            <Link to="/scan" className="btn btn--outline">
-              <ScanLine size={17} /> Scan QR
+            <Link to="/shop?kategori=Benih" className="btn btn--outline">
+              <ShoppingBag size={17} /> Beli Benih
             </Link>
             <Link to="/garden" className="btn btn--primary">
               <Sprout size={17} /> Buka Garden
@@ -172,12 +172,12 @@ export default function Dashboard() {
                   </Link>
                 )
               })}
-              <Link to="/scan" className="plant-tile plant-tile--add">
+              <Link to="/garden?play=1" className="plant-tile plant-tile--add">
                 <span className="plant-tile__plus">
                   <Plus size={22} />
                 </span>
                 <strong>Tambah tanaman</strong>
-                <span>Scan QR produk POTIVA</span>
+                <span>Tanam benih baru di Kebun Poti</span>
               </Link>
             </div>
           </section>

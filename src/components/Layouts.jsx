@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { ScanLine, Sprout } from 'lucide-react'
+import { Sprout } from 'lucide-react'
 import Navbar from './Navbar'
 import Footer from './Footer'
 import MobileNav from './MobileNav'
@@ -70,17 +70,13 @@ export function AppLayout() {
         <div className="container app-footer__inner">
           <span>🌱 POTIVA · Grow Beyond Nature</span>
           <div>
-            <Link to="/scan">Scan QR</Link>
+            <Link to="/garden?play=1">Kebun Poti</Link>
             <Link to="/library">E-Library</Link>
             <Link to="/community">Komunitas</Link>
             <Link to="/account?tab=bantuan">Bantuan</Link>
           </div>
         </div>
       </footer>
-      <Link to="/scan" className="scan-fab" aria-label="Scan QR produk POTIVA">
-        <ScanLine size={23} />
-        <span>Scan</span>
-      </Link>
       <GameShortcut app />
       <MobileNav />
     </div>

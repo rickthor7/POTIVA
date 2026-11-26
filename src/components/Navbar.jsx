@@ -5,7 +5,6 @@ import {
   ChevronDown,
   LogOut,
   Menu,
-  ScanLine,
   ShoppingBag,
   Sprout,
   UserRound,
@@ -100,10 +99,6 @@ export default function Navbar({ mode = 'public' }) {
         </nav>
 
         <div className="nav__actions">
-          <Link to="/scan" className="btn btn--outline btn--sm nav__scan">
-            <ScanLine size={16} /> Scan QR
-          </Link>
-
           {mode === 'app' && (
             <Link to="/care" className="icon-btn nav__bell" aria-label="Notifikasi perawatan">
               <Bell size={19} />
@@ -189,11 +184,6 @@ export default function Navbar({ mode = 'public' }) {
       {menuOpen && (
         <div className="nav__panel">
           <nav className="nav__panel-links" aria-label="Menu seluler">
-            {mode === 'app' && (
-              <NavLink to="/scan" className="nav__panel-link">
-                <ScanLine size={18} /> Scan QR Plant ID
-              </NavLink>
-            )}
             {links.map((link) => (
               <Link key={link.to} to={link.to} className="nav__panel-link" onClick={() => setMenuOpen(false)}>
                 {link.label}

@@ -100,7 +100,7 @@ export const PRODUCTS = [
     tag: 'Best seller',
     description:
       'Pot keramik mini 12 cm dengan lubang drainase dan tatakan. Pas untuk meja kerja atau ambang jendela sempit.',
-    includes: ['1 pot keramik 12 cm', 'Tatakan kayu', 'Panduan tanam pemula', 'QR Plant ID'],
+    includes: ['1 pot keramik 12 cm', 'Tatakan kayu', 'Panduan tanam pemula', 'Siap untuk Kebun Poti'],
   },
   {
     id: 'pot-besar',
@@ -114,7 +114,7 @@ export const PRODUCTS = [
     tag: 'Favorit',
     description:
       'Pot tanah liat 20 cm untuk tanaman yang butuh ruang akar lebih lega. Warna earthy, tahan panas, dan breathable.',
-    includes: ['1 pot tanah liat 20 cm', 'Drainase ganda', 'Panduan repotting', 'QR Plant ID'],
+    includes: ['1 pot tanah liat 20 cm', 'Drainase ganda', 'Panduan repotting', 'Siap untuk Kebun Poti'],
   },
   {
     id: 'benih-cabai',
@@ -130,7 +130,7 @@ export const PRODUCTS = [
     tag: 'Pemula friendly',
     description:
       '10 butir benih cabai rawit pilihan dengan tingkat germinasi tinggi. Sudah diuji tanam di iklim tropis. Bisa juga ditanam langsung di Kebun Poti.',
-    includes: ['10 benih cabai', 'Media semai 100 g', 'Kartu cara semai', 'QR Plant ID', 'Benih virtual Kebun Poti'],
+    includes: ['10 benih cabai', 'Media semai 100 g', 'Kartu cara semai', 'Benih virtual Kebun Poti'],
   },
   {
     id: 'pupuk-organik',
@@ -176,7 +176,7 @@ export const PRODUCTS = [
     tag: null,
     description:
       'Benih tomat ceri manis dengan buah lebat. Cocok untuk pot besar di balkon yang terkena matahari pagi. Bisa juga ditanam langsung di Kebun Poti.',
-    includes: ['12 benih tomat', 'Kartu panduan semai', 'QR Plant ID', 'Benih virtual Kebun Poti'],
+    includes: ['12 benih tomat', 'Kartu panduan semai', 'Benih virtual Kebun Poti'],
   },
   {
     id: 'benih-basil',
@@ -192,7 +192,7 @@ export const PRODUCTS = [
     tag: 'Aromatik',
     description:
       'Benih basil beraroma segar lemon untuk dapur rumahmu. Cepat tumbuh dan bisa langsung ditanam di Kebun Poti.',
-    includes: ['15 benih basil', 'Kartu panduan semai', 'QR Plant ID', 'Benih virtual Kebun Poti'],
+    includes: ['15 benih basil', 'Kartu panduan semai', 'Benih virtual Kebun Poti'],
   },
   {
     id: 'benih-mint',
@@ -208,7 +208,7 @@ export const PRODUCTS = [
     tag: null,
     description:
       'Benih daun mint tahan banting untuk teh dan minuman segar. Bisa langsung ditanam di petak Kebun Poti.',
-    includes: ['15 benih mint', 'Kartu panduan semai', 'QR Plant ID', 'Benih virtual Kebun Poti'],
+    includes: ['15 benih mint', 'Kartu panduan semai', 'Benih virtual Kebun Poti'],
   },
   {
     id: 'benih-bawang',
@@ -224,7 +224,7 @@ export const PRODUCTS = [
     tag: 'Dapur',
     description:
       'Umbi bibit bawang merah siap tanam di pot besar maupun di Kebun Poti. Tumbuh cepat dan mudah dirawat.',
-    includes: ['6 umbi bibit pilihan', 'Kartu cara tanam', 'QR Plant ID', 'Benih virtual Kebun Poti'],
+    includes: ['6 umbi bibit pilihan', 'Kartu cara tanam', 'Benih virtual Kebun Poti'],
   },
   {
     id: 'benih-stroberi',
@@ -240,7 +240,7 @@ export const PRODUCTS = [
     tag: 'Favorit',
     description:
       'Benih stroberi manis berbuah merah cerah. Cocok untuk tantangan berkebun dan menghasilkan panen spesial di Kebun Poti.',
-    includes: ['10 benih stroberi', 'Media semai khusus', 'QR Plant ID', 'Benih virtual Kebun Poti'],
+    includes: ['10 benih stroberi', 'Media semai khusus', 'Benih virtual Kebun Poti'],
   },
   {
     id: 'tanah-media',
@@ -269,7 +269,7 @@ export const PRODUCTS = [
     tag: null,
     description:
       'Pot gantung ringan dengan tali katun. Solusi hijau untuk area tanpa meja, cocok untuk mint dan basil.',
-    includes: ['1 pot gantung 15 cm', 'Tali katun 80 cm', 'Kait besi', 'QR Plant ID'],
+    includes: ['1 pot gantung 15 cm', 'Tali katun 80 cm', 'Kait besi', 'Siap untuk Kebun Poti'],
   },
 ]
 

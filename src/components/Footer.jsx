@@ -28,7 +28,7 @@ const COLUMNS = [
   {
     title: 'Bantuan',
     links: [
-      { label: 'Cara Scan QR', to: '/scan' },
+      { label: 'Pertanyaan Umum', to: '/account?tab=bantuan' },
       { label: 'Panduan Perawatan', to: '/library' },
       { label: 'Status Pesanan', to: '/account?tab=pesanan' },
       { label: 'Kebijakan Privasi', to: '/#privasi' },
