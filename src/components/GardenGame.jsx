@@ -688,6 +688,32 @@ const COSMETIC_SLOTS = [
   { id: 'back', label: 'Punggung' },
 ]
 
+const getFsElement = () =>
+  typeof document !== 'undefined'
+    ? document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement ||
+      null
+    : null
+
+const exitNativeFs = async () => {
+  if (typeof document === 'undefined' || !getFsElement()) return
+  try {
+    if (document.exitFullscreen) await document.exitFullscreen()
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen()
+    else if (document.mozCancelFullScreen) document.mozCancelFullScreen()
+    else if (document.msExitFullscreen) document.msExitFullscreen()
+  } catch {
+    /* ignore */
+  }
+}
+
+const isIOSDevice = () =>
+  typeof navigator !== 'undefined' &&
+  (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
+
 export default function GardenGame({ plants, onClose }) {
   const {
     user,
@@ -709,7 +735,10 @@ export default function GardenGame({ plants, onClose }) {
   const [portrait, setPortrait] = useState(
     () => typeof window !== 'undefined' && window.innerHeight > window.innerWidth,
   )
-  const [isFs, setIsFs] = useState(false)
+  const [allowPortrait, setAllowPortrait] = useState(false)
+  const [nativeFs, setNativeFs] = useState(() => Boolean(getFsElement()))
+  const [immersiveFs, setImmersiveFs] = useState(false)
+  const isFs = nativeFs || immersiveFs
   const [viewport, setViewport] = useState({ w: 1280, h: 720 })
   const [activeId, setActiveId] = useState(null)
   const [activeSlot, setActiveSlot] = useState(null)
@@ -786,8 +815,12 @@ export default function GardenGame({ plants, onClose }) {
   const blinkTimer = useRef(null)
   const plantAnimTimer = useRef(null)
   const questAwarded = useRef(false)
+  const allowPortraitRef = useRef(false)
+  const wasNativeFsRef = useRef(false)
+  const exitingFsRef = useRef(false)
 
   phaseRef.current = phase
+  allowPortraitRef.current = allowPortrait
   viewportRef.current = viewport
   dewRef.current = dew
   needsRef.current = needs
@@ -798,8 +831,12 @@ export default function GardenGame({ plants, onClose }) {
   const supportsFs = useMemo(
     () =>
       typeof document !== 'undefined' &&
-      (document.fullscreenEnabled ||
-        typeof document.documentElement.requestFullscreen === 'function'),
+      Boolean(
+        document.fullscreenEnabled ||
+          document.webkitFullscreenEnabled ||
+          typeof document.documentElement?.requestFullscreen === 'function' ||
+          typeof document.documentElement?.webkitRequestFullscreen === 'function',
+      ),
     [],
   )
 
@@ -1014,7 +1051,12 @@ export default function GardenGame({ plants, onClose }) {
 
   const goTo = useCallback(
     (x, y, text) => {
-      if (phaseRef.current !== 'playing' || portrait || sleepingRef.current || wardrobeRef.current)
+      if (
+        phaseRef.current !== 'playing' ||
+        (portrait && !allowPortraitRef.current) ||
+        sleepingRef.current ||
+        wardrobeRef.current
+      )
         return
       pendingSpot.current = null
       pendingPlotRef.current = null
@@ -1032,7 +1074,7 @@ export default function GardenGame({ plants, onClose }) {
 
   const goToEmptyPlot = useCallback(
     (slot) => {
-      if (phaseRef.current !== 'playing' || portrait) return
+      if (phaseRef.current !== 'playing' || (portrait && !allowPortraitRef.current)) return
       const p = player.current
       if (Math.hypot(slot.x - p.x, slot.y - p.y) < REACH) {
         pendingPlotRef.current = null
@@ -1047,7 +1089,7 @@ export default function GardenGame({ plants, onClose }) {
 
   const goToSpot = useCallback(
     (spot) => {
-      if (phaseRef.current !== 'playing' || portrait) return
+      if (phaseRef.current !== 'playing' || (portrait && !allowPortraitRef.current)) return
       const p = player.current
       if (Math.hypot(spot.x - p.x, spot.y - p.y) < REACH + 40) {
         pendingSpot.current = null
@@ -1070,7 +1112,7 @@ export default function GardenGame({ plants, onClose }) {
 
   const onViewClick = useCallback(
     (event) => {
-      if (phaseRef.current !== 'playing' || portrait) return
+      if (phaseRef.current !== 'playing' || (portrait && !allowPortraitRef.current)) return
       if (pinchedRef.current) {
         pinchedRef.current = false
         return
@@ -1126,15 +1168,28 @@ export default function GardenGame({ plants, onClose }) {
     const ro = new ResizeObserver(update)
     ro.observe(el)
     window.addEventListener('orientationchange', update)
+    window.addEventListener('resize', update)
+    window.visualViewport?.addEventListener('resize', update)
     return () => {
       ro.disconnect()
       window.removeEventListener('orientationchange', update)
+      window.removeEventListener('resize', update)
+      window.visualViewport?.removeEventListener('resize', update)
     }
   }, [])
 
   useEffect(() => {
-    if (portrait && phaseRef.current === 'playing') setPhase('paused')
-  }, [portrait])
+    if (portrait && !allowPortrait && phaseRef.current === 'playing') setPhase('paused')
+  }, [portrait, allowPortrait])
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('g-fs-lock', isFs)
+    document.body.classList.toggle('g-fs-lock', isFs)
+    return () => {
+      document.documentElement.classList.remove('g-fs-lock')
+      document.body.classList.remove('g-fs-lock')
+    }
+  }, [isFs])
 
   useEffect(() => {
     if (phase === 'intro' && !portrait) introBtnRef.current?.focus?.()
@@ -1156,50 +1211,126 @@ export default function GardenGame({ plants, onClose }) {
     setBubble(null)
   }, [phase])
 
-  const requestFullscreen = useCallback(async () => {
-    const el = rootRef.current
+  const tryNativeFs = useCallback(async (target) => {
+    if (!target) return false
     try {
-      if (!document.fullscreenElement) {
-        if (el?.requestFullscreen) await el.requestFullscreen({ navigationUI: 'hide' })
-        else if (el?.webkitRequestFullscreen) el.webkitRequestFullscreen()
+      if (typeof target.requestFullscreen === 'function') {
+        try {
+          await target.requestFullscreen({ navigationUI: 'hide' })
+        } catch {
+          await target.requestFullscreen()
+        }
+        return Boolean(getFsElement())
+      }
+      if (typeof target.webkitRequestFullscreen === 'function') {
+        await target.webkitRequestFullscreen()
+        return Boolean(getFsElement())
+      }
+      if (typeof target.webkitRequestFullScreen === 'function') {
+        await target.webkitRequestFullScreen()
+        return Boolean(getFsElement())
+      }
+      if (typeof target.mozRequestFullScreen === 'function') {
+        await target.mozRequestFullScreen()
+        return Boolean(getFsElement())
+      }
+      if (typeof target.msRequestFullscreen === 'function') {
+        await target.msRequestFullscreen()
+        return Boolean(getFsElement())
       }
     } catch {
-      /* ignore */
+      /* ignore native fullscreen rejection (e.g. iOS Safari or in-app browser) */
     }
-    try {
-      if (screen.orientation?.lock) await screen.orientation.lock('landscape')
-    } catch {
-      /* ignore */
-    }
+    return Boolean(getFsElement())
   }, [])
 
+  const requestFullscreen = useCallback(
+    async ({ notify = false } = {}) => {
+      setImmersiveFs(true)
+      let enteredNative = Boolean(getFsElement())
+      if (!enteredNative) {
+        enteredNative = await tryNativeFs(rootRef.current)
+      }
+      if (!enteredNative) {
+        enteredNative = await tryNativeFs(document.documentElement)
+      }
+      if (enteredNative) {
+        wasNativeFsRef.current = true
+        setNativeFs(true)
+      }
+      try {
+        if (screen.orientation?.lock) await screen.orientation.lock('landscape')
+      } catch {
+        /* ignore */
+      }
+      window.requestAnimationFrame(() => {
+        try {
+          window.scrollTo(0, 1)
+        } catch {
+          /* ignore */
+        }
+        const el = rootRef.current
+        if (el) setViewport({ w: el.clientWidth || window.innerWidth, h: el.clientHeight || window.innerHeight })
+      })
+      if (notify) {
+        if (enteredNative) {
+          say('Mode layar penuh aktif! 📱✨', 2200)
+        } else if (isIOSDevice()) {
+          say('Layar diperluas! Untuk penuh 100% di iPhone: ketuk "AA" → Sembunyikan Toolbar atau Bagikan → Tambah ke Layar Utama.', 4200)
+        } else {
+          say('Mode layar penuh aktif!', 2200)
+        }
+      }
+    },
+    [say, tryNativeFs],
+  )
+
   const close = useCallback(() => {
-    try {
-      if (document.fullscreenElement) document.exitFullscreen()
-    } catch {
-      /* ignore */
-    }
+    exitingFsRef.current = true
+    wasNativeFsRef.current = false
+    setImmersiveFs(false)
+    void exitNativeFs()
     try {
       screen.orientation?.unlock?.()
     } catch {
       /* ignore */
     }
+    document.documentElement.classList.remove('g-fs-lock')
+    document.body.classList.remove('g-fs-lock')
     onClose()
   }, [onClose])
 
   useEffect(() => {
     const onChange = () => {
-      const activeFs = Boolean(document.fullscreenElement)
-      setIsFs(activeFs)
+      const activeFs = Boolean(getFsElement())
+      setNativeFs(activeFs)
+      if (activeFs) {
+        wasNativeFsRef.current = true
+        setImmersiveFs(true)
+      }
       const el = rootRef.current
-      if (el) setViewport({ w: el.clientWidth, h: el.clientHeight })
-      if (!activeFs && phaseRef.current === 'playing') setPhase('paused')
+      if (el) setViewport({ w: el.clientWidth || window.innerWidth, h: el.clientHeight || window.innerHeight })
+      if (!activeFs) {
+        if (exitingFsRef.current) {
+          exitingFsRef.current = false
+          return
+        }
+        if (wasNativeFsRef.current) {
+          wasNativeFsRef.current = false
+          setImmersiveFs(false)
+          if (phaseRef.current === 'playing') setPhase('paused')
+        }
+      }
     }
     document.addEventListener('fullscreenchange', onChange)
     document.addEventListener('webkitfullscreenchange', onChange)
+    document.addEventListener('mozfullscreenchange', onChange)
+    document.addEventListener('MSFullscreenChange', onChange)
     return () => {
       document.removeEventListener('fullscreenchange', onChange)
       document.removeEventListener('webkitfullscreenchange', onChange)
+      document.removeEventListener('mozfullscreenchange', onChange)
+      document.removeEventListener('MSFullscreenChange', onChange)
     }
   }, [])
 
@@ -1210,15 +1341,25 @@ export default function GardenGame({ plants, onClose }) {
   }
 
   const toggleFullscreen = async () => {
-    if (document.fullscreenElement) {
+    if (isFs) {
+      exitingFsRef.current = true
+      wasNativeFsRef.current = false
+      setImmersiveFs(false)
+      await exitNativeFs()
       try {
-        await document.exitFullscreen()
+        screen.orientation?.unlock?.()
       } catch {
         /* ignore */
       }
+      const el = rootRef.current
+      if (el) setViewport({ w: el.clientWidth || window.innerWidth, h: el.clientHeight || window.innerHeight })
+      say('Keluar dari mode layar penuh.', 1800)
+      window.setTimeout(() => {
+        exitingFsRef.current = false
+      }, 250)
       return
     }
-    await requestFullscreen()
+    await requestFullscreen({ notify: true })
   }
 
   const cheerWorld = () => {
@@ -1650,7 +1791,7 @@ export default function GardenGame({ plants, onClose }) {
         setChatOpen(false)
         return
       }
-      if (document.fullscreenElement) return
+      if (getFsElement()) return
       setPhase((p) => (p === 'playing' ? 'paused' : p === 'paused' ? 'playing' : p))
     }
     window.addEventListener('keydown', onKey)
@@ -1853,7 +1994,9 @@ export default function GardenGame({ plants, onClose }) {
   return createPortal(
     <div
       ref={rootRef}
-      className={`game game--pixel ${sleeping ? 'is-sleeping' : ''}`}
+      className={`game game--pixel ${sleeping ? 'is-sleeping' : ''} ${
+        isFs ? 'is-fullscreen' : ''
+      } ${portrait && allowPortrait ? 'is-portrait-play' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Mode petualangan Kebun Pixel POTIVA"
@@ -2343,16 +2486,16 @@ export default function GardenGame({ plants, onClose }) {
           <span className={`g-chip g-chip--quest ${questDone ? 'is-done' : ''}`}>
             <Trophy size={14} /> {questProgress}/{QUEST.care + QUEST.water + QUEST.dew}
           </span>
-          {supportsFs && (
-            <button
-              type="button"
-              className="g-icon-btn"
-              onClick={toggleFullscreen}
-              aria-label={isFs ? 'Keluar dari layar penuh' : 'Masuk layar penuh'}
-            >
-              {isFs ? <Minimize2 size={19} /> : <Maximize2 size={19} />}
-            </button>
-          )}
+          <button
+            type="button"
+            className={`g-icon-btn g-icon-btn--fs ${isFs ? 'is-active' : ''}`}
+            onClick={toggleFullscreen}
+            aria-pressed={isFs}
+            aria-label={isFs ? 'Keluar dari layar penuh' : 'Masuk layar penuh'}
+            title={isFs ? 'Keluar dari layar penuh' : 'Layar penuh (HP & Desktop)'}
+          >
+            {isFs ? <Minimize2 size={19} /> : <Maximize2 size={19} />}
+          </button>
         </div>
       </header>
 
@@ -2619,8 +2762,8 @@ export default function GardenGame({ plants, onClose }) {
             </div>
             <div className="g-intro__actions">
               <button type="button" className="g-cta" onClick={start} ref={introBtnRef}>
-                {supportsFs ? <Maximize2 size={18} /> : <Play size={18} />}
-                {supportsFs ? 'Mulai & layar penuh' : 'Mulai bermain'}
+                <Maximize2 size={18} />
+                Mulai &amp; layar penuh
               </button>
               <button type="button" className="g-cta g-cta--ghost" onClick={close}>
                 <ArrowLeft size={18} /> Kembali ke kebun
@@ -2628,8 +2771,8 @@ export default function GardenGame({ plants, onClose }) {
             </div>
             <p className="g-intro__note">
               {supportsFs
-                ? 'Game akan membuka layar penuh. Di HP, putar perangkat ke landscape terlebih dahulu.'
-                : 'Layar penuh tidak tersedia di browser ini, tetapi game tetap memenuhi layar. Di HP, gunakan posisi landscape.'}
+                ? 'Game otomatis masuk layar penuh. Di HP Android, aktifkan rotasi/landscape untuk sudut pandang terluas.'
+                : 'Mode layar penuh adaptif aktif. Di iPhone Safari, putar landscape & pilih "Sembunyikan Toolbar" (ikon AA) agar penuh 100%.'}
             </p>
             <p className="g-intro__keys">
               Keyboard: <kbd>WASD</kbd>/panah gerak · <kbd>M</kbd> toko · <kbd>E</kbd> siram ·{' '}
@@ -2671,12 +2814,10 @@ export default function GardenGame({ plants, onClose }) {
               >
                 <Shirt size={18} /> Gaya Poti
               </button>
-              {supportsFs && (
-                <button type="button" className="g-cta g-cta--ghost" onClick={toggleFullscreen}>
-                  {isFs ? <Minimize2 size={18} /> : <Expand size={18} />}
-                  {isFs ? 'Keluar layar penuh' : 'Layar penuh'}
-                </button>
-              )}
+              <button type="button" className="g-cta g-cta--ghost" onClick={toggleFullscreen}>
+                {isFs ? <Minimize2 size={18} /> : <Expand size={18} />}
+                {isFs ? 'Keluar layar penuh' : 'Layar penuh'}
+              </button>
               <button type="button" className="g-cta g-cta--ghost" onClick={close}>
                 <LogOut size={18} /> Keluar ke kebun
               </button>
@@ -3139,7 +3280,7 @@ export default function GardenGame({ plants, onClose }) {
         </div>
       )}
 
-      {portrait && (
+      {portrait && !allowPortrait && (
         <div className="g-overlay g-overlay--rotate">
           <div className="g-card g-rotate">
             <div className="g-rotate__phone" aria-hidden="true">
@@ -3148,15 +3289,40 @@ export default function GardenGame({ plants, onClose }) {
             </div>
             <h2>Putar HP ke landscape</h2>
             <p>
-              Game POTIVA dibuat untuk layar mendatar supaya joystick di kiri dan tombol aksi
-              di kanan punya ruang cukup.
+              Game POTIVA paling nyaman di layar mendatar supaya joystick di kiri dan tombol aksi
+              di kanan punya ruang lega.
             </p>
             <span className="g-rotate__hint">
-              <RotateCw size={14} /> Aktifkan rotasi otomatis jika layar tidak ikut berputar.
+              <RotateCw size={14} /> Tap tombol di bawah untuk langsung masuk layar penuh (Android)
+              atau tetap bermain di layar HP.
             </span>
-            <button type="button" className="g-cta g-cta--ghost" onClick={close} autoFocus>
-              <X size={18} /> Kembali ke kebun
-            </button>
+            <div className="g-rotate__actions">
+              <button
+                type="button"
+                className="g-cta"
+                onClick={async () => {
+                  setAllowPortrait(true)
+                  if (phaseRef.current !== 'playing') setPhase('playing')
+                  await requestFullscreen({ notify: true })
+                }}
+                autoFocus
+              >
+                <Maximize2 size={18} /> Layar Penuh &amp; Main
+              </button>
+              <button
+                type="button"
+                className="g-cta g-cta--ghost"
+                onClick={() => {
+                  setAllowPortrait(true)
+                  if (phaseRef.current !== 'playing') setPhase('playing')
+                }}
+              >
+                <Play size={18} /> Main mode potret
+              </button>
+              <button type="button" className="g-cta g-cta--ghost" onClick={close}>
+                <X size={18} /> Kembali ke kebun
+              </button>
+            </div>
           </div>
         </div>
       )}

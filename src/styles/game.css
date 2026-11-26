@@ -2,11 +2,22 @@
    POTIVA Garden — mode petualangan
    Layar penuh, joystick kiri, tombol aksi kanan
    ─────────────────────────────────────────────── */
+html.g-fs-lock,
+body.g-fs-lock {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  touch-action: none;
+}
+
 .game {
   --g-ink: #174d35;
   position: fixed;
   inset: 0;
-  z-index: 200;
+  width: 100vw;
+  width: 100dvw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 950;
   overflow: hidden;
   background: linear-gradient(180deg, #cfe8f4 0%, #e8f5da 46%, #b9df9c 100%);
   touch-action: none;
@@ -16,10 +27,16 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.game.is-fullscreen,
 .game:fullscreen,
 .game:-webkit-full-screen {
+  position: fixed;
+  inset: 0;
   width: 100vw;
+  width: 100dvw;
   height: 100vh;
+  height: 100dvh;
+  z-index: 9999;
 }
 
 .game.is-sleeping .g-world {
@@ -2480,6 +2497,17 @@
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
+.g-icon-btn--fs {
+  color: #174d35;
+}
+
+.game--pixel .g-icon-btn--fs.is-active,
+.g-icon-btn--fs.is-active {
+  background: #2f7443;
+  border-color: #174d35;
+  color: #fff;
+}
+
 .g-icon-btn:hover {
   background: #fff;
   transform: translateY(-1px);
@@ -3322,6 +3350,13 @@
   box-shadow: var(--shadow-xs);
 }
 
+.g-rotate__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
 @keyframes g-tilt {
   0%, 100% { transform: rotate(0deg); }
   45%, 70% { transform: rotate(-90deg); }
@@ -3754,6 +3789,24 @@
 }
 
 @media (max-width: 560px) {
+  .g-hud {
+    gap: 4px;
+    padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 0
+      max(8px, env(safe-area-inset-left));
+  }
+
+  .g-hud__left,
+  .g-hud__right {
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .g-icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
   .g-petcard__info em {
     display: none;
   }
@@ -3763,11 +3816,16 @@
   }
 
   .g-xpbar {
-    width: 54px;
+    width: 48px;
+  }
+
+  .g-chip--quest {
+    display: none;
   }
 
   .g-needs {
-    width: 124px;
+    width: 118px;
+    top: max(86px, calc(env(safe-area-inset-top) + 78px));
   }
 
   .g-need b {
@@ -3777,6 +3835,45 @@
   .g-target__stat:last-of-type {
     display: none;
   }
+}
+
+.game.is-portrait-play .g-center-hud {
+  top: max(86px, calc(env(safe-area-inset-top) + 78px));
+}
+
+.game.is-portrait-play .g-zoom {
+  top: max(86px, calc(env(safe-area-inset-top) + 78px));
+}
+
+.game.is-portrait-play .g-stick {
+  width: 96px;
+  height: 96px;
+}
+
+.game.is-portrait-play .g-stick__knob {
+  width: 42px;
+  height: 42px;
+  margin: -21px 0 0 -21px;
+}
+
+.game.is-portrait-play .g-pad {
+  width: 176px;
+  height: 162px;
+}
+
+.game.is-portrait-play .g-act {
+  width: 46px;
+  height: 46px;
+}
+
+.game.is-portrait-play .g-act--water {
+  width: 62px;
+  height: 62px;
+}
+
+.game.is-portrait-play .g-act--play,
+.game.is-portrait-play .g-act--bath {
+  top: 44px;
 }
 
 @media (max-height: 560px) {
