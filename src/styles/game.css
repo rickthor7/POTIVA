@@ -528,6 +528,100 @@ body.g-fs-lock {
   gap: 5px;
 }
 
+.g-my-voucher__acts {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.g-wardrobe__btn--dl {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 9px;
+  background: #ffe9b0;
+  border: 1.5px solid #d48c28;
+  color: #5c3820;
+  font-size: 0.58rem;
+  font-weight: 700;
+}
+
+.g-wardrobe__btn--dl:hover {
+  background: #ffd95e;
+}
+
+.g-icon-btn--kios {
+  position: relative;
+  color: #b85428;
+}
+
+.g-kios-modal {
+  max-height: min(86vh, 690px);
+  overflow-y: auto;
+}
+
+.g-kios-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fff5dc, #eef9df);
+  border: 1.5px solid #e0ca96;
+}
+
+.g-kios-points,
+.g-kios-basket {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  color: var(--forest-deep);
+}
+
+.g-kios-points svg {
+  color: #e69d24;
+}
+
+.g-kios-basket {
+  margin-right: auto;
+  color: #7c4d2b;
+}
+
+.g-kios-sec {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.g-kios-sec > strong {
+  font-size: 0.7rem;
+  color: var(--forest-deep);
+}
+
+.g-kios-empty {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px dashed rgba(92, 56, 32, 0.25);
+  font-size: 0.64rem;
+  color: var(--muted);
+}
+
+.g-kios-emoji {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #fff8e2;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
 @media (max-width: 760px) {
   .g-bag-grid,
   .g-voucher-grid {

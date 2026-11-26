@@ -7,6 +7,7 @@ import {
   Bath,
   BookOpen,
   Coins,
+  Download,
   Droplets,
   Expand,
   Gamepad2,
@@ -29,6 +30,7 @@ import {
   Smartphone,
   Sparkles,
   Sprout,
+  Star,
   Store,
   Ticket,
   Trophy,
@@ -49,6 +51,7 @@ import {
   PixelCritter,
   PixelFarmhouse,
   PixelGreenhouse,
+  PixelHarvestStoreBuilding,
   PixelLamp,
   PixelMarketStall,
   PixelScarecrow,
@@ -62,6 +65,7 @@ import {
 } from './PixelGardenArt'
 import { useApp } from '../store/AppStore'
 import { useGardenMultiplayer } from '../lib/useGardenMultiplayer'
+import { downloadCuteVoucherImage } from '../lib/voucherDownload'
 import { COSMETICS, PRODUCT_CATEGORIES, PRODUCTS, SPECIES, VOUCHER_CATALOG, formatIDR, levelFromXp } from '../data/appData'
 import { clamp } from '../lib/utils'
 
@@ -155,9 +159,20 @@ const ZONES = [
 
 const INTERACTIVE_SPOTS = [
   {
+    id: 'kios_panen',
+    name: 'Kios Panen',
+    x: 582,
+    y: 444,
+    coins: 0,
+    xp: 0,
+    cooldown: 0,
+    opensHarvestStore: true,
+    message: 'Jual hasil panenmu & tukar poin menjadi voucher diskon POTIVA!',
+  },
+  {
     id: 'toko',
     name: 'Toko POTIVA',
-    x: 876,
+    x: 880,
     y: 448,
     coins: 0,
     xp: 0,
@@ -249,14 +264,15 @@ const INTERACTIVE_SPOTS = [
 
 // Solid world footprints (buildings, fences, cliffs)
 const OBSTACLES = [
-  { x: 752, y: 204, w: 248, h: 202 }, // Toko POTIVA
+  { x: 470, y: 204, w: 224, h: 198 }, // Kios Panen POTIVA
+  { x: 756, y: 204, w: 248, h: 202 }, // Toko POTIVA
   { x: 1112, y: 120, w: 336, h: 268 }, // Main Farmhouse
   { x: 2266, y: 180, w: 128, h: 192 }, // Windmill tower
   { x: 88, y: 1220, w: 240, h: 168 }, // Barn / Tool shed
   { x: 2000, y: 760, w: 224, h: 140 }, // Market stall
   { x: 2188, y: 1140, w: 256, h: 220 }, // Greenhouse
   // Top-left & top-east cliff walls
-  { x: 384, y: 166, w: 304, h: 72 },
+  { x: 56, y: 136, w: 288, h: 72 },
   { x: 2720, y: 158, w: 536, h: 72 },
   // Mid-left cliff wall split around wooden stairs (x: 292..392)
   { x: 0, y: 882, w: 292, h: 78 },
@@ -282,10 +298,10 @@ const OBSTACLES = [
 ]
 
 const WEST_RIVER_WORLD = [
-  [-40, 432],
-  [368, 440],
-  [568, 496],
-  [648, 632],
+  [-40, 536],
+  [368, 544],
+  [560, 584],
+  [648, 680],
   [656, 848],
   [624, 1144],
   [584, 1440],
@@ -404,9 +420,9 @@ const zoneAt = (x, y) =>
 
 const WORLD_TREES = [
   // Top-left & cliff trees
-  { x: 140, y: 190, v: 'oak', s: 1.05 },
-  { x: 470, y: 170, v: 'pine', s: 0.92 },
-  { x: 610, y: 190, v: 'oak', s: 1.06 },
+  { x: 110, y: 190, v: 'oak', s: 1.05 },
+  { x: 290, y: 185, v: 'pine', s: 0.92 },
+  { x: 165, y: 400, v: 'oak', s: 1.02 },
   { x: 1530, y: 190, v: 'pine', s: 0.95 },
   // Near farmhouse & sakura
   { x: 1620, y: 160, v: 'sakura', s: 1.15 },
@@ -476,7 +492,7 @@ const WORLD_CRITTERS = [
   { kind: 'chicken', x: 760, y: 1780, d: '0.4s' },
   { kind: 'rabbit', x: 2010, y: 1210, d: '0.3s' },
   { kind: 'rabbit', x: 2090, y: 1270, d: '1.4s' },
-  { kind: 'rabbit', x: 620, y: 88, d: '0.9s' },
+  { kind: 'rabbit', x: 240, y: 115, d: '0.9s' },
   { kind: 'rabbit', x: 3090, y: 480, d: '0.5s' },
   { kind: 'duck', x: 2040, y: 560, d: '0s' },
   { kind: 'duck', x: 2480, y: 690, d: '1.5s' },
@@ -650,7 +666,8 @@ function PixelMinimap({ plants, dew, peers, playerDotRef, peerDotsRef }) {
         <rect x="2696" y="1672" width="392" height="240" fill="#8d5935" />
         <rect x="160" y="1696" width="288" height="272" fill="#8d5935" />
         {/* Buildings */}
-        <rect x="752" y="204" width="248" height="202" fill="#2f7e4d" />
+        <rect x="470" y="204" width="224" height="198" fill="#d9793b" />
+        <rect x="756" y="204" width="248" height="202" fill="#2f7e4d" />
         <rect x="1112" y="120" width="336" height="268" fill="#2c5858" />
         <rect x="2266" y="180" width="128" height="192" fill="#965a33" />
         <rect x="88" y="1220" width="240" height="168" fill="#9a643d" />
@@ -828,6 +845,7 @@ export default function GardenGame({ plants, onClose }) {
     seedInventory = {},
     supplyInventory = {},
     harvestBasket = [],
+    harvestPoints = 0,
     vouchers = [],
     cartCount = 0,
   } = useApp()
@@ -859,6 +877,7 @@ export default function GardenGame({ plants, onClose }) {
   const [wardrobeOpen, setWardrobeOpen] = useState(false)
   const [seedBagOpen, setSeedBagOpen] = useState(false)
   const [harvestOpen, setHarvestOpen] = useState(false)
+  const [harvestStoreOpen, setHarvestStoreOpen] = useState(false)
   const [shopOpen, setShopOpen] = useState(false)
   const [shopCat, setShopCat] = useState('Semua')
   const [carrying, setCarrying] = useState(null)
@@ -908,6 +927,7 @@ export default function GardenGame({ plants, onClose }) {
   const harvestFnRef = useRef(() => {})
   const openSeedFnRef = useRef(() => {})
   const openHarvestFnRef = useRef(() => {})
+  const openHarvestStoreFnRef = useRef(() => {})
   const openShopFnRef = useRef(() => {})
   const fxTimer = useRef(null)
   const petFxTimer = useRef(null)
@@ -928,7 +948,8 @@ export default function GardenGame({ plants, onClose }) {
   dewRef.current = dew
   needsRef.current = needs
   sleepingRef.current = sleeping
-  wardrobeRef.current = wardrobeOpen || seedBagOpen || harvestOpen || shopOpen
+  wardrobeRef.current =
+    wardrobeOpen || seedBagOpen || harvestOpen || harvestStoreOpen || shopOpen
   spotCooldownsRef.current = spotCooldowns
 
   const supportsFs = useMemo(
@@ -1094,9 +1115,24 @@ export default function GardenGame({ plants, onClose }) {
     setWardrobeOpen(false)
     setSeedBagOpen(false)
     setShopOpen(false)
+    setHarvestStoreOpen(false)
     setHarvestOpen(true)
   }, [])
   openHarvestFnRef.current = openHarvest
+
+  const openHarvestStore = useCallback(() => {
+    if (phaseRef.current !== 'playing' || sleepingRef.current) return
+    stick.current = { x: 0, y: 0 }
+    waypoint.current = null
+    keys.current.clear()
+    setMarker(null)
+    setWardrobeOpen(false)
+    setSeedBagOpen(false)
+    setShopOpen(false)
+    setHarvestOpen(false)
+    setHarvestStoreOpen(true)
+  }, [])
+  openHarvestStoreFnRef.current = openHarvestStore
 
   const openShop = useCallback((cat = 'Semua') => {
     if (phaseRef.current !== 'playing' || sleepingRef.current) return
@@ -1107,6 +1143,7 @@ export default function GardenGame({ plants, onClose }) {
     setWardrobeOpen(false)
     setSeedBagOpen(false)
     setHarvestOpen(false)
+    setHarvestStoreOpen(false)
     if (typeof cat === 'string') setShopCat(cat)
     setShopOpen(true)
   }, [])
@@ -1133,6 +1170,10 @@ export default function GardenGame({ plants, onClose }) {
   const interactSpot = useCallback(
     (spot) => {
       if (phaseRef.current !== 'playing') return
+      if (spot.opensHarvestStore) {
+        openHarvestStoreFnRef.current()
+        return
+      }
       if (spot.opensShop) {
         openShopFnRef.current()
         return
@@ -1303,6 +1344,7 @@ export default function GardenGame({ plants, onClose }) {
     setWardrobeOpen(false)
     setSeedBagOpen(false)
     setHarvestOpen(false)
+    setHarvestStoreOpen(false)
     setShopOpen(false)
     setChatOpen(false)
     pendingSpot.current = null
@@ -1743,6 +1785,39 @@ export default function GardenGame({ plants, onClose }) {
     say(`Voucher ${vc.code} (${vc.discount}% OFF) berhasil ditukar! 🎉`, 3000)
   }
 
+  const sellHarvest = (harvestId) => {
+    const sold = actions.sellHarvestItem(harvestId)
+    if (!sold) return
+    react('happy')
+    flash(`Terjual ${sold.emoji} ${sold.name}! +${sold.points} Poin Panen · +10 koin ⭐`, 'cheer')
+  }
+
+  const sellAllHarvests = () => {
+    const sum = actions.sellAllHarvest()
+    if (!sum) return
+    react('happy')
+    cheerWorld()
+    flash(
+      `Terjual ${sum.count} hasil panen! +${sum.pointsEarned} Poin Panen · +${sum.coinsEarned} koin ⭐`,
+      'cheer',
+    )
+  }
+
+  const redeemPointsVoucher = (tplId) => {
+    const vc = actions.redeemPointsForVoucher(tplId)
+    if (!vc) return
+    react('happy')
+    cheerWorld()
+    flash(`Voucher ${vc.code} (-${vc.discount}%) berhasil ditukar dengan Poin! 🎟️`, 'cheer')
+  }
+
+  const downloadVoucher = (vc) => {
+    const ok = downloadCuteVoucherImage(vc, myPlayerName)
+    if (ok) {
+      say(`Gambar voucher ${vc.code} terunduh! Cek folder Downloadmu 🎀`, 2800)
+    }
+  }
+
   const petPoti = () => {
     if (phaseRef.current !== 'playing' || wardrobeRef.current) return
     if (sleepingRef.current) {
@@ -1779,6 +1854,7 @@ export default function GardenGame({ plants, onClose }) {
         if (k === 'g') setWardrobeOpen(false)
         if (k === 'b') setSeedBagOpen(false)
         if (k === 'v') setHarvestOpen(false)
+        if (k === 'k') setHarvestStoreOpen(false)
         if (k === 'm') setShopOpen(false)
         return
       }
@@ -1788,6 +1864,7 @@ export default function GardenGame({ plants, onClose }) {
       if (phaseRef.current !== 'playing' || e.repeat) return
       if (k === 'g') openWardrobe()
       if (k === 'm') openShopFnRef.current()
+      if (k === 'k') openHarvestStoreFnRef.current()
       if (k === 'b') openSeedFnRef.current(activeSlotRef.current)
       if (k === 't') {
         if (carrying?.kind === 'seed' && carrying.speciesId && activeSlotRef.current != null) {
@@ -1887,6 +1964,7 @@ export default function GardenGame({ plants, onClose }) {
         setWardrobeOpen(false)
         setSeedBagOpen(false)
         setHarvestOpen(false)
+        setHarvestStoreOpen(false)
         setShopOpen(false)
         return
       }
@@ -2129,7 +2207,28 @@ export default function GardenGame({ plants, onClose }) {
           {/* Pixel-art Buildings */}
           <div
             className="g-px-building-wrap g-px-building-wrap--interactive"
-            style={{ left: 716, top: 132, width: 320, height: 296, zIndex: 380 }}
+            style={{ left: 448, top: 132, width: 268, height: 274, zIndex: 380 }}
+            role="button"
+            tabIndex={0}
+            aria-label="Masuk ke Kios Panen POTIVA"
+            onClick={(event) => {
+              event.stopPropagation()
+              const kiosSpot = INTERACTIVE_SPOTS.find((s) => s.id === 'kios_panen')
+              if (kiosSpot) goToSpot(kiosSpot)
+            }}
+            onKeyDown={(event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') return
+              event.preventDefault()
+              event.stopPropagation()
+              const kiosSpot = INTERACTIVE_SPOTS.find((s) => s.id === 'kios_panen')
+              if (kiosSpot) goToSpot(kiosSpot)
+            }}
+          >
+            <PixelHarvestStoreBuilding />
+          </div>
+          <div
+            className="g-px-building-wrap g-px-building-wrap--interactive"
+            style={{ left: 724, top: 132, width: 312, height: 296, zIndex: 380 }}
             role="button"
             tabIndex={0}
             aria-label="Masuk ke Toko POTIVA"
@@ -2536,6 +2635,18 @@ export default function GardenGame({ plants, onClose }) {
           </button>
           <button
             type="button"
+            className="g-icon-btn g-icon-btn--kios"
+            onClick={openHarvestStore}
+            aria-label={`Buka Kios Panen & Poin (${harvestBasket.length} panen, ${harvestPoints} poin)`}
+            title="Kios Panen & Tukar Poin (K)"
+          >
+            <Wheat size={19} />
+            {harvestBasket.length > 0 && (
+              <span className="g-hud-badge g-hud-badge--gold">{harvestBasket.length}</span>
+            )}
+          </button>
+          <button
+            type="button"
             className="g-icon-btn g-icon-btn--style"
             onClick={openWardrobe}
             aria-label="Buka lemari gaya Poti"
@@ -2889,9 +3000,9 @@ export default function GardenGame({ plants, onClose }) {
                 : 'Mode layar penuh adaptif aktif. Di iPhone Safari, putar landscape & pilih "Sembunyikan Toolbar" (ikon AA) agar penuh 100%.'}
             </p>
             <p className="g-intro__keys">
-              Keyboard: <kbd>WASD</kbd>/panah gerak · <kbd>M</kbd> toko · <kbd>E</kbd> siram ·{' '}
-              <kbd>F</kbd> pupuk · <kbd>B</kbd>/<kbd>T</kbd> tanam · <kbd>H</kbd> panen ·{' '}
-              <kbd>V</kbd> voucher · <kbd>C</kbd> sapa · <kbd>G</kbd> gaya
+              Keyboard: <kbd>WASD</kbd>/panah gerak · <kbd>M</kbd> toko · <kbd>K</kbd> kios panen ·{' '}
+              <kbd>E</kbd> siram · <kbd>F</kbd> pupuk · <kbd>B</kbd>/<kbd>T</kbd> tanam ·{' '}
+              <kbd>H</kbd> panen · <kbd>V</kbd> voucher · <kbd>C</kbd> sapa · <kbd>G</kbd> gaya
             </p>
           </div>
         </div>
@@ -3108,7 +3219,7 @@ export default function GardenGame({ plants, onClose }) {
                           type="button"
                           className="g-wardrobe__btn g-wardrobe__btn--plant"
                           onClick={() => plantFromBag(item.speciesId)}
-                          disabled={emptySlots.length === 0 && placed.length >= 12}
+                          disabled={emptySlots.length === 0 && placed.length >= PLANT_SLOTS.length}
                         >
                           <Sprout size={12} /> Tanam
                         </button>
@@ -3226,16 +3337,26 @@ export default function GardenGame({ plants, onClose }) {
                         <Ticket size={13} /> <b>{vc.code}</b> · Diskon {vc.discount}% (
                         {vc.target === 'shop' ? 'POTIVA Shop' : 'E-Book'})
                       </span>
-                      <button
-                        type="button"
-                        className="g-wardrobe__link"
-                        onClick={() => {
-                          close()
-                          navigate(vc.target === 'shop' ? '/shop' : '/library')
-                        }}
-                      >
-                        Pakai di {vc.target === 'shop' ? 'Shop' : 'E-Library'} →
-                      </button>
+                      <div className="g-my-voucher__acts">
+                        <button
+                          type="button"
+                          className="g-wardrobe__btn g-wardrobe__btn--dl"
+                          onClick={() => downloadVoucher(vc)}
+                          title="Download gambar voucher lucu"
+                        >
+                          <Download size={12} /> Download PNG
+                        </button>
+                        <button
+                          type="button"
+                          className="g-wardrobe__link"
+                          onClick={() => {
+                            close()
+                            navigate(vc.target === 'shop' ? '/shop' : '/library')
+                          }}
+                        >
+                          Pakai di {vc.target === 'shop' ? 'Shop' : 'E-Library'} →
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -3244,8 +3365,146 @@ export default function GardenGame({ plants, onClose }) {
 
             <p className="g-wardrobe__note">
               <BookOpen size={14} /> Voucher Shop berlaku untuk semua produk POTIVA saat
-              Checkout; Voucher E-Book berlaku untuk semua panduan di E-Library.
+              Checkout; Voucher E-Book berlaku untuk semua panduan di E-Library. Kamu juga bisa
+              menjual panen menjadi Poin di <b>Kios Panen</b> (sebelah Toko POTIVA)!
             </p>
+          </div>
+        </div>
+      )}
+
+      {harvestStoreOpen && (
+        <div className="g-overlay g-overlay--wardrobe">
+          <div className="g-card g-wardrobe g-kios-modal" role="document" aria-label="Kios Panen POTIVA">
+            <div className="g-wardrobe__head">
+              <div>
+                <span className="g-pause__eyebrow">Store Sebelah Toko POTIVA</span>
+                <h2>Kios Panen &amp; Tukar Poin</h2>
+                <p className="g-wardrobe__lead">
+                  Jual hasil tanam kebunmu untuk mengumpulkan Poin Panen, lalu tukarkan menjadi
+                  voucher diskon produk POTIVA &amp; download kartu vouchernya!
+                </p>
+              </div>
+              <button
+                type="button"
+                className="g-icon-btn"
+                onClick={() => setHarvestStoreOpen(false)}
+                aria-label="Tutup Kios Panen"
+              >
+                <X size={19} />
+              </button>
+            </div>
+
+            <div className="g-kios-stats">
+              <span className="g-kios-points">
+                <Star size={16} fill="currentColor" /> Poin Panenmu: <strong>{harvestPoints}</strong> poin
+              </span>
+              <span className="g-kios-basket">
+                <Wheat size={15} /> Di keranjang panen: <strong>{harvestBasket.length}</strong> tanaman
+              </span>
+              {harvestBasket.length > 0 && (
+                <button
+                  type="button"
+                  className="g-wardrobe__btn g-wardrobe__btn--buy"
+                  onClick={sellAllHarvests}
+                >
+                  <Coins size={13} /> Jual Semua ({harvestBasket.length})
+                </button>
+              )}
+            </div>
+
+            <div className="g-kios-sec">
+              <strong>1. Jual Hasil Tanam (+Poin &amp; +10 Koin per panen)</strong>
+              {harvestBasket.length === 0 ? (
+                <p className="g-kios-empty">
+                  Belum ada hasil panen untuk dijual. Rawat tanamanmu hingga tumbuh 85%+ lalu
+                  panen dengan tombol <b>Panen (H)</b>!
+                </p>
+              ) : (
+                <div className="g-bag-grid">
+                  {harvestBasket.map((item) => {
+                    const sp = SPECIES.find((s) => s.id === item.speciesId)
+                    const pts = item.points || sp?.harvestPoints || 40
+                    return (
+                      <div key={item.id} className="g-wardrobe__item is-owned">
+                        <span className="g-kios-emoji" aria-hidden="true">{item.emoji}</span>
+                        <div className="g-wardrobe__meta">
+                          <strong>{item.name}</strong>
+                          <small>Nilai jual: +{pts} Poin · +10 Koin</small>
+                        </div>
+                        <button
+                          type="button"
+                          className="g-wardrobe__btn g-wardrobe__btn--buy"
+                          onClick={() => sellHarvest(item.id)}
+                        >
+                          Jual +{pts} Poin
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="g-kios-sec">
+              <strong>2. Tukar Poin Jadi Voucher Diskon POTIVA</strong>
+              <div className="g-voucher-grid">
+                {VOUCHER_CATALOG.map((tpl) => {
+                  const canRedeem = harvestPoints >= tpl.costPoints
+                  return (
+                    <div key={tpl.id} className="g-voucher-card">
+                      <div className="g-voucher-card__badge">-{tpl.discount}%</div>
+                      <div className="g-voucher-card__body">
+                        <strong>{tpl.title}</strong>
+                        <small>{tpl.desc}</small>
+                      </div>
+                      <button
+                        type="button"
+                        className="g-wardrobe__btn g-wardrobe__btn--plant"
+                        disabled={!canRedeem}
+                        onClick={() => redeemPointsVoucher(tpl.id)}
+                      >
+                        Tukar ({tpl.costPoints} poin)
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {activeVouchers.length > 0 && (
+              <div className="g-my-vouchers">
+                <strong>Voucher Aktif Milikmu ({activeVouchers.length}) — Siap Download Gambar Lucu!</strong>
+                <div className="g-my-vouchers__list">
+                  {activeVouchers.map((vc) => (
+                    <div key={vc.id} className="g-my-voucher">
+                      <span>
+                        <Ticket size={13} /> <b>{vc.code}</b> · Diskon {vc.discount}% (
+                        {vc.target === 'shop' ? 'POTIVA Shop' : 'E-Book'})
+                      </span>
+                      <div className="g-my-voucher__acts">
+                        <button
+                          type="button"
+                          className="g-wardrobe__btn g-wardrobe__btn--dl"
+                          onClick={() => downloadVoucher(vc)}
+                        >
+                          <Download size={12} /> Download PNG
+                        </button>
+                        <button
+                          type="button"
+                          className="g-wardrobe__link"
+                          onClick={() => {
+                            close()
+                            navigate(vc.target === 'shop' ? '/shop' : '/library')
+                          }}
+                        >
+                          Pakai →
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

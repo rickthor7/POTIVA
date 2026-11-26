@@ -37,10 +37,10 @@ function distToPolyline(px, py, pts) {
 }
 
 const WEST_RIVER = [
-  [-10, 108],
-  [92, 110],
-  [142, 124],
-  [162, 158],
+  [-10, 134],
+  [92, 136],
+  [140, 146],
+  [162, 170],
   [164, 212],
   [156, 286],
   [146, 360],
@@ -133,8 +133,8 @@ export function PixelTerrainCanvas() {
       }
     }
 
-    // Top-left elevated plateau (trimmed slightly so Toko POTIVA sits right beside Farmhouse)
-    drawCliff(96, -4, 78, 64, 1)
+    // Top-left elevated plateau (trimmed slightly so Kios Panen & Toko POTIVA sit side-by-side beside Farmhouse)
+    drawCliff(14, -4, 72, 56, 1)
     // Top-east elevated sakura bluff
     drawCliff(680, -4, 134, 62, 1)
     // Mid-left cliff shelf (above barn)
@@ -169,12 +169,12 @@ export function PixelTerrainCanvas() {
       }
     }
 
-    // Farmhouse & Toko POTIVA plazas + main cross-roads
-    drawCobbleStrip(192, 92, 74, 38) // Toko POTIVA front patio
+    // Kios Panen + Toko POTIVA + Farmhouse plazas & main cross-roads
+    drawCobbleStrip(118, 92, 150, 38) // Kios Panen & Toko POTIVA front plaza
     drawCobbleStrip(276, 86, 88, 36) // Farmhouse front patio
     drawCobbleStrip(308, 118, 28, 38) // Farmhouse to garden north gate
-    drawCobbleStrip(206, 128, 240, 22) // Upper east-west main avenue
-    drawCobbleStrip(186, 140, 28, 74) // West branch to wooden bridge
+    drawCobbleStrip(132, 112, 314, 18) // Upper east-west main avenue connecting both stores to east bridge
+    drawCobbleStrip(186, 126, 28, 88) // West branch to wooden bridge
     drawCobbleStrip(104, 188, 108, 22) // West side path across wooden bridge
     drawCobbleStrip(74, 188, 32, 34) // Top of stairs landing
     drawCobbleStrip(72, 246, 30, 120) // Path down stairs to barn & lower meadow
@@ -1005,6 +1005,66 @@ export function PixelShopBuilding() {
       <rect x="25" y="57" width="3" height="3" fill="#f7cf52" />
       {/* Front stone step */}
       <rect x="36" y="64" width="16" height="3" fill="#b4bcb4" />
+    </svg>
+  )
+}
+
+export function PixelHarvestStoreBuilding() {
+  return (
+    <svg
+      className="g-px-building g-px-harvest-store"
+      viewBox="0 0 76 74"
+      shapeRendering="crispEdges"
+      aria-hidden="true"
+    >
+      <rect x="6" y="64" width="64" height="7" fill="#1b3a22" opacity="0.28" />
+      {/* Warm sunlit timber & cream storefront walls */}
+      <rect x="10" y="28" width="56" height="38" fill="#3a2315" />
+      <rect x="12" y="30" width="52" height="34" fill="#fff3d6" />
+      <rect x="12" y="30" width="4" height="34" fill="#9a5c32" />
+      <rect x="60" y="30" width="4" height="34" fill="#9a5c32" />
+      <rect x="12" y="58" width="52" height="6" fill="#948c80" />
+      {/* Warm terracotta & honey pitched roof */}
+      <rect x="14" y="8" width="48" height="6" fill="#b85428" />
+      <rect x="10" y="14" width="56" height="8" fill="#d46834" />
+      <rect x="6" y="22" width="64" height="8" fill="#8f3d1c" />
+      <rect x="10" y="18" width="56" height="2" fill="#ea824a" />
+      {/* Hanging golden coin & leaf signboard "PANEN" */}
+      <rect x="23" y="2" width="30" height="10" fill="#4e301d" />
+      <rect x="25" y="4" width="26" height="6" fill="#ffd95e" />
+      <rect x="27" y="5" width="4" height="4" fill="#2f7443" />
+      <rect x="33" y="6" width="16" height="2" fill="#5c3820" />
+      {/* Sunny orange & cream striped market awning */}
+      <rect x="8" y="30" width="60" height="10" fill="#8f3d1c" />
+      {[10, 22, 34, 46, 58].map((ax) => (
+        <rect key={ax} x={ax} y="30" width="6" height="8" fill="#e87d35" />
+      ))}
+      {[16, 28, 40, 52].map((ax) => (
+        <rect key={ax} x={ax} y="30" width="6" height="8" fill="#fff7df" />
+      ))}
+      <rect x="8" y="38" width="60" height="2" fill="#6e2c12" />
+      {/* Open serving window counter with harvest scale & jars */}
+      <rect x="16" y="42" width="22" height="14" fill="#4e301d" />
+      <rect x="18" y="44" width="18" height="10" fill="#3a2b22" />
+      <rect x="20" y="47" width="4" height="5" fill="#f3c74d" />
+      <rect x="26" y="49" width="4" height="3" fill="#e85848" />
+      <rect x="31" y="48" width="4" height="4" fill="#6bc24d" />
+      <rect x="15" y="53" width="24" height="3" fill="#b87d4b" />
+      {/* Wooden kiosk door */}
+      <rect x="43" y="43" width="14" height="21" fill="#4e301d" />
+      <rect x="45" y="45" width="10" height="19" fill="#b87d4b" />
+      <rect x="46" y="46" width="8" height="7" fill="#ffe799" />
+      <rect x="52" y="55" width="2" height="2" fill="#f2b84b" />
+      {/* Harvest fruit & veggie baskets stacked outside */}
+      <rect x="14" y="58" width="13" height="7" fill="#704528" />
+      <rect x="16" y="56" width="3" height="3" fill="#d94646" />
+      <rect x="20" y="56" width="3" height="3" fill="#f2992c" />
+      <rect x="24" y="56" width="2" height="3" fill="#65b84b" />
+      <rect x="29" y="58" width="11" height="7" fill="#8b5a36" />
+      <rect x="31" y="56" width="3" height="3" fill="#e85848" />
+      <rect x="35" y="56" width="3" height="3" fill="#ffd95e" />
+      {/* Front stone step */}
+      <rect x="42" y="64" width="16" height="3" fill="#b4bcb4" />
     </svg>
   )
 }

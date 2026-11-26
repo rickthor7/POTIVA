@@ -11,6 +11,7 @@ export const SPECIES = [
     blurb: 'Cabai rawit gemuk dengan rasa pedas ramah. Cocok untuk pemula di balkon.',
     pot: 'pot-mini',
     tone: '#E86A4E',
+    harvestPoints: 40,
   },
   {
     id: 'tomat-ceri',
@@ -24,6 +25,7 @@ export const SPECIES = [
     blurb: 'Buah kecil manis yang produktif. Suka sinar matahari pagi yang cukup.',
     pot: 'pot-mini',
     tone: '#D9553F',
+    harvestPoints: 45,
   },
   {
     id: 'basil',
@@ -37,6 +39,7 @@ export const SPECIES = [
     blurb: 'Aroma segar untuk dapurmu. Rajin dipangkas supaya makin rimbun.',
     pot: 'pot-mini',
     tone: '#4F9D5D',
+    harvestPoints: 35,
   },
   {
     id: 'mint',
@@ -50,6 +53,7 @@ export const SPECIES = [
     blurb: 'Tumbuh cepat dan tahan banting. Sempurna untuk teh atau infused water.',
     pot: 'pot-mini',
     tone: '#6FAE5B',
+    harvestPoints: 35,
   },
   {
     id: 'bawang-merah',
@@ -63,6 +67,7 @@ export const SPECIES = [
     blurb: 'Dari dapur ke pot. Bisa ditanam dari umbi yang sudah ada di rumah.',
     pot: 'pot-large',
     tone: '#B5764A',
+    harvestPoints: 40,
   },
   {
     id: 'stroberi',
@@ -76,6 +81,7 @@ export const SPECIES = [
     blurb: 'Perlu perhatian ekstra, tapi memuaskan. Jaga media tetap lembap, tidak basah.',
     pot: 'pot-large',
     tone: '#D9535D',
+    harvestPoints: 60,
   },
 ]
 
@@ -388,6 +394,7 @@ export const VOUCHER_CATALOG = [
     target: 'shop',
     discount: 10,
     costHarvest: 1,
+    costPoints: 40,
     codePrefix: 'POTIVA10',
     title: 'Voucher Diskon 10% POTIVA Shop',
     desc: 'Berlaku untuk semua produk POTIVA (pot, benih, media tanam, & perlengkapan).',
@@ -397,6 +404,7 @@ export const VOUCHER_CATALOG = [
     target: 'shop',
     discount: 15,
     costHarvest: 2,
+    costPoints: 75,
     codePrefix: 'POTIVA15',
     title: 'Voucher Diskon 15% POTIVA Shop',
     desc: 'Potongan ekstra 15% untuk semua produk POTIVA di halaman Checkout.',
@@ -406,6 +414,7 @@ export const VOUCHER_CATALOG = [
     target: 'ebook',
     discount: 10,
     costHarvest: 1,
+    costPoints: 35,
     codePrefix: 'EBOOK10',
     title: 'Voucher Diskon 10% E-Book',
     desc: 'Potongan 10% untuk membeli e-book & panduan berkebun di E-Library.',
@@ -415,6 +424,7 @@ export const VOUCHER_CATALOG = [
     target: 'ebook',
     discount: 15,
     costHarvest: 2,
+    costPoints: 65,
     codePrefix: 'EBOOK15',
     title: 'Voucher Diskon 15% E-Book',
     desc: 'Potongan 15% untuk membeli e-book & panduan berkebun di E-Library.',

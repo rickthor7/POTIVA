@@ -175,6 +175,7 @@ const seedState = () => ({
   seedInventory: { 'tomat-ceri': 1 },
   supplyInventory: { 'pupuk-organik': 1 },
   harvestBasket: [],
+  harvestPoints: 0,
   vouchers: [],
   likedPosts: [],
   missions: seedMissions(),
@@ -202,6 +203,7 @@ const loadState = () => {
       seedInventory: parsed.seedInventory ?? base.seedInventory,
       supplyInventory: parsed.supplyInventory ?? base.supplyInventory,
       harvestBasket: Array.isArray(parsed.harvestBasket) ? parsed.harvestBasket : base.harvestBasket,
+      harvestPoints: Number.isFinite(parsed.harvestPoints) ? parsed.harvestPoints : base.harvestPoints,
       vouchers: Array.isArray(parsed.vouchers) ? parsed.vouchers : base.vouchers,
     }
   } catch {
@@ -420,8 +422,8 @@ export function AppProvider({ children }) {
           )
           let slotIndex = preferredSlot
           if (slotIndex == null || usedSlots.has(slotIndex)) {
-            slotIndex = Array.from({ length: 12 }, (_, i) => i).find((i) => !usedSlots.has(i))
-            if (slotIndex == null) slotIndex = s.plants.length % 12
+            slotIndex = Array.from({ length: 32 }, (_, i) => i).find((i) => !usedSlots.has(i))
+            if (slotIndex == null) slotIndex = s.plants.length % 32
           }
           ok = true
           return {
@@ -469,6 +471,7 @@ export function AppProvider({ children }) {
             speciesId: plant.speciesId,
             name: plant.name,
             emoji: species?.emoji || '🌿',
+            points: species?.harvestPoints || 40,
             harvestedAt: new Date().toISOString(),
           }
           harvested = item
@@ -513,6 +516,73 @@ export function AppProvider({ children }) {
           return {
             ...s,
             harvestBasket: basket.slice(tpl.costHarvest),
+            vouchers: [created, ...(s.vouchers || [])],
+          }
+        })
+        return created
+      },
+
+      sellHarvestItem: (harvestId) => {
+        let sold = null
+        setState((s) => {
+          const basket = s.harvestBasket || []
+          const target = basket.find((h) => h.id === harvestId)
+          if (!target) return s
+          const sp = SPECIES.find((x) => x.id === target.speciesId)
+          const pts = target.points || sp?.harvestPoints || 40
+          sold = { ...target, points: pts, coinsEarned: 10 }
+          return {
+            ...s,
+            harvestBasket: basket.filter((h) => h.id !== harvestId),
+            harvestPoints: (s.harvestPoints || 0) + pts,
+            wallet: award(s.wallet, 10, 10),
+          }
+        })
+        return sold
+      },
+
+      sellAllHarvest: () => {
+        let summary = null
+        setState((s) => {
+          const basket = s.harvestBasket || []
+          if (basket.length === 0) return s
+          const pts = basket.reduce((sum, h) => {
+            const sp = SPECIES.find((x) => x.id === h.speciesId)
+            return sum + (h.points || sp?.harvestPoints || 40)
+          }, 0)
+          const coinsEarned = basket.length * 10
+          summary = { count: basket.length, pointsEarned: pts, coinsEarned }
+          return {
+            ...s,
+            harvestBasket: [],
+            harvestPoints: (s.harvestPoints || 0) + pts,
+            wallet: award(s.wallet, basket.length * 10, coinsEarned),
+          }
+        })
+        return summary
+      },
+
+      redeemPointsForVoucher: (templateId) => {
+        let created = null
+        setState((s) => {
+          const tpl = VOUCHER_CATALOG.find((v) => v.id === templateId)
+          const curPts = s.harvestPoints || 0
+          if (!tpl || curPts < tpl.costPoints) return s
+          const code = `${tpl.codePrefix}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`
+          created = {
+            id: `vc_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
+            templateId: tpl.id,
+            code,
+            target: tpl.target,
+            discount: tpl.discount,
+            title: tpl.title,
+            createdAt: new Date().toISOString(),
+            used: false,
+            usedAt: null,
+          }
+          return {
+            ...s,
+            harvestPoints: curPts - tpl.costPoints,
             vouchers: [created, ...(s.vouchers || [])],
           }
         })
