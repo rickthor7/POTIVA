@@ -12,6 +12,7 @@ import {
   ShoppingBag,
   Sparkles,
   Sprout,
+  Ticket,
   Truck,
 } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
@@ -31,8 +32,9 @@ export default function Shop() {
   )
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState('populer')
-  const { cartItems, cartCount, cartSubtotal, actions, potiLook } = useApp()
+  const { cartItems, cartCount, cartSubtotal, actions, potiLook, vouchers = [] } = useApp()
   const { openCart } = useUI()
+  const shopVouchers = useMemo(() => vouchers.filter((v) => !v.used && v.target === 'shop'), [vouchers])
 
   const filtered = useMemo(() => {
     const list = PRODUCTS.filter((p) => (category === 'Semua' ? true : p.category === category)).filter((p) => {
@@ -87,6 +89,27 @@ export default function Shop() {
         </section>
       )}
 
+      {category === 'Benih' && (
+        <section className="shop-style-banner">
+          <div className="shop-style-banner__art">
+            <Mascot size={112} waving={false} look={potiLook} />
+          </div>
+          <div className="shop-style-banner__copy">
+            <span className="eyebrow">
+              <Sprout size={13} /> Benih Kebun Poti
+            </span>
+            <h2>Beli benih di sini, tanam &amp; panen di Kebun Poti!</h2>
+            <p>
+              Setiap benih yang dibeli lewat Checkout maupun koin kebun langsung masuk ke Tas Benih
+              Kebun Poti. Panen hasilnya untuk tukar voucher diskon 10–15% semua produk POTIVA.
+            </p>
+          </div>
+          <Link to="/garden?play=1" className="btn btn--primary">
+            <Gamepad2 size={16} /> Tanam di game
+          </Link>
+        </section>
+      )}
+
       <div className="shop-promo">
         <span>
           <Truck size={17} /> Gratis pengiriman untuk belanja di atas {formatIDR(75000)}
@@ -95,8 +118,14 @@ export default function Shop() {
           <Check size={16} /> Garansi produk aman sampai tujuan
         </span>
         <span>
-          <Sparkles size={16} /> QR Plant ID di setiap pot & benih
+          <Sparkles size={16} /> QR Plant ID di setiap pot &amp; benih
         </span>
+        {shopVouchers.length > 0 && (
+          <span className="shop-promo__voucher">
+            <Ticket size={16} /> Kamu punya {shopVouchers.length} voucher panen (diskon hingga{' '}
+            {Math.max(...shopVouchers.map((v) => v.discount))}%) — pakai saat Checkout!
+          </span>
+        )}
       </div>
 
       <div className="shop-toolbar">

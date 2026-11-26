@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { PRODUCTS, EBOOKS, SPECIES, TASK_TYPES, JOURNALS, COMMUNITY_POSTS, COSMETICS } from '../data/appData'
+import { PRODUCTS, EBOOKS, SPECIES, TASK_TYPES, JOURNALS, COMMUNITY_POSTS, COSMETICS, VOUCHER_CATALOG } from '../data/appData'
 import { addDays, todayISO, clamp } from '../lib/utils'
 
 const STORAGE_KEY = 'potiva.state.v1'
@@ -38,6 +38,7 @@ const seedState = () => ({
       lastWater: Date.now() - 1000 * 60 * 60 * 3,
       lastFeed: Date.now() - 1000 * 60 * 60 * 50,
       location: 'Balkon',
+      slotIndex: 0,
     },
     {
       id: 'p2',
@@ -51,6 +52,7 @@ const seedState = () => ({
       lastWater: Date.now() - 1000 * 60 * 60 * 26,
       lastFeed: Date.now() - 1000 * 60 * 60 * 12,
       location: 'Dapur',
+      slotIndex: 1,
     },
     {
       id: 'p3',
@@ -64,6 +66,7 @@ const seedState = () => ({
       lastWater: Date.now() - 1000 * 60 * 60 * 8,
       lastFeed: Date.now() - 1000 * 60 * 60 * 72,
       location: 'Jendela kamar',
+      slotIndex: 2,
     },
   ],
   tasks: [
@@ -169,6 +172,9 @@ const seedState = () => ({
   ownedEbooks: ['menanam-cabai'],
   ownedCosmetics: ['gaya-topi-jerami'],
   potiLook: { hat: 'gaya-topi-jerami' },
+  seedInventory: { 'tomat-ceri': 1 },
+  harvestBasket: [],
+  vouchers: [],
   likedPosts: [],
   missions: seedMissions(),
   settings: {
@@ -188,7 +194,14 @@ const loadState = () => {
     if (!raw) return seedState()
     const parsed = JSON.parse(raw)
     if (!parsed || parsed.version !== 1) return seedState()
-    return { ...seedState(), ...parsed }
+    const base = seedState()
+    return {
+      ...base,
+      ...parsed,
+      seedInventory: parsed.seedInventory ?? base.seedInventory,
+      harvestBasket: Array.isArray(parsed.harvestBasket) ? parsed.harvestBasket : base.harvestBasket,
+      vouchers: Array.isArray(parsed.vouchers) ? parsed.vouchers : base.vouchers,
+    }
   } catch {
     return seedState()
   }
@@ -261,7 +274,7 @@ export function AppProvider({ children }) {
               ? {
                   ...p,
                   needs: { ...p.needs, water: 100 },
-                  growth: clamp(p.growth + 2, 0, 100),
+                  growth: clamp(p.growth + 6, 0, 100),
                   lastWater: Date.now(),
                 }
               : p,
@@ -288,7 +301,7 @@ export function AppProvider({ children }) {
               ? {
                   ...p,
                   needs: { ...p.needs, nutrient: clamp(p.needs.nutrient + 55, 0, 100) },
-                  growth: clamp(p.growth + 3, 0, 100),
+                  growth: clamp(p.growth + 10, 0, 100),
                   lastFeed: Date.now(),
                 }
               : p,
@@ -323,6 +336,131 @@ export function AppProvider({ children }) {
 
       collectBonus: (coins = 2, xp = 1) =>
         setState((s) => ({ ...s, wallet: award(s.wallet, xp, coins) })),
+
+      buySeedWithCoins: (productId) =>
+        setState((s) => {
+          const item = PRODUCTS.find((p) => p.id === productId && p.speciesId)
+          if (!item || !item.coinPrice) return s
+          if (s.wallet.coins < item.coinPrice) return s
+          const prev = s.seedInventory?.[item.speciesId] || 0
+          return {
+            ...s,
+            wallet: { ...s.wallet, coins: s.wallet.coins - item.coinPrice },
+            seedInventory: { ...(s.seedInventory || {}), [item.speciesId]: prev + 1 },
+          }
+        }),
+
+      plantSeedInGarden: (speciesId, preferredSlot = null) => {
+        let planted = false
+        setState((s) => {
+          const count = s.seedInventory?.[speciesId] || 0
+          if (count <= 0) return s
+          const species = SPECIES.find((sp) => sp.id === speciesId)
+          if (!species) return s
+          const usedSlots = new Set(
+            s.plants.map((p, i) => (p.slotIndex != null ? p.slotIndex : i)),
+          )
+          let slotIndex = preferredSlot
+          if (slotIndex == null || usedSlots.has(slotIndex)) {
+            slotIndex = Array.from({ length: 12 }, (_, i) => i).find((i) => !usedSlots.has(i))
+            if (slotIndex == null) slotIndex = s.plants.length % 12
+          }
+          const id = `p_${Date.now()}`
+          planted = true
+          return {
+            ...s,
+            wallet: award(s.wallet, 15, 5),
+            seedInventory: { ...(s.seedInventory || {}), [speciesId]: count - 1 },
+            plants: [
+              ...s.plants,
+              {
+                id,
+                speciesId,
+                name: species.name,
+                pot: species.pot || 'pot-mini',
+                potTone: 'terra',
+                plantedAt: todayISO(),
+                growth: 12,
+                needs: { water: 85, nutrient: 80, light: 80 },
+                location: 'Kebun Poti',
+                slotIndex,
+              },
+            ],
+            careHistory: [
+              {
+                id: `h_${Date.now()}`,
+                plantId: id,
+                type: 'check',
+                at: new Date().toISOString(),
+                label: `Tanam ${species.name}`,
+              },
+              ...s.careHistory,
+            ].slice(0, 40),
+          }
+        })
+        return planted
+      },
+
+      harvestPlant: (plantId) => {
+        let harvested = null
+        setState((s) => {
+          const plant = s.plants.find((p) => p.id === plantId)
+          if (!plant || plant.growth < 85) return s
+          const species = SPECIES.find((sp) => sp.id === plant.speciesId)
+          const item = {
+            id: `hv_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            speciesId: plant.speciesId,
+            name: plant.name,
+            emoji: species?.emoji || '🌿',
+            harvestedAt: new Date().toISOString(),
+          }
+          harvested = item
+          return {
+            ...s,
+            wallet: award(s.wallet, 35, 25),
+            plants: s.plants.filter((p) => p.id !== plantId),
+            harvestBasket: [item, ...(s.harvestBasket || [])],
+            careHistory: [
+              {
+                id: `h_${Date.now()}`,
+                plantId: plant.id,
+                type: 'check',
+                at: new Date().toISOString(),
+                label: `Panen ${plant.name}`,
+              },
+              ...s.careHistory,
+            ].slice(0, 40),
+          }
+        })
+        return harvested
+      },
+
+      redeemHarvestVoucher: (templateId) => {
+        let created = null
+        setState((s) => {
+          const tpl = VOUCHER_CATALOG.find((v) => v.id === templateId)
+          const basket = s.harvestBasket || []
+          if (!tpl || basket.length < tpl.costHarvest) return s
+          const code = `${tpl.codePrefix}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`
+          created = {
+            id: `vc_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
+            templateId: tpl.id,
+            code,
+            target: tpl.target,
+            discount: tpl.discount,
+            title: tpl.title,
+            createdAt: new Date().toISOString(),
+            used: false,
+            usedAt: null,
+          }
+          return {
+            ...s,
+            harvestBasket: basket.slice(tpl.costHarvest),
+            vouchers: [created, ...(s.vouchers || [])],
+          }
+        })
+        return created
+      },
 
       addPlant: ({ speciesId, name, pot, plantedAt, location }) => {
         const id = `p_${Date.now()}`
@@ -537,18 +675,41 @@ export function AppProvider({ children }) {
               name: product?.name || 'Produk',
               qty: c.qty,
               price: product?.price || 0,
+              speciesId: product?.speciesId || null,
             }
           })
           const subtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0)
+          const voucher = details?.voucherId
+            ? (s.vouchers || []).find(
+                (v) => v.id === details.voucherId && !v.used && v.target === 'shop',
+              )
+            : null
+          const discount = voucher ? Math.round((subtotal * voucher.discount) / 100) : 0
           const shipping =
             subtotal >= 75000
               ? 0
               : details?.shippingCost !== undefined
                 ? details.shippingCost
                 : 9000
+
+          const nextSeeds = { ...(s.seedInventory || {}) }
+          items.forEach((it) => {
+            if (it.speciesId) {
+              nextSeeds[it.speciesId] = (nextSeeds[it.speciesId] || 0) + it.qty
+            }
+          })
+
           return {
             ...s,
             cart: [],
+            seedInventory: nextSeeds,
+            vouchers: voucher
+              ? (s.vouchers || []).map((v) =>
+                  v.id === voucher.id
+                    ? { ...v, used: true, usedAt: new Date().toISOString() }
+                    : v,
+                )
+              : s.vouchers,
             wallet: award(s.wallet, 25, 30),
             orders: [
               {
@@ -557,7 +718,9 @@ export function AppProvider({ children }) {
                 status: 'Diproses',
                 items,
                 shipping,
-                total: subtotal + shipping,
+                discount,
+                voucherCode: voucher?.code || null,
+                total: Math.max(0, subtotal - discount) + shipping,
                 address: details?.address || 'Alamat demo, Bandung',
                 courier: details?.courier || 'JNE Reguler',
                 payment: details?.payment || 'Transfer Bank',
@@ -569,12 +732,24 @@ export function AppProvider({ children }) {
         return id
       },
 
-      buyEbook: (ebookId) =>
+      buyEbook: (ebookId, voucherId = null) =>
         setState((s) => {
           if (s.ownedEbooks.includes(ebookId)) return s
+          const voucher = voucherId
+            ? (s.vouchers || []).find(
+                (v) => v.id === voucherId && !v.used && v.target === 'ebook',
+              )
+            : null
           return {
             ...s,
             ownedEbooks: [...s.ownedEbooks, ebookId],
+            vouchers: voucher
+              ? (s.vouchers || []).map((v) =>
+                  v.id === voucher.id
+                    ? { ...v, used: true, usedAt: new Date().toISOString() }
+                    : v,
+                )
+              : s.vouchers,
             wallet: award(s.wallet, 15, 10),
           }
         }),

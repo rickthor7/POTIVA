@@ -702,6 +702,79 @@ export function ProductArt({ type, className = '' }) {
         </>,
         '#F5EBDA',
       )
+    case 'seed-basil':
+      return common(
+        <>
+          <path d="M60 46h80v108a8 8 0 0 1-8 8H68a8 8 0 0 1-8-8Z" fill="#FFF8E8" stroke="#E7DCC5" strokeWidth="2" />
+          <path d="M60 46h80v30H60Z" fill="#2F7443" />
+          <path d="M60 46h80v8H60Z" fill="#A8D66D" opacity=".8" />
+          <text x="100" y="65" textAnchor="middle" fontFamily="Poppins" fontSize="10" fontWeight="700" fill="#FFF8E8" letterSpacing="1.5">POTIVA SEED</text>
+          <g transform="translate(100 116)">
+            <path d="M0 24V-12" stroke="#2F7443" strokeWidth="4" strokeLinecap="round" />
+            <path d="M0 4c0-15 11-26 25-26 0 15-11 26-25 26Z" fill="#4F9D5D" />
+            <path d="M0 12c0-13-10-22-22-22 0 13 10 22 22 22Z" fill="#A8D66D" />
+          </g>
+          <text x="100" y="160" textAnchor="middle" fontFamily="Poppins" fontSize="12" fontWeight="700" fill="#174D35">BASIL LEMON</text>
+          <text x="100" y="174" textAnchor="middle" fontFamily="Poppins" fontSize="7" fill="#66756D">15 BENIH · AROMATIK</text>
+        </>,
+        '#EAF5E9',
+      )
+    case 'seed-mint':
+      return common(
+        <>
+          <path d="M60 46h80v108a8 8 0 0 1-8 8H68a8 8 0 0 1-8-8Z" fill="#FFF8E8" stroke="#E7DCC5" strokeWidth="2" />
+          <path d="M60 46h80v30H60Z" fill="#3F8F55" />
+          <path d="M60 46h80v8H60Z" fill="#C7E59C" opacity=".85" />
+          <text x="100" y="65" textAnchor="middle" fontFamily="Poppins" fontSize="10" fontWeight="700" fill="#FFF8E8" letterSpacing="1.5">POTIVA SEED</text>
+          <g transform="translate(100 118)">
+            <path d="M0 22V-14" stroke="#2F7443" strokeWidth="4" strokeLinecap="round" />
+            <circle cx="-12" cy="-2" r="11" fill="#6FAE5B" />
+            <circle cx="12" cy="-2" r="11" fill="#A8D66D" />
+            <circle cx="0" cy="-16" r="10" fill="#4F9D5D" />
+          </g>
+          <text x="100" y="160" textAnchor="middle" fontFamily="Poppins" fontSize="12" fontWeight="700" fill="#174D35">MINT NANA</text>
+          <text x="100" y="174" textAnchor="middle" fontFamily="Poppins" fontSize="7" fill="#66756D">15 BENIH · SEGAR</text>
+        </>,
+        '#EAF5E9',
+      )
+    case 'seed-onion':
+      return common(
+        <>
+          <path d="M60 46h80v108a8 8 0 0 1-8 8H68a8 8 0 0 1-8-8Z" fill="#FFF8E8" stroke="#E7DCC5" strokeWidth="2" />
+          <path d="M60 46h80v30H60Z" fill="#7E4A5E" />
+          <path d="M60 46h80v8H60Z" fill="#E8B8C8" opacity=".75" />
+          <text x="100" y="65" textAnchor="middle" fontFamily="Poppins" fontSize="10" fontWeight="700" fill="#FFF8E8" letterSpacing="1.5">POTIVA SEED</text>
+          <g transform="translate(100 118)">
+            <path d="M0-28l-4 14M0-28l4 14" stroke="#4F9D5D" strokeWidth="4" strokeLinecap="round" />
+            <path d="M0-14c15 0 22 14 22 25s-10 14-22 14-22-3-22-14 7-25 22-25Z" fill="#B65D7E" />
+            <path d="M-7-6c-4 8-4 18 0 24" stroke="#E5A2B9" strokeWidth="3" fill="none" strokeLinecap="round" />
+          </g>
+          <text x="100" y="160" textAnchor="middle" fontFamily="Poppins" fontSize="11" fontWeight="700" fill="#174D35">BAWANG MERAH</text>
+          <text x="100" y="174" textAnchor="middle" fontFamily="Poppins" fontSize="7" fill="#66756D">6 UMBI BIBIT · CEPAT</text>
+        </>,
+        '#F5EBDA',
+      )
+    case 'seed-strawberry':
+      return common(
+        <>
+          <path d="M60 46h80v108a8 8 0 0 1-8 8H68a8 8 0 0 1-8-8Z" fill="#FFF8E8" stroke="#E7DCC5" strokeWidth="2" />
+          <path d="M60 46h80v30H60Z" fill="#C94654" />
+          <path d="M60 46h80v8H60Z" fill="#F6B7A3" opacity=".8" />
+          <text x="100" y="65" textAnchor="middle" fontFamily="Poppins" fontSize="10" fontWeight="700" fill="#FFF8E8" letterSpacing="1.5">POTIVA SEED</text>
+          <g transform="translate(100 116)">
+            <path d="M0-20c14 0 21 10 17 24-4 13-12 22-17 22s-13-9-17-22c-4-14 3-24 17-24Z" fill="#D9535D" />
+            <path d="M-12-18c4-6 10-6 12-2 2-4 8-4 12 2-5 3-19 3-24 0Z" fill="#3F8F55" />
+            <circle cx="-6" cy="-4" r="1.8" fill="#FFE6A6" />
+            <circle cx="6" cy="-3" r="1.8" fill="#FFE6A6" />
+            <circle cx="0" cy="6" r="1.8" fill="#FFE6A6" />
+            <circle cx="-5" cy="12" r="1.8" fill="#FFE6A6" />
+            <circle cx="5" cy="12" r="1.8" fill="#FFE6A6" />
+          </g>
+          <text x="100" y="160" textAnchor="middle" fontFamily="Poppins" fontSize="12" fontWeight="700" fill="#174D35">STROBERI</text>
+          <text x="100" y="174" textAnchor="middle" fontFamily="Poppins" fontSize="7" fill="#66756D">10 BENIH · MANIS</text>
+        </>,
+        '#FBEAEA',
+      )
     case 'fertilizer':
       return common(
         <>

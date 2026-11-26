@@ -53,13 +53,32 @@ export default function ProductDetail() {
   }
 
   const isCosmetic = Boolean(product.cosmetic)
+  const isSeed = Boolean(product.speciesId)
   const owned = isCosmetic && ownedCosmetics.includes(product.id)
   const canBuyCosmetic = wallet.coins >= product.coinPrice
+  const canBuySeedCoin = isSeed && wallet.coins >= product.coinPrice
 
   const add = () => {
     actions.addToCart(product.id, qty)
-    toast(`${qty}× ${product.name} masuk keranjang.`, { title: 'Ditambahkan 🛒' })
+    toast(
+      isSeed
+        ? `${qty}× ${product.name} masuk keranjang. Setelah checkout, benih juga masuk Kebun Poti!`
+        : `${qty}× ${product.name} masuk keranjang.`,
+      { title: 'Ditambahkan 🛒' },
+    )
     openCart()
+  }
+
+  const buySeedCoin = () => {
+    if (!canBuySeedCoin) {
+      toast(`Butuh ${product.coinPrice - wallet.coins} koin lagi atau beli paket fisiknya lewat keranjang.`, {
+        type: 'error',
+        title: 'Koin belum cukup',
+      })
+      return
+    }
+    actions.buySeedWithCoins(product.id)
+    toast(`${product.name} masuk Tas Benih Kebun Poti! 🌱`, { title: 'Siap ditanam di game' })
   }
 
   const buyNow = () => {
@@ -211,6 +230,11 @@ export default function ProductDetail() {
               <button className="btn btn--primary btn--lg" onClick={buyNow}>
                 Beli sekarang <ArrowRight size={17} />
               </button>
+              {isSeed && (
+                <button className="btn btn--fresh btn--lg" onClick={buySeedCoin}>
+                  <Coins size={17} /> Benih game ({product.coinPrice} koin)
+                </button>
+              )}
             </div>
           )}
 

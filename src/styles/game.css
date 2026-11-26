@@ -218,6 +218,295 @@
   box-shadow: inset 0 4px 0 #8d5935, 0 4px 0 rgba(23, 45, 20, 0.25);
 }
 
+.g-plot-empty {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.g-plot-empty__soil {
+  width: 78px;
+  height: 36px;
+  border-radius: 8px;
+  border: 2px dashed #c8ec86;
+  background: rgba(117, 70, 38, 0.78);
+  box-shadow: inset 0 4px 0 rgba(58, 35, 21, 0.35);
+  transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+}
+
+.g-plot-empty:hover .g-plot-empty__soil,
+.g-plot-empty.is-active .g-plot-empty__soil {
+  transform: scale(1.06);
+  border-color: #fff6d2;
+  background: rgba(141, 89, 53, 0.92);
+}
+
+.g-plot-empty__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(23, 77, 53, 0.88);
+  color: #e6f7cf;
+  font-size: 0.52rem;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.g-plant__harvest {
+  position: absolute;
+  left: 50%;
+  top: -154px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 2px solid #5c3820;
+  background: #ffd95e;
+  color: #3a2315;
+  font-size: 0.54rem;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 3px 0 #5c3820;
+  animation: g-dew-bob 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.g-icon-btn {
+  position: relative;
+}
+
+.g-icon-btn--seed {
+  color: var(--leaf);
+}
+
+.g-icon-btn--harvest {
+  color: #b7791f;
+}
+
+.g-hud-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  border: 1.5px solid #3a2315;
+  background: var(--forest);
+  color: #fff;
+  font-size: 0.5rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
+.g-hud-badge--gold {
+  background: #f2b84b;
+  color: #3a2315;
+}
+
+.g-quick-act {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 2px solid #3a2315;
+  font-family: inherit;
+  font-size: 0.64rem;
+  font-weight: 700;
+  box-shadow: 0 3px 0 #3a2315, 0 8px 16px rgba(15, 36, 20, 0.25);
+  transition: transform 0.12s ease;
+}
+
+.g-quick-act:hover {
+  transform: translateY(-1px);
+}
+
+.g-quick-act:active {
+  transform: translateY(1px);
+}
+
+.g-quick-act--plant {
+  background: #a8d66d;
+  color: #0f3624;
+}
+
+.g-quick-act--harvest {
+  background: #ffd95e;
+  color: #3a2315;
+}
+
+.g-bag-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  max-height: min(46vh, 330px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.g-bag-actions {
+  flex-shrink: 0;
+}
+
+.g-wardrobe__btn--plant {
+  background: var(--forest);
+  color: #fff;
+}
+
+.g-wardrobe__btn--plant:hover:not(:disabled) {
+  background: var(--leaf-dark);
+}
+
+.g-harvest-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1.5px solid var(--mint-deep);
+}
+
+.g-harvest-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.76rem;
+  color: var(--forest-deep);
+}
+
+.g-harvest-count svg {
+  color: #b7791f;
+}
+
+.g-harvest-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.g-harvest-chips small {
+  font-size: 0.64rem;
+  color: var(--muted);
+}
+
+.g-harvest-chip {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--mint);
+  color: var(--forest);
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+
+.g-voucher-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.g-voucher-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1.5px solid var(--border);
+}
+
+.g-voucher-card__badge {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #fdf1d4;
+  color: #8a5610;
+  font-size: 0.74rem;
+  font-weight: 800;
+  border: 1.5px solid #e7c985;
+}
+
+.g-voucher-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.g-voucher-card__body strong {
+  font-size: 0.68rem;
+  color: var(--forest-deep);
+}
+
+.g-voucher-card__body small {
+  font-size: 0.56rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.g-my-vouchers {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(168, 214, 109, 0.22);
+  border: 1px solid var(--mint-deep);
+}
+
+.g-my-vouchers > strong {
+  font-size: 0.68rem;
+  color: var(--forest-deep);
+}
+
+.g-my-vouchers__list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.g-my-voucher {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 0.64rem;
+  color: var(--forest);
+}
+
+.g-my-voucher span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+@media (max-width: 760px) {
+  .g-bag-grid,
+  .g-voucher-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Pixel-RPG Center HUD & Minimap */
 .g-center-hud {
   position: absolute;

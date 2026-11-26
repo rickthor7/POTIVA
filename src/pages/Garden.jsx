@@ -127,15 +127,43 @@ export default function Garden() {
   if (!plants.length) {
     return (
       <div className="container page page--app">
-        <PageHeader eyebrow="POTIVA Garden" title="Kebun virtualmu" subtitle="Rawat tanaman virtualmu di sini." />
+        <PageHeader eyebrow="POTIVA Garden" title="Kebun virtualmu" subtitle="Tanam benih dari Shop dan rawat tanaman virtualmu di sini." />
+        <section className="garden-play">
+          <div className="garden-play__mascot" aria-hidden="true">
+            <Mascot size={104} look={potiLook} />
+          </div>
+          <div className="garden-play__copy">
+            <span className="garden-play__eyebrow">
+              <Gamepad2 size={13} /> Mode petualangan Pixel 2D
+            </span>
+            <h2>Mainkan kebun Poti</h2>
+            <p>
+              Semua petak sedang siap ditanami! Buka game untuk menanam benih baru atau tukar hasil
+              panenmu dengan voucher diskon POTIVA.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="btn btn--fresh garden-play__cta"
+            onClick={() => setGameOpen(true)}
+          >
+            <Play size={17} /> Mainkan game
+          </button>
+        </section>
         <div className="card card--pad empty">
           <EmptyArt variant="garden" />
-          <h3>Kebun virtualmu masih kosong</h3>
-          <p>Scan QR pada produk POTIVA untuk membuat tanaman pertamamu.</p>
-          <Link to="/scan" className="btn btn--primary">
-            <Sparkles size={17} /> Scan produk POTIVA
-          </Link>
+          <h3>Belum ada tanaman yang sedang tumbuh</h3>
+          <p>Beli benih di POTIVA Shop, tanam di Kebun Poti, atau scan QR produk POTIVA.</p>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Link to="/shop?kategori=Benih" className="btn btn--primary">
+              <Sprout size={17} /> Beli Benih di Shop
+            </Link>
+            <Link to="/scan" className="btn btn--outline">
+              <Sparkles size={17} /> Scan produk POTIVA
+            </Link>
+          </div>
         </div>
+        {gameOpen && <GardenGame plants={plants} onClose={closeGame} />}
       </div>
     )
   }

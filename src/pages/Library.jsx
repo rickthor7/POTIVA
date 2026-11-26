@@ -9,6 +9,7 @@ import {
   Search,
   Sparkles,
   Star,
+  Ticket,
 } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import Modal from '../components/Modal'
@@ -21,12 +22,17 @@ import { usePageTitle } from '../lib/usePageTitle'
 
 export default function Library() {
   usePageTitle('E-Library')
-  const { ownedEbooks, actions } = useApp()
+  const { ownedEbooks, vouchers = [], actions } = useApp()
   const toast = useToast()
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('Semua')
   const [view, setView] = useState('catalog')
   const [selected, setSelected] = useState(null)
+  const ebookVouchers = useMemo(
+    () => vouchers.filter((v) => !v.used && v.target === 'ebook'),
+    [vouchers],
+  )
+  const [selectedVoucherId, setSelectedVoucherId] = useState('')
 
   const filtered = useMemo(
     () =>
@@ -44,14 +50,27 @@ export default function Library() {
   const featuredOwned = ownedEbooks.includes(featured.id)
   const isOwned = (id) => ownedEbooks.includes(id)
 
-  const openBook = (book) => setSelected(book)
+  const openBook = (book) => {
+    setSelected(book)
+    const first = ebookVouchers[0]
+    setSelectedVoucherId(first?.id || '')
+  }
+
+  const activeVoucher = ebookVouchers.find((v) => v.id === selectedVoucherId) || null
+  const finalPrice =
+    selected && activeVoucher
+      ? Math.max(0, selected.price - Math.round((selected.price * activeVoucher.discount) / 100))
+      : selected?.price || 0
 
   const buy = () => {
     if (!selected) return
-    actions.buyEbook(selected.id)
-    toast(`${selected.title} sekarang bisa kamu baca kapan saja.`, {
-      title: 'Pembelian berhasil 🎉',
-    })
+    actions.buyEbook(selected.id, activeVoucher?.id || null)
+    toast(
+      activeVoucher
+        ? `${selected.title} dibeli dengan diskon ${activeVoucher.discount}% (${activeVoucher.code})!`
+        : `${selected.title} sekarang bisa kamu baca kapan saja.`,
+      { title: 'Pembelian berhasil 🎉' },
+    )
   }
 
   const read = () => {
@@ -144,6 +163,15 @@ export default function Library() {
         </div>
       </div>
 
+      {ebookVouchers.length > 0 && (
+        <div className="shop-promo" style={{ marginBottom: 18 }}>
+          <span className="shop-promo__voucher">
+            <Ticket size={16} /> Kamu punya {ebookVouchers.length} voucher diskon E-Book (hingga{' '}
+            {Math.max(...ebookVouchers.map((v) => v.discount))}%) — pilih e-book untuk memakainya!
+          </span>
+        </div>
+      )}
+
       {filtered.length === 0 ? (
         <div className="card card--pad empty">
           <BookOpen size={40} className="text-leaf" />
@@ -218,6 +246,26 @@ export default function Library() {
                   </li>
                 ))}
               </ul>
+              {!isOwned(selected.id) && ebookVouchers.length > 0 && (
+                <div className="voucher-picker">
+                  <label htmlFor="ebook-voucher">
+                    <Ticket size={14} /> Pakai Voucher Panen (10–15%)
+                  </label>
+                  <select
+                    id="ebook-voucher"
+                    className="select"
+                    value={selectedVoucherId}
+                    onChange={(e) => setSelectedVoucherId(e.target.value)}
+                  >
+                    <option value="">Tidak pakai voucher</option>
+                    {ebookVouchers.map((vc) => (
+                      <option key={vc.id} value={vc.id}>
+                        {vc.code} · Diskon {vc.discount}% E-Book
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="ebook-detail__buy">
                 <div>
                   {isOwned(selected.id) ? (
@@ -226,7 +274,14 @@ export default function Library() {
                     </span>
                   ) : (
                     <>
-                      <strong>{formatIDR(selected.price)}</strong>
+                      {activeVoucher ? (
+                        <strong>
+                          <del className="price-strike">{formatIDR(selected.price)}</del>{' '}
+                          {formatIDR(finalPrice)}
+                        </strong>
+                      ) : (
+                        <strong>{formatIDR(selected.price)}</strong>
+                      )}
                       <span>Akses selamanya · PDF & web</span>
                     </>
                   )}

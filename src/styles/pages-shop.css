@@ -1167,3 +1167,72 @@
     width: 14px;
   }
 }
+
+/* Seed game actions & harvest vouchers */
+.shop-promo__voucher {
+  color: #8a5610 !important;
+  font-weight: 700 !important;
+}
+
+.product-card__seed-acts {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.product-card__seed-coin {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 12px;
+}
+
+.voucher-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--cream);
+  border: 1px solid var(--cream-deep);
+}
+
+.voucher-picker label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--forest);
+}
+
+.checkout-totals__discount {
+  color: var(--leaf-dark);
+  font-weight: 600;
+}
+
+.checkout-success__seednote {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border-radius: var(--r-md);
+  background: var(--mint);
+  color: var(--forest);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.checkout-success__seednote a {
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+.price-strike {
+  font-size: 0.78em;
+  font-weight: 500;
+  color: var(--muted);
+  margin-right: 4px;
+}

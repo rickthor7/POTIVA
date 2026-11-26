@@ -1,21 +1,42 @@
 import { Link } from 'react-router-dom'
-import { Check, Coins, Plus, Star } from 'lucide-react'
+import { Check, Coins, Plus, Sprout, Star } from 'lucide-react'
 import { formatIDR } from '../data/appData'
 import { ProductArt } from './illustrations'
 import { useApp } from '../store/AppStore'
 import { useToast } from './Toast'
 
 export default function ProductCard({ product, compact = false }) {
-  const { actions, wallet, ownedCosmetics } = useApp()
+  const { actions, wallet, ownedCosmetics, seedInventory = {} } = useApp()
   const toast = useToast()
   const isCosmetic = Boolean(product.cosmetic)
+  const isSeed = Boolean(product.speciesId)
   const owned = isCosmetic && ownedCosmetics.includes(product.id)
+  const ownedSeeds = isSeed ? seedInventory[product.speciesId] || 0 : 0
 
   const addToCart = (e) => {
     e.preventDefault()
     e.stopPropagation()
     actions.addToCart(product.id)
-    toast(`${product.name} masuk keranjang.`, { title: 'Ditambahkan 🛒' })
+    toast(
+      isSeed
+        ? `${product.name} masuk keranjang. Setelah checkout, benih juga masuk Kebun Poti!`
+        : `${product.name} masuk keranjang.`,
+      { title: 'Ditambahkan 🛒' },
+    )
+  }
+
+  const buySeedCoin = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (wallet.coins < product.coinPrice) {
+      toast(
+        `Kumpulkan ${product.coinPrice - wallet.coins} koin lagi atau beli paket fisiknya lewat keranjang.`,
+        { type: 'error', title: 'Koin belum cukup' },
+      )
+      return
+    }
+    actions.buySeedWithCoins(product.id)
+    toast(`${product.name} masuk Tas Benih Kebun Poti! 🌱`, { title: 'Siap ditanam di game' })
   }
 
   const buyCosmetic = (e) => {
@@ -63,6 +84,10 @@ export default function ProductCard({ product, compact = false }) {
             )}
             {isCosmetic ? (
               <span className="product-card__stock">{owned ? 'Siap dipakai' : 'Buka di Lemari Gaya'}</span>
+            ) : isSeed ? (
+              <span className="product-card__stock">
+                {ownedSeeds > 0 ? `Di Tas Benih: ${ownedSeeds}` : 'Bisa ditanam di Kebun Poti'}
+              </span>
             ) : (
               product.stock < 20 && <span className="product-card__stock">Stok {product.stock}</span>
             )}
@@ -81,6 +106,24 @@ export default function ProductCard({ product, compact = false }) {
                 <Coins size={17} />
               </button>
             )
+          ) : isSeed ? (
+            <div className="product-card__seed-acts">
+              <button
+                className="btn btn--outline btn--icon product-card__seed-coin"
+                onClick={buySeedCoin}
+                title={`Beli benih virtual game (${product.coinPrice} koin)`}
+                aria-label={`Beli ${product.name} untuk game dengan ${product.coinPrice} koin`}
+              >
+                <Sprout size={16} />
+              </button>
+              <button
+                className="btn btn--primary btn--icon product-card__add"
+                onClick={addToCart}
+                aria-label={`Tambah ${product.name} ke keranjang`}
+              >
+                <Plus size={18} />
+              </button>
+            </div>
           ) : (
             <button
               className="btn btn--primary btn--icon product-card__add"

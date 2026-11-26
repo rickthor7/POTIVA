@@ -12,6 +12,7 @@ import {
   QrCode,
   ShoppingBag,
   Sprout,
+  Ticket,
   Truck,
 } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
@@ -35,10 +36,18 @@ const PAYMENTS = [
 
 export default function Checkout() {
   usePageTitle('Checkout')
-  const { user, cartItems, cartSubtotal, actions } = useApp()
+  const { user, cartItems, cartSubtotal, vouchers = [], actions } = useApp()
   const toast = useToast()
   const [courier, setCourier] = useState('jne')
   const [payment, setPayment] = useState('transfer')
+  const shopVouchers = useMemo(
+    () => vouchers.filter((v) => !v.used && v.target === 'shop'),
+    [vouchers],
+  )
+  const [selectedVoucherId, setSelectedVoucherId] = useState(() => {
+    const first = vouchers.find((v) => !v.used && v.target === 'shop')
+    return first?.id || ''
+  })
   const [success, setSuccess] = useState(null)
   const [errors, setErrors] = useState({})
   const [form, setForm] = useState({
@@ -52,8 +61,10 @@ export default function Checkout() {
   })
 
   const selectedCourier = COURIERS.find((c) => c.id === courier)
+  const activeVoucher = shopVouchers.find((v) => v.id === selectedVoucherId) || null
+  const discountAmount = activeVoucher ? Math.round((cartSubtotal * activeVoucher.discount) / 100) : 0
   const shippingCost = cartSubtotal >= 75000 ? 0 : selectedCourier.cost
-  const total = cartSubtotal + shippingCost
+  const total = Math.max(0, cartSubtotal - discountAmount) + shippingCost
   const selectedPayment = PAYMENTS.find((p) => p.id === payment)
 
   const snapshot = useMemo(
@@ -63,6 +74,7 @@ export default function Checkout() {
         qty,
         price: product.price,
         art: product.art,
+        hasSeed: Boolean(product.speciesId),
       })),
     [cartItems],
   )
@@ -94,6 +106,7 @@ export default function Checkout() {
     }
     const orderId = actions.checkout({
       shippingCost,
+      voucherId: activeVoucher?.id || null,
       courier: `${selectedCourier.label} · ${selectedCourier.eta}`,
       payment: selectedPayment.label,
       address: `${form.address}, ${form.city} ${form.postal}`,
@@ -101,8 +114,11 @@ export default function Checkout() {
     setSuccess({
       id: orderId,
       total,
+      discountAmount,
+      voucherCode: activeVoucher?.code || null,
       shippingCost,
       items: snapshot,
+      hasSeeds: snapshot.some((i) => i.hasSeed),
       courier: selectedCourier,
       payment: selectedPayment,
     })
@@ -172,12 +188,25 @@ export default function Checkout() {
                   {success.courier.label} · {success.courier.eta}
                 </strong>
               </div>
+              {success.discountAmount > 0 && (
+                <div>
+                  <span>Diskon voucher ({success.voucherCode})</span>
+                  <strong>-{formatIDR(success.discountAmount)}</strong>
+                </div>
+              )}
               <div className="checkout-success__grand">
                 <span>Total</span>
                 <strong>{formatIDR(success.total)}</strong>
               </div>
             </div>
           </div>
+
+          {success.hasSeeds && (
+            <p className="checkout-success__seednote">
+              <Sprout size={15} /> Benih yang kamu beli juga sudah masuk ke{' '}
+              <Link to="/garden?play=1">Tas Benih Kebun Poti</Link> dan siap ditanam!
+            </p>
+          )}
 
           <p className="checkout-success__note">
             Ini adalah demo. Tidak ada pembayaran nyata yang diproses, dan pesanan hanya
@@ -440,6 +469,12 @@ export default function Checkout() {
                 <span>Subtotal</span>
                 <span>{formatIDR(cartSubtotal)}</span>
               </div>
+              {discountAmount > 0 && (
+                <div className="checkout-totals__discount">
+                  <span>Diskon {activeVoucher.discount}% ({activeVoucher.code})</span>
+                  <span>-{formatIDR(discountAmount)}</span>
+                </div>
+              )}
               <div>
                 <span>Pengiriman</span>
                 <span>{shippingCost === 0 ? 'Gratis' : formatIDR(shippingCost)}</span>
@@ -449,6 +484,27 @@ export default function Checkout() {
                 <strong>{formatIDR(total)}</strong>
               </div>
             </div>
+
+            {shopVouchers.length > 0 && (
+              <div className="voucher-picker">
+                <label htmlFor="checkout-voucher">
+                  <Ticket size={14} /> Pakai Voucher Panen (10–15%)
+                </label>
+                <select
+                  id="checkout-voucher"
+                  className="select"
+                  value={selectedVoucherId}
+                  onChange={(e) => setSelectedVoucherId(e.target.value)}
+                >
+                  <option value="">Tidak pakai voucher</option>
+                  {shopVouchers.map((vc) => (
+                    <option key={vc.id} value={vc.id}>
+                      {vc.code} · Diskon {vc.discount}% semua produk
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <button type="submit" className="btn btn--primary btn--lg btn--block">
               Buat pesanan <ArrowRight size={18} />
             </button>

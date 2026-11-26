@@ -5,6 +5,7 @@ import {
   Apple,
   ArrowLeft,
   Bath,
+  BookOpen,
   Coins,
   Droplets,
   Expand,
@@ -19,13 +20,17 @@ import {
   Move,
   Pause,
   Play,
+  Plus,
   RotateCw,
   Shirt,
+  ShoppingBag,
   Smartphone,
   Sparkles,
   Sprout,
+  Ticket,
   Trophy,
   Utensils,
+  Wheat,
   X,
   Zap,
   ZoomIn,
@@ -48,7 +53,7 @@ import {
   PixelWindmill,
 } from './PixelGardenArt'
 import { useApp } from '../store/AppStore'
-import { COSMETICS, levelFromXp } from '../data/appData'
+import { COSMETICS, PRODUCTS, SPECIES, VOUCHER_CATALOG, levelFromXp } from '../data/appData'
 import { clamp } from '../lib/utils'
 
 const WORLD = { w: PIXEL_WORLD.w, h: PIXEL_WORLD.h }
@@ -637,7 +642,15 @@ const COSMETIC_SLOTS = [
 ]
 
 export default function GardenGame({ plants, onClose }) {
-  const { wallet, actions, ownedCosmetics, potiLook } = useApp()
+  const {
+    wallet,
+    actions,
+    ownedCosmetics,
+    potiLook,
+    seedInventory = {},
+    harvestBasket = [],
+    vouchers = [],
+  } = useApp()
   const navigate = useNavigate()
   const [phase, setPhase] = useState('intro')
   const [portrait, setPortrait] = useState(
@@ -646,6 +659,7 @@ export default function GardenGame({ plants, onClose }) {
   const [isFs, setIsFs] = useState(false)
   const [viewport, setViewport] = useState({ w: 1280, h: 720 })
   const [activeId, setActiveId] = useState(null)
+  const [activeSlot, setActiveSlot] = useState(null)
   const [fx, setFx] = useState(null)
   const [petFx, setPetFx] = useState(null)
   const [reaction, setReaction] = useState(null)
@@ -656,8 +670,11 @@ export default function GardenGame({ plants, onClose }) {
   const [needs, setNeeds] = useState({ hunger: 82, fun: 68, energy: 86, clean: 90 })
   const [now, setNow] = useState(Date.now())
   const [dew, setDew] = useState(() => DEW_SEED.map((d) => makeDew(d.x, d.y)))
-  const [stats, setStats] = useState({ care: 0, water: 0, dew: 0, pet: 0 })
+  const [stats, setStats] = useState({ care: 0, water: 0, dew: 0, pet: 0, harvest: 0 })
   const [wardrobeOpen, setWardrobeOpen] = useState(false)
+  const [seedBagOpen, setSeedBagOpen] = useState(false)
+  const [harvestOpen, setHarvestOpen] = useState(false)
+  const [targetSlot, setTargetSlot] = useState(null)
   const [zone, setZone] = useState(() => zoneAt(START.x, START.y))
   const [spotCooldowns, setSpotCooldowns] = useState({})
   const [zoom, setZoom] = useState(DEFAULT_ZOOM)
@@ -678,20 +695,26 @@ export default function GardenGame({ plants, onClose }) {
   const minZoomRef = useRef(0.45)
   const pinchedRef = useRef(false)
   const activeRef = useRef(null)
+  const activeSlotRef = useRef(null)
   const phaseRef = useRef(phase)
   const viewportRef = useRef(viewport)
   const plantsRef = useRef([])
+  const emptySlotsRef = useRef([])
   const dewRef = useRef(dew)
   const needsRef = useRef(needs)
   const sleepingRef = useRef(sleeping)
   const wardrobeRef = useRef(false)
   const pendingSpot = useRef(null)
+  const pendingPlotRef = useRef(null)
   const spotCooldownsRef = useRef(spotCooldowns)
   const spotFnRef = useRef(() => {})
   const zoneRef = useRef(zoneAt(START.x, START.y))
   const actRef = useRef(() => {})
   const careRef = useRef(() => {})
   const collectRef = useRef(() => {})
+  const harvestFnRef = useRef(() => {})
+  const openSeedFnRef = useRef(() => {})
+  const openHarvestFnRef = useRef(() => {})
   const fxTimer = useRef(null)
   const petFxTimer = useRef(null)
   const reactionTimer = useRef(null)
@@ -706,7 +729,7 @@ export default function GardenGame({ plants, onClose }) {
   dewRef.current = dew
   needsRef.current = needs
   sleepingRef.current = sleeping
-  wardrobeRef.current = wardrobeOpen
+  wardrobeRef.current = wardrobeOpen || seedBagOpen || harvestOpen
   spotCooldownsRef.current = spotCooldowns
 
   const supportsFs = useMemo(
@@ -734,20 +757,38 @@ export default function GardenGame({ plants, onClose }) {
   const playerArt = Math.round(126 * scale)
   const level = levelFromXp(wallet.xp)
 
-  const placed = useMemo(
-    () =>
-      plants.map((plant, index) => {
-        const slot = PLANT_SLOTS[index % PLANT_SLOTS.length]
-        const lap = Math.floor(index / PLANT_SLOTS.length)
-        return {
-          ...plant,
-          x: clamp(slot.x + lap * 80, 120, WORLD.w - 120),
-          y: clamp(slot.y + lap * 64, 240, WORLD.h - 90),
-        }
-      }),
-    [plants],
-  )
+  const { placed, emptySlots } = useMemo(() => {
+    const used = new Set()
+    const items = plants.map((plant, index) => {
+      let sIdx = plant.slotIndex
+      if (sIdx == null || used.has(sIdx)) {
+        sIdx = Array.from({ length: PLANT_SLOTS.length }, (_, i) => i).find((i) => !used.has(i))
+        if (sIdx == null) sIdx = index % PLANT_SLOTS.length
+      }
+      used.add(sIdx)
+      const slot = PLANT_SLOTS[sIdx % PLANT_SLOTS.length]
+      const lap = Math.floor(index / PLANT_SLOTS.length)
+      return {
+        ...plant,
+        slotIndex: sIdx,
+        x: clamp(slot.x + lap * 80, 120, WORLD.w - 120),
+        y: clamp(slot.y + lap * 64, 240, WORLD.h - 90),
+      }
+    })
+    const empties = PLANT_SLOTS.slice(0, 8)
+      .map((pos, idx) => ({ slotIndex: idx, ...pos }))
+      .filter((s) => !used.has(s.slotIndex))
+    return { placed: items, emptySlots: empties }
+  }, [plants])
   plantsRef.current = placed
+  emptySlotsRef.current = emptySlots
+
+  const totalSeeds = useMemo(
+    () => Object.values(seedInventory).reduce((sum, n) => sum + (n || 0), 0),
+    [seedInventory],
+  )
+  const activeVouchers = useMemo(() => vouchers.filter((v) => !v.used), [vouchers])
+  const seedProducts = useMemo(() => PRODUCTS.filter((p) => p.speciesId), [])
 
   const active = placed.find((p) => p.id === activeId) || null
   const waterCd = active ? cooldownLeft(active.lastWater, 15000, now) : 0
@@ -785,10 +826,37 @@ export default function GardenGame({ plants, onClose }) {
     waypoint.current = null
     keys.current.clear()
     setMarker(null)
+    setSeedBagOpen(false)
+    setHarvestOpen(false)
     setWardrobeOpen(true)
   }, [])
 
   const closeWardrobe = useCallback(() => setWardrobeOpen(false), [])
+
+  const openSeedBag = useCallback((slotIdx = null) => {
+    if (phaseRef.current !== 'playing' || sleepingRef.current) return
+    stick.current = { x: 0, y: 0 }
+    waypoint.current = null
+    keys.current.clear()
+    setMarker(null)
+    setWardrobeOpen(false)
+    setHarvestOpen(false)
+    setTargetSlot(slotIdx ?? activeSlotRef.current)
+    setSeedBagOpen(true)
+  }, [])
+  openSeedFnRef.current = openSeedBag
+
+  const openHarvest = useCallback(() => {
+    if (phaseRef.current !== 'playing' || sleepingRef.current) return
+    stick.current = { x: 0, y: 0 }
+    waypoint.current = null
+    keys.current.clear()
+    setMarker(null)
+    setWardrobeOpen(false)
+    setSeedBagOpen(false)
+    setHarvestOpen(true)
+  }, [])
+  openHarvestFnRef.current = openHarvest
 
   const burst = useCallback((plantId, kind) => {
     setFx({ plantId, kind, key: Date.now() })
@@ -831,6 +899,7 @@ export default function GardenGame({ plants, onClose }) {
       if (phaseRef.current !== 'playing' || portrait || sleepingRef.current || wardrobeRef.current)
         return
       pendingSpot.current = null
+      pendingPlotRef.current = null
       const tx = clamp(x, 70, WORLD.w - 70)
       const ty = clamp(y, 120, WORLD.h - 60)
       waypoint.current = insideObstacle(tx, ty) ? null : { x: tx, y: ty }
@@ -841,6 +910,21 @@ export default function GardenGame({ plants, onClose }) {
       if (text) say(text, 1800)
     },
     [portrait, say],
+  )
+
+  const goToEmptyPlot = useCallback(
+    (slot) => {
+      if (phaseRef.current !== 'playing' || portrait) return
+      const p = player.current
+      if (Math.hypot(slot.x - p.x, slot.y - p.y) < REACH) {
+        pendingPlotRef.current = null
+        openSeedBag(slot.slotIndex)
+        return
+      }
+      goTo(slot.x, slot.y + 30, `Menuju petak #${slot.slotIndex + 1}`)
+      pendingPlotRef.current = slot.slotIndex
+    },
+    [goTo, openSeedBag, portrait],
   )
 
   const goToSpot = useCallback(
@@ -1174,6 +1258,48 @@ export default function GardenGame({ plants, onClose }) {
   }
   actRef.current = act
 
+  const harvestActive = useCallback(() => {
+    if (phaseRef.current !== 'playing' || wardrobeRef.current) return
+    if (sleepingRef.current) {
+      wake()
+      return
+    }
+    if (!active || active.growth < 85) {
+      say(
+        active
+          ? `${active.name} masih ${active.growth}%. Rawat sampai 85%+ untuk panen!`
+          : 'Dekati tanaman yang siap panen (85%+) dulu.',
+        2400,
+      )
+      return
+    }
+    const result = actions.harvestPlant(active.id)
+    if (!result) return
+    setStats((s) => ({ ...s, harvest: s.harvest + 1 }))
+    react('happy')
+    cheerWorld()
+    flash(`Panen ${result.emoji} ${result.name}! +35 XP · +25 koin · Tukar voucher di 🌾`, 'cheer')
+  }, [actions, active, cheerWorld, flash, react, say, wake])
+  harvestFnRef.current = harvestActive
+
+  const plantFromBag = (speciesId) => {
+    const slot = targetSlot ?? activeSlotRef.current
+    const ok = actions.plantSeedInGarden(speciesId, slot)
+    if (!ok) return
+    const sp = SPECIES.find((s) => s.id === speciesId)
+    setSeedBagOpen(false)
+    setTargetSlot(null)
+    react('happy')
+    say(`Menanam ${sp?.name || 'tanaman baru'}! Siram & pupuk sampai panen 🌱`, 2800)
+  }
+
+  const redeemVoucher = (tplId) => {
+    const vc = actions.redeemHarvestVoucher(tplId)
+    if (!vc) return
+    react('happy')
+    say(`Voucher ${vc.code} (${vc.discount}% OFF) berhasil ditukar! 🎉`, 3000)
+  }
+
   const petPoti = () => {
     if (phaseRef.current !== 'playing' || wardrobeRef.current) return
     if (sleepingRef.current) {
@@ -1204,6 +1330,8 @@ export default function GardenGame({ plants, onClose }) {
       const k = e.key.toLowerCase()
       if (wardrobeRef.current) {
         if (k === 'g') setWardrobeOpen(false)
+        if (k === 'b') setSeedBagOpen(false)
+        if (k === 'v') setHarvestOpen(false)
         return
       }
       const movement = ['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright']
@@ -1211,6 +1339,9 @@ export default function GardenGame({ plants, onClose }) {
       if (movement.includes(k)) keys.current.add(k)
       if (phaseRef.current !== 'playing' || e.repeat) return
       if (k === 'g') openWardrobe()
+      if (k === 'b' || k === 't') openSeedFnRef.current(activeSlotRef.current)
+      if (k === 'v') openHarvestFnRef.current()
+      if (k === 'h') harvestFnRef.current()
       if (k === '1') careRef.current('feed')
       if (k === '2') careRef.current('play')
       if (k === '3') careRef.current('bath')
@@ -1297,6 +1428,8 @@ export default function GardenGame({ plants, onClose }) {
       if (e.key !== 'Escape') return
       if (wardrobeRef.current) {
         setWardrobeOpen(false)
+        setSeedBagOpen(false)
+        setHarvestOpen(false)
         return
       }
       if (document.fullscreenElement) return
@@ -1342,6 +1475,11 @@ export default function GardenGame({ plants, onClose }) {
               pendingSpot.current = null
               spotFnRef.current(spot)
             }
+            const plotSlot = pendingPlotRef.current
+            if (plotSlot != null) {
+              pendingPlotRef.current = null
+              openSeedFnRef.current(plotSlot)
+            }
           } else {
             ix = dx / dist
             iy = dy / dist
@@ -1384,6 +1522,22 @@ export default function GardenGame({ plants, onClose }) {
         if (nextId !== activeRef.current) {
           activeRef.current = nextId
           setActiveId(nextId)
+        }
+
+        let nearEmpty = null
+        let bestEmpty = REACH
+        if (!nearest) {
+          for (const slot of emptySlotsRef.current) {
+            const dist = Math.hypot(slot.x - p.x, slot.y - p.y)
+            if (dist < bestEmpty) {
+              bestEmpty = dist
+              nearEmpty = slot.slotIndex
+            }
+          }
+        }
+        if (nearEmpty !== activeSlotRef.current) {
+          activeSlotRef.current = nearEmpty
+          setActiveSlot(nearEmpty)
         }
       }
 
@@ -1606,46 +1760,82 @@ export default function GardenGame({ plants, onClose }) {
             </button>
           ))}
 
-          {/* POTIVA Plants inside Pixel Planter Beds */}
-          {placed.map((plant) => (
-            <div
-              key={plant.id}
-              className={`g-plant g-plant--pixel ${activeId === plant.id ? 'is-active' : ''} ${
-                plant.x > WORLD.w * 0.6 ? 'is-left' : ''
-              }`}
-              style={{ left: plant.x, top: plant.y, zIndex: Math.round(plant.y) }}
-              role="button"
-              tabIndex={0}
-              aria-label={`Menuju ${plant.name}`}
+          {/* Empty Fenced Garden Plots (ready for planting seeds from POTIVA Shop) */}
+          {emptySlots.map((slot) => (
+            <button
+              key={`empty-${slot.slotIndex}`}
+              type="button"
+              className={`g-plot-empty ${activeSlot === slot.slotIndex ? 'is-active' : ''}`}
+              style={{ left: slot.x, top: slot.y, zIndex: Math.round(slot.y) - 5 }}
               onClick={(event) => {
                 event.stopPropagation()
-                goTo(plant.x, plant.y + 34, `Menuju ${plant.name}`)
+                goToEmptyPlot(slot)
               }}
-              onKeyDown={(event) => {
-                if (event.key !== 'Enter' && event.key !== ' ') return
-                event.preventDefault()
-                event.stopPropagation()
-                goTo(plant.x, plant.y + 34, `Menuju ${plant.name}`)
-              }}
+              aria-label={`Petak kosong #${slot.slotIndex + 1}, klik untuk tanam benih`}
             >
-              <span className="g-plant__bed g-plant__bed--pixel" aria-hidden="true" />
-              <span className="g-plant__ring" aria-hidden="true" />
-              <div className="g-plant__art" style={{ width: plantArt }}>
-                <PottedPlant
-                  width={plantArt}
-                  growth={plant.growth}
-                  pot={plant.pot}
-                  potTone={plant.potTone}
-                />
-                {fx?.plantId === plant.id && <PlantFx key={fx.key} kind={fx.kind} />}
-              </div>
-              <div className="g-plant__label">
-                <strong>{plant.name}</strong>
-                {needsBars(plant)}
-                {activeId === plant.id && <em>Tekan E siram · F pupuk</em>}
-              </div>
-            </div>
+              <span className="g-plot-empty__soil" />
+              <span className="g-plot-empty__tag">
+                <Plus size={11} /> Tanam
+              </span>
+            </button>
           ))}
+
+          {/* POTIVA Plants inside Pixel Planter Beds */}
+          {placed.map((plant) => {
+            const readyHarvest = plant.growth >= 85
+            return (
+              <div
+                key={plant.id}
+                className={`g-plant g-plant--pixel ${activeId === plant.id ? 'is-active' : ''} ${
+                  readyHarvest ? 'is-harvestable' : ''
+                } ${plant.x > WORLD.w * 0.6 ? 'is-left' : ''}`}
+                style={{ left: plant.x, top: plant.y, zIndex: Math.round(plant.y) }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Menuju ${plant.name}`}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  goTo(plant.x, plant.y + 34, `Menuju ${plant.name}`)
+                }}
+                onKeyDown={(event) => {
+                  if (event.key !== 'Enter' && event.key !== ' ') return
+                  event.preventDefault()
+                  event.stopPropagation()
+                  goTo(plant.x, plant.y + 34, `Menuju ${plant.name}`)
+                }}
+              >
+                <span className="g-plant__bed g-plant__bed--pixel" aria-hidden="true" />
+                <span className="g-plant__ring" aria-hidden="true" />
+                {readyHarvest && (
+                  <span className="g-plant__harvest" aria-hidden="true">
+                    <Wheat size={11} /> Panen!
+                  </span>
+                )}
+                <div className="g-plant__art" style={{ width: plantArt }}>
+                  <PottedPlant
+                    width={plantArt}
+                    growth={plant.growth}
+                    pot={plant.pot}
+                    potTone={plant.potTone}
+                  />
+                  {fx?.plantId === plant.id && <PlantFx key={fx.key} kind={fx.kind} />}
+                </div>
+                <div className="g-plant__label">
+                  <strong>
+                    {plant.name} · {plant.growth}%
+                  </strong>
+                  {needsBars(plant)}
+                  {activeId === plant.id && (
+                    <em>
+                      {readyHarvest
+                        ? 'Siap panen! Tekan H'
+                        : 'Tekan E siram · F pupuk'}
+                    </em>
+                  )}
+                </div>
+              </div>
+            )
+          })}
 
           {/* Butterflies */}
           <div className="g-flies" aria-hidden="true">
@@ -1763,6 +1953,30 @@ export default function GardenGame({ plants, onClose }) {
           >
             <Shirt size={19} />
           </button>
+          <button
+            type="button"
+            className="g-icon-btn g-icon-btn--seed"
+            onClick={() => openSeedBag(activeSlot)}
+            aria-label={`Buka Tas Benih (${totalSeeds} benih)`}
+            title="Tas Benih / Tanam (B)"
+          >
+            <Sprout size={19} />
+            {totalSeeds > 0 && <span className="g-hud-badge">{totalSeeds}</span>}
+          </button>
+          <button
+            type="button"
+            className="g-icon-btn g-icon-btn--harvest"
+            onClick={openHarvest}
+            aria-label={`Keranjang Panen & Voucher (${harvestBasket.length} panen)`}
+            title="Panen & Tukar Voucher (V)"
+          >
+            <Ticket size={19} />
+            {(harvestBasket.length > 0 || activeVouchers.length > 0) && (
+              <span className="g-hud-badge g-hud-badge--gold">
+                {harvestBasket.length > 0 ? harvestBasket.length : activeVouchers.length}
+              </span>
+            )}
+          </button>
         </div>
         <div className="g-hud__right">
           <span className="g-wallet">
@@ -1797,11 +2011,11 @@ export default function GardenGame({ plants, onClose }) {
           </div>
 
           <div className="g-center-hud">
-            <div className={`g-target ${active ? 'is-active' : ''}`} aria-live="polite">
+            <div className={`g-target ${active || activeSlot != null ? 'is-active' : ''}`} aria-live="polite">
               {active ? (
                 <>
                   <span className="g-target__name">
-                    <Leaf size={14} /> {active.name}
+                    <Leaf size={14} /> {active.name} ({active.growth}%)
                   </span>
                   <span className="g-target__stat">
                     <Droplets size={13} /> {active.needs.water}%
@@ -1810,21 +2024,43 @@ export default function GardenGame({ plants, onClose }) {
                     <Sprout size={13} /> {active.needs.nutrient}%
                   </span>
                   <span className="g-target__hint">
-                    {waterCd > 0 ? `Siram siap ${waterCd}s` : 'Siap dirawat'}
+                    {active.growth >= 85
+                      ? 'Siap panen!'
+                      : waterCd > 0
+                        ? `Siram siap ${waterCd}s`
+                        : 'Siap dirawat'}
                   </span>
                 </>
+              ) : activeSlot != null ? (
+                <span className="g-target__name">
+                  <Sprout size={14} /> Petak kosong #{activeSlot + 1} · {totalSeeds} benih tersedia
+                </span>
               ) : (
                 <span className="g-target__hint">
-                  <Move size={14} /> Dekati tanaman di petak untuk merawat
+                  <Move size={14} /> Dekati petak atau tanaman untuk tanam, siram, &amp; panen
                 </span>
               )}
             </div>
 
-            <div className="g-zonechip" aria-live="polite">
-              <MapPin size={12} />
-              <strong>{zone.name}</strong>
-              <span>{zone.hint}</span>
-            </div>
+            {active && active.growth >= 85 ? (
+              <button type="button" className="g-quick-act g-quick-act--harvest" onClick={harvestActive}>
+                <Wheat size={14} /> Panen Sekarang (H)
+              </button>
+            ) : activeSlot != null ? (
+              <button
+                type="button"
+                className="g-quick-act g-quick-act--plant"
+                onClick={() => openSeedBag(activeSlot)}
+              >
+                <Plus size={14} /> Tanam Benih di Petak (T)
+              </button>
+            ) : (
+              <div className="g-zonechip" aria-live="polite">
+                <MapPin size={12} />
+                <strong>{zone.name}</strong>
+                <span>{zone.hint}</span>
+              </div>
+            )}
           </div>
 
           <PixelMinimap plants={placed} dew={dew} playerDotRef={playerDotRef} />
@@ -1956,9 +2192,9 @@ export default function GardenGame({ plants, onClose }) {
                 : 'Layar penuh tidak tersedia di browser ini, tetapi game tetap memenuhi layar. Di HP, gunakan posisi landscape.'}
             </p>
             <p className="g-intro__keys">
-              Keyboard: <kbd>WASD</kbd>/panah gerak · <kbd>1</kbd> makan · <kbd>2</kbd> main ·{' '}
-              <kbd>3</kbd> mandi · <kbd>4</kbd> tidur · <kbd>P</kbd> elus · <kbd>E</kbd> siram ·{' '}
-              <kbd>F</kbd> pupuk · <kbd>G</kbd> gaya · <kbd>+</kbd>/<kbd>-</kbd> zoom · klik peta atau penanda
+              Keyboard: <kbd>WASD</kbd>/panah gerak · <kbd>E</kbd> siram · <kbd>F</kbd> pupuk ·{' '}
+              <kbd>B</kbd>/<kbd>T</kbd> tanam · <kbd>H</kbd> panen · <kbd>V</kbd> voucher ·{' '}
+              <kbd>G</kbd> gaya · <kbd>+</kbd>/<kbd>-</kbd> zoom · <kbd>1–4</kbd> rawat Poti
             </p>
           </div>
         </div>
@@ -2127,6 +2363,193 @@ export default function GardenGame({ plants, onClose }) {
                 POTIVA Shop
               </button>
               .
+            </p>
+          </div>
+        </div>
+      )}
+
+      {seedBagOpen && (
+        <div className="g-overlay g-overlay--wardrobe">
+          <div className="g-card g-wardrobe" role="document" aria-label="Tas Benih Kebun Poti">
+            <div className="g-wardrobe__head">
+              <div>
+                <span className="g-pause__eyebrow">Tanam di Kebun</span>
+                <h2>Tas Benih {targetSlot != null ? `· Petak #${targetSlot + 1}` : ''}</h2>
+                <p className="g-wardrobe__lead">
+                  Tanam benih yang kamu beli dari POTIVA Shop ke petak kebun, lalu siram &amp;
+                  pupuk sampai tumbuh 85%+ agar bisa dipanen!
+                </p>
+              </div>
+              <button
+                type="button"
+                className="g-icon-btn"
+                onClick={() => setSeedBagOpen(false)}
+                aria-label="Tutup tas benih"
+              >
+                <X size={19} />
+              </button>
+            </div>
+
+            <div className="g-bag-grid">
+              {seedProducts.map((item) => {
+                const sp = SPECIES.find((s) => s.id === item.speciesId)
+                const owned = seedInventory[item.speciesId] || 0
+                return (
+                  <div key={item.id} className={`g-wardrobe__item ${owned > 0 ? 'is-owned' : ''}`}>
+                    <span className="g-wardrobe__thumb">
+                      <ProductArt type={item.art} />
+                    </span>
+                    <div className="g-wardrobe__meta">
+                      <strong>
+                        {sp?.emoji} {item.name}
+                      </strong>
+                      <small>
+                        Milikmu: <b>{owned}</b> · {sp?.difficulty}
+                      </small>
+                    </div>
+                    <div className="g-bag-actions">
+                      {owned > 0 ? (
+                        <button
+                          type="button"
+                          className="g-wardrobe__btn g-wardrobe__btn--plant"
+                          onClick={() => plantFromBag(item.speciesId)}
+                          disabled={emptySlots.length === 0 && placed.length >= 12}
+                        >
+                          <Sprout size={12} /> Tanam
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="g-wardrobe__btn g-wardrobe__btn--buy"
+                          onClick={() => actions.buySeedWithCoins(item.id)}
+                          disabled={wallet.coins < item.coinPrice}
+                          title={
+                            wallet.coins < item.coinPrice
+                              ? `Butuh ${item.coinPrice - wallet.coins} koin lagi atau beli di POTIVA Shop`
+                              : 'Beli benih dengan koin kebun'
+                          }
+                        >
+                          <Coins size={12} /> {item.coinPrice}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <p className="g-wardrobe__note">
+              <ShoppingBag size={14} /> Beli benih di{' '}
+              <button
+                type="button"
+                className="g-wardrobe__link"
+                onClick={() => {
+                  close()
+                  navigate('/shop?kategori=Benih')
+                }}
+              >
+                POTIVA Shop (Kategori Benih)
+              </button>{' '}
+              — setiap pembelian benih otomatis masuk ke Tas Benih Kebun Poti!
+            </p>
+          </div>
+        </div>
+      )}
+
+      {harvestOpen && (
+        <div className="g-overlay g-overlay--wardrobe">
+          <div className="g-card g-wardrobe" role="document" aria-label="Panen dan Tukar Voucher">
+            <div className="g-wardrobe__head">
+              <div>
+                <span className="g-pause__eyebrow">Hasil Panen</span>
+                <h2>Panen &amp; Tukar Voucher Diskon</h2>
+                <p className="g-wardrobe__lead">
+                  Tukar hasil panenmu menjadi voucher diskon 10–15% untuk semua produk di POTIVA
+                  Shop maupun e-book di E-Library!
+                </p>
+              </div>
+              <button
+                type="button"
+                className="g-icon-btn"
+                onClick={() => setHarvestOpen(false)}
+                aria-label="Tutup keranjang panen"
+              >
+                <X size={19} />
+              </button>
+            </div>
+
+            <div className="g-harvest-summary">
+              <div className="g-harvest-count">
+                <Wheat size={18} />
+                <span>
+                  Hasil panen tersedia: <strong>{harvestBasket.length}</strong>
+                </span>
+              </div>
+              <div className="g-harvest-chips">
+                {harvestBasket.length === 0 ? (
+                  <small>Belum ada panen. Rawat tanaman sampai 85%+ lalu panen (H).</small>
+                ) : (
+                  harvestBasket.slice(0, 8).map((item) => (
+                    <span key={item.id} className="g-harvest-chip">
+                      {item.emoji} {item.name}
+                    </span>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="g-voucher-grid">
+              {VOUCHER_CATALOG.map((tpl) => {
+                const canRedeem = harvestBasket.length >= tpl.costHarvest
+                return (
+                  <div key={tpl.id} className="g-voucher-card">
+                    <div className="g-voucher-card__badge">-{tpl.discount}%</div>
+                    <div className="g-voucher-card__body">
+                      <strong>{tpl.title}</strong>
+                      <small>{tpl.desc}</small>
+                    </div>
+                    <button
+                      type="button"
+                      className="g-wardrobe__btn g-wardrobe__btn--plant"
+                      disabled={!canRedeem}
+                      onClick={() => redeemVoucher(tpl.id)}
+                    >
+                      Tukar ({tpl.costHarvest} panen)
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+
+            {activeVouchers.length > 0 && (
+              <div className="g-my-vouchers">
+                <strong>Voucher Aktif Milikmu ({activeVouchers.length})</strong>
+                <div className="g-my-vouchers__list">
+                  {activeVouchers.map((vc) => (
+                    <div key={vc.id} className="g-my-voucher">
+                      <span>
+                        <Ticket size={13} /> <b>{vc.code}</b> · Diskon {vc.discount}% (
+                        {vc.target === 'shop' ? 'POTIVA Shop' : 'E-Book'})
+                      </span>
+                      <button
+                        type="button"
+                        className="g-wardrobe__link"
+                        onClick={() => {
+                          close()
+                          navigate(vc.target === 'shop' ? '/shop' : '/library')
+                        }}
+                      >
+                        Pakai di {vc.target === 'shop' ? 'Shop' : 'E-Library'} →
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <p className="g-wardrobe__note">
+              <BookOpen size={14} /> Voucher Shop berlaku untuk semua produk POTIVA saat
+              Checkout; Voucher E-Book berlaku untuk semua panduan di E-Library.
             </p>
           </div>
         </div>
