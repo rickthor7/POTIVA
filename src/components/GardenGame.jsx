@@ -15,6 +15,7 @@ import {
   LogOut,
   MapPin,
   Maximize2,
+  MessageCircle,
   Minimize2,
   Moon,
   Move,
@@ -22,6 +23,7 @@ import {
   Play,
   Plus,
   RotateCw,
+  Send,
   Shirt,
   ShoppingBag,
   Smartphone,
@@ -29,6 +31,7 @@ import {
   Sprout,
   Ticket,
   Trophy,
+  Users,
   Utensils,
   Wheat,
   X,
@@ -53,6 +56,7 @@ import {
   PixelWindmill,
 } from './PixelGardenArt'
 import { useApp } from '../store/AppStore'
+import { useGardenMultiplayer } from '../lib/useGardenMultiplayer'
 import { COSMETICS, PRODUCTS, SPECIES, VOUCHER_CATALOG, levelFromXp } from '../data/appData'
 import { clamp } from '../lib/utils'
 
@@ -502,7 +506,7 @@ function MiniAvatar() {
   )
 }
 
-function PixelMinimap({ plants, dew, playerDotRef }) {
+function PixelMinimap({ plants, dew, peers, playerDotRef, peerDotsRef }) {
   return (
     <div className="g-minimap" aria-hidden="true">
       <svg viewBox={`0 0 ${WORLD.w} ${WORLD.h}`} shapeRendering="crispEdges">
@@ -541,7 +545,23 @@ function PixelMinimap({ plants, dew, playerDotRef }) {
         {plants.map((p) => (
           <circle key={p.id} cx={p.x} cy={p.y} r="52" fill="#a8d66d" stroke="#174d35" strokeWidth="18" />
         ))}
-        {/* Player dot updated directly in RAF */}
+        {/* Remote online players */}
+        {peers.map((peer) => (
+          <circle
+            key={peer.peerId}
+            ref={(el) => {
+              if (el) peerDotsRef.current.set(peer.peerId, el)
+              else peerDotsRef.current.delete(peer.peerId)
+            }}
+            cx={Math.round(peer.x)}
+            cy={Math.round(peer.y)}
+            r="56"
+            fill="#ff7aa8"
+            stroke="#3a2315"
+            strokeWidth="18"
+          />
+        ))}
+        {/* Local player dot updated directly in RAF */}
         <circle
           ref={playerDotRef}
           cx={START.x}
@@ -643,6 +663,8 @@ const COSMETIC_SLOTS = [
 
 export default function GardenGame({ plants, onClose }) {
   const {
+    user,
+    guest,
     wallet,
     actions,
     ownedCosmetics,
@@ -652,6 +674,8 @@ export default function GardenGame({ plants, onClose }) {
     vouchers = [],
   } = useApp()
   const navigate = useNavigate()
+  const [guestTag] = useState(() => Math.floor(10 + Math.random() * 89))
+  const myPlayerName = user?.name && !guest ? user.name : `Tamu #${guestTag}`
   const [phase, setPhase] = useState('intro')
   const [portrait, setPortrait] = useState(
     () => typeof window !== 'undefined' && window.innerHeight > window.innerWidth,
@@ -674,6 +698,8 @@ export default function GardenGame({ plants, onClose }) {
   const [wardrobeOpen, setWardrobeOpen] = useState(false)
   const [seedBagOpen, setSeedBagOpen] = useState(false)
   const [harvestOpen, setHarvestOpen] = useState(false)
+  const [chatOpen, setChatOpen] = useState(false)
+  const [chatText, setChatText] = useState('')
   const [targetSlot, setTargetSlot] = useState(null)
   const [zone, setZone] = useState(() => zoneAt(START.x, START.y))
   const [spotCooldowns, setSpotCooldowns] = useState({})
@@ -684,6 +710,8 @@ export default function GardenGame({ plants, onClose }) {
   const worldRef = useRef(null)
   const playerEl = useRef(null)
   const playerDotRef = useRef(null)
+  const peerElsRef = useRef(new Map())
+  const peerDotsRef = useRef(new Map())
   const introBtnRef = useRef(null)
   const stick = useRef({ x: 0, y: 0 })
   const waypoint = useRef(null)
@@ -802,6 +830,38 @@ export default function GardenGame({ plants, onClose }) {
     Math.min(stats.dew, QUEST.dew)
   const questDone =
     stats.care >= QUEST.care && stats.water >= QUEST.water && stats.dew >= QUEST.dew
+
+  const {
+    status: mpStatus,
+    peers,
+    remoteMapRef,
+    broadcastState,
+  } = useGardenMultiplayer({
+    enabled: phase === 'playing',
+    playerName: myPlayerName,
+    initialState: {
+      x: player.current.x,
+      y: player.current.y,
+      facing: player.current.facing,
+      look: potiLook,
+      expression,
+      bubble: bubble?.text || null,
+    },
+  })
+  const broadcastRef = useRef(broadcastState)
+  broadcastRef.current = broadcastState
+
+  useEffect(() => {
+    broadcastRef.current(
+      {
+        name: myPlayerName,
+        look: potiLook,
+        expression,
+        bubble: bubble?.text || null,
+      },
+      true,
+    )
+  }, [myPlayerName, potiLook, expression, bubble])
 
   const flash = useCallback((text, tone = 'info') => {
     setBubble({ text, tone, id: Date.now() })
@@ -1327,6 +1387,10 @@ export default function GardenGame({ plants, onClose }) {
 
   useEffect(() => {
     const down = (e) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        if (e.key === 'Escape') setChatOpen(false)
+        return
+      }
       const k = e.key.toLowerCase()
       if (wardrobeRef.current) {
         if (k === 'g') setWardrobeOpen(false)
@@ -1342,6 +1406,7 @@ export default function GardenGame({ plants, onClose }) {
       if (k === 'b' || k === 't') openSeedFnRef.current(activeSlotRef.current)
       if (k === 'v') openHarvestFnRef.current()
       if (k === 'h') harvestFnRef.current()
+      if (k === 'c') setChatOpen((o) => !o)
       if (k === '1') careRef.current('feed')
       if (k === '2') careRef.current('play')
       if (k === '3') careRef.current('bath')
@@ -1430,6 +1495,10 @@ export default function GardenGame({ plants, onClose }) {
         setWardrobeOpen(false)
         setSeedBagOpen(false)
         setHarvestOpen(false)
+        return
+      }
+      if (chatOpen) {
+        setChatOpen(false)
         return
       }
       if (document.fullscreenElement) return
@@ -1556,6 +1625,34 @@ export default function GardenGame({ plants, onClose }) {
         playerDotRef.current.setAttribute('cx', String(Math.round(p.x)))
         playerDotRef.current.setAttribute('cy', String(Math.round(p.y)))
       }
+
+      if (phaseRef.current === 'playing') {
+        broadcastRef.current({
+          x: p.x,
+          y: p.y,
+          facing: p.facing,
+          moving: isMoving,
+        })
+      }
+
+      // Smoothly interpolate all remote WebRTC players in the world
+      const peerLerp = Math.min(1, dt * 12)
+      remoteMapRef.current.forEach((rp, peerId) => {
+        rp.curX += (rp.targetX - rp.curX) * peerLerp
+        rp.curY += (rp.targetY - rp.curY) * peerLerp
+        const el = peerElsRef.current.get(peerId)
+        if (el) {
+          el.style.transform = `translate3d(${rp.curX}px, ${rp.curY}px, 0)`
+          el.style.setProperty('--flip', rp.facing)
+          el.style.zIndex = String(Math.round(rp.curY))
+          el.classList.toggle('is-moving', rp.moving)
+        }
+        const dot = peerDotsRef.current.get(peerId)
+        if (dot) {
+          dot.setAttribute('cx', String(Math.round(rp.curX)))
+          dot.setAttribute('cy', String(Math.round(rp.curY)))
+        }
+      })
 
       const vw = viewportRef.current.w
       const vh = viewportRef.current.h
@@ -1863,6 +1960,39 @@ export default function GardenGame({ plants, onClose }) {
             </span>
           )}
 
+          {/* Remote Online Players (WebRTC P2P) */}
+          {peers.map((peer) => (
+            <div
+              key={peer.peerId}
+              className="g-player g-player--remote"
+              ref={(el) => {
+                if (el) peerElsRef.current.set(peer.peerId, el)
+                else peerElsRef.current.delete(peer.peerId)
+              }}
+              style={{
+                '--art': `${playerArt}px`,
+                transform: `translate3d(${peer.x}px, ${peer.y}px, 0)`,
+                zIndex: Math.round(peer.y),
+              }}
+              aria-label={`Pemain online: ${peer.name}`}
+            >
+              <span className="g-player__shadow" aria-hidden="true" />
+              {peer.bubble && <span className="g-player__bubble">{peer.bubble}</span>}
+              <div className="g-player__inner" style={{ width: playerArt }}>
+                <div className="g-player__body">
+                  <Mascot
+                    size={playerArt}
+                    expression={peer.expression || 'happy'}
+                    blink={false}
+                    waving={false}
+                    look={peer.look || {}}
+                  />
+                </div>
+              </div>
+              <span className="g-player__name g-player__name--remote">{peer.name}</span>
+            </div>
+          ))}
+
           {/* Poti Character */}
           <div
             className="g-player"
@@ -1904,7 +2034,7 @@ export default function GardenGame({ plants, onClose }) {
                 />
               </div>
             </div>
-            <span className="g-player__name">Poti</span>
+            <span className="g-player__name">{myPlayerName}</span>
           </div>
         </div>
       </div>
@@ -1979,6 +2109,28 @@ export default function GardenGame({ plants, onClose }) {
           </button>
         </div>
         <div className="g-hud__right">
+          <span
+            className={`g-chip g-online-chip is-${mpStatus}`}
+            title="Multiplayer WebRTC P2P tanpa login"
+          >
+            <Users size={13} />
+            <span>
+              {mpStatus === 'online'
+                ? `${peers.length + 1} online`
+                : mpStatus === 'connecting'
+                  ? 'Menghubungkan…'
+                  : 'Mode solo'}
+            </span>
+          </span>
+          <button
+            type="button"
+            className="g-icon-btn g-icon-btn--chat"
+            onClick={() => setChatOpen((o) => !o)}
+            aria-label="Buka sapa cepat"
+            title="Sapa & Chat Singkat (C)"
+          >
+            <MessageCircle size={19} />
+          </button>
           <span className="g-wallet">
             <Coins size={14} /> {wallet.coins}
           </span>
@@ -2063,7 +2215,55 @@ export default function GardenGame({ plants, onClose }) {
             )}
           </div>
 
-          <PixelMinimap plants={placed} dew={dew} playerDotRef={playerDotRef} />
+          <PixelMinimap
+            plants={placed}
+            dew={dew}
+            peers={peers}
+            playerDotRef={playerDotRef}
+            peerDotsRef={peerDotsRef}
+          />
+
+          {chatOpen && (
+            <div className="g-chatbar" role="dialog" aria-label="Sapa pemain lain">
+              <div className="g-chatbar__quick">
+                {['👋 Halo!', '🌱 Semangat!', '💧 Siram yuk!', '🌾 Panen!'].map((msg) => (
+                  <button
+                    key={msg}
+                    type="button"
+                    onClick={() => {
+                      say(msg, 3400)
+                      setChatOpen(false)
+                    }}
+                  >
+                    {msg}
+                  </button>
+                ))}
+              </div>
+              <form
+                className="g-chatbar__form"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  const trimmed = chatText.trim()
+                  if (!trimmed) return
+                  say(trimmed.slice(0, 60), 3600)
+                  setChatText('')
+                  setChatOpen(false)
+                }}
+              >
+                <input
+                  type="text"
+                  maxLength={60}
+                  placeholder="Tulis pesan singkat…"
+                  value={chatText}
+                  onChange={(e) => setChatText(e.target.value)}
+                  autoFocus
+                />
+                <button type="submit" aria-label="Kirim pesan">
+                  <Send size={14} />
+                </button>
+              </form>
+            </div>
+          )}
 
           <div className="g-zoom" role="group" aria-label="Pengatur zoom layar kebun">
             <button
@@ -2156,9 +2356,9 @@ export default function GardenGame({ plants, onClose }) {
             </span>
             <h2>Kebun Poti</h2>
             <p className="g-intro__lead">
-              Jelajahi kebun bergaya pixel art top-down! Seberangi jembatan kayu &amp; batu,
-              kunjungi Rumah Kebun, Kincir Angin, Stan Pasar, dan Rumah Kaca, lalu rawat
-              tanamanmu di petak ladang berpagar.
+              Jelajahi kebun bergaya pixel art top-down secara multiplayer realtime tanpa login!
+              Temui pemain lain di peta, tanam benih dari Shop, panen hasil kebunmu, dan tukar
+              menjadi voucher diskon 10–15% semua produk POTIVA &amp; E-Book.
             </p>
             <div className="g-intro__controls">
               <div>
@@ -2194,7 +2394,7 @@ export default function GardenGame({ plants, onClose }) {
             <p className="g-intro__keys">
               Keyboard: <kbd>WASD</kbd>/panah gerak · <kbd>E</kbd> siram · <kbd>F</kbd> pupuk ·{' '}
               <kbd>B</kbd>/<kbd>T</kbd> tanam · <kbd>H</kbd> panen · <kbd>V</kbd> voucher ·{' '}
-              <kbd>G</kbd> gaya · <kbd>+</kbd>/<kbd>-</kbd> zoom · <kbd>1–4</kbd> rawat Poti
+              <kbd>C</kbd> sapa · <kbd>G</kbd> gaya · <kbd>+</kbd>/<kbd>-</kbd> zoom
             </p>
           </div>
         </div>

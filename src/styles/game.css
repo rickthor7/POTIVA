@@ -507,6 +507,116 @@
   }
 }
 
+/* Multiplayer WebRTC P2P players & quick chat */
+.g-player--remote {
+  pointer-events: none;
+}
+
+.g-player--remote .g-player__inner {
+  cursor: default;
+}
+
+.g-player__name--remote {
+  background: #ffe9f2;
+  color: #7d1d46;
+  border: 1.5px solid #5c3820;
+}
+
+.g-online-chip {
+  gap: 5px;
+}
+
+.g-online-chip.is-online svg {
+  color: #2f9e44;
+}
+
+.g-online-chip.is-connecting svg {
+  color: #d9822b;
+}
+
+.g-online-chip.is-offline svg {
+  color: var(--muted);
+}
+
+.g-icon-btn--chat {
+  color: #2c7a8c;
+}
+
+.g-chatbar {
+  position: absolute;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 64;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: min(360px, calc(100vw - 260px));
+  padding: 8px 10px;
+  border-radius: 16px;
+  border: 2px solid #5c3820;
+  background: rgba(255, 248, 228, 0.96);
+  box-shadow: 0 4px 0 #3a2315, 0 14px 28px rgba(15, 36, 20, 0.28);
+}
+
+.g-chatbar__quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.g-chatbar__quick button {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--mint);
+  color: var(--forest-deep);
+  font-size: 0.58rem;
+  font-weight: 600;
+  border: 1px solid var(--mint-deep);
+}
+
+.g-chatbar__quick button:hover {
+  background: var(--fresh);
+}
+
+.g-chatbar__form {
+  display: flex;
+  gap: 6px;
+}
+
+.g-chatbar__form input {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1.5px solid #c5b393;
+  background: #fff;
+  font-size: 0.66rem;
+  color: var(--forest-deep);
+}
+
+.g-chatbar__form button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--forest);
+  color: #fff;
+}
+
+@media (max-width: 720px) {
+  .g-online-chip span {
+    display: none;
+  }
+
+  .g-chatbar {
+    width: min(300px, calc(100vw - 24px));
+    bottom: max(126px, calc(env(safe-area-inset-bottom) + 120px));
+  }
+}
+
 /* Pixel-RPG Center HUD & Minimap */
 .g-center-hud {
   position: absolute;
