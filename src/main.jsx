@@ -17,6 +17,7 @@ import './styles/pages-shop.css'
 import './styles/pages-community.css'
 import './styles/pages-auth.css'
 import './styles/game.css'
+import './styles/dark.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

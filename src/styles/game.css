@@ -63,6 +63,182 @@ body.g-fs-lock {
   background: #679c32;
 }
 
+.game--pixel.is-night {
+  background: #1a2d24;
+}
+
+.game.is-night .g-world--pixel {
+  filter: brightness(0.64) saturate(0.84) contrast(1.06);
+  transition: filter 0.55s ease;
+}
+
+.game.is-night .g-px-lamp__glow {
+  filter: drop-shadow(0 0 12px rgba(255, 224, 128, 0.95));
+  opacity: 1;
+}
+
+.game.is-night .g-px-lamp {
+  filter: drop-shadow(0 0 16px rgba(255, 214, 110, 0.85));
+}
+
+.game.is-night .g-pollen i {
+  width: 7px;
+  height: 7px;
+  background: #e9ff8f;
+  box-shadow: 0 0 10px 3px rgba(215, 255, 118, 0.72);
+}
+
+.g-nightveil {
+  position: absolute;
+  inset: 0;
+  z-index: 23;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 74% 18%, rgba(255, 244, 194, 0.16), transparent 36%),
+    radial-gradient(ellipse at 50% 54%, rgba(16, 30, 56, 0.18), rgba(7, 15, 36, 0.64));
+  animation: g-veil 0.55s ease;
+}
+
+.g-moon {
+  position: absolute;
+  top: max(68px, calc(env(safe-area-inset-top) + 60px));
+  right: max(184px, calc(env(safe-area-inset-right) + 180px));
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  animation: g-moon-float 7s ease-in-out infinite;
+}
+
+.g-moon__halo {
+  position: absolute;
+  inset: -24px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 245, 186, 0.42), rgba(255, 245, 186, 0) 70%);
+}
+
+.g-moon__svg {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  filter: drop-shadow(0 0 14px rgba(255, 238, 165, 0.8));
+}
+
+.g-night-star {
+  position: absolute;
+  color: #fff8d6;
+  font-size: 0.95rem;
+  opacity: 0;
+  text-shadow: 0 0 8px rgba(255, 246, 196, 0.85);
+  animation: g-twinkle 3.4s ease-in-out infinite;
+}
+
+.g-night-star--1 { left: 14%; top: 14%; animation-delay: 0.1s; font-size: 1rem; }
+.g-night-star--2 { left: 32%; top: 9%; animation-delay: 0.9s; font-size: 0.8rem; }
+.g-night-star--3 { left: 56%; top: 13%; animation-delay: 1.7s; font-size: 1.08rem; }
+.g-night-star--4 { right: 32%; top: 21%; animation-delay: 2.3s; font-size: 1.3rem; }
+.g-night-star--5 { left: 22%; top: 27%; animation-delay: 1.3s; font-size: 0.78rem; }
+.g-night-star--6 { right: 12%; top: 28%; animation-delay: 2.8s; font-size: 0.9rem; }
+
+@keyframes g-moon-float {
+  0%, 100% { transform: translateY(0px) rotate(-3deg); }
+  50% { transform: translateY(-6px) rotate(2deg); }
+}
+
+.g-icon-btn--night.is-active,
+.game--pixel.is-night .g-icon-btn--night.is-active {
+  background: #233c4d;
+  border-color: #a8d66d;
+  color: #ffe37a;
+}
+
+.game.is-night .g-petcard,
+.game.is-night .g-icon-btn,
+.game.is-night .g-chip,
+.game.is-night .g-wallet--xp,
+.game.is-night .g-needs,
+.game.is-night .g-zoom,
+.game.is-night .g-card {
+  border-color: #365947;
+  background: rgba(18, 35, 28, 0.92);
+  color: #ecf5ee;
+}
+
+.game.is-night .g-card h2,
+.game.is-night .g-wardrobe__meta strong,
+.game.is-night .g-voucher-card__body strong,
+.game.is-night .g-my-vouchers > strong,
+.game.is-night .g-kios-sec > strong,
+.game.is-night .g-kios-points,
+.game.is-night .g-intro__controls strong,
+.game.is-night .g-pause__stats strong,
+.game.is-night .g-shop-foot__info {
+  color: #ecf5ee;
+}
+
+.game.is-night .g-card p,
+.game.is-night .g-wardrobe__meta small,
+.game.is-night .g-voucher-card__body small,
+.game.is-night .g-intro__controls small,
+.game.is-night .g-pause__stats small,
+.game.is-night .g-wardrobe__note,
+.game.is-night .g-kios-basket,
+.game.is-night .g-rotate p {
+  color: #a4bbae;
+}
+
+.game.is-night .g-wardrobe__item,
+.game.is-night .g-voucher-card,
+.game.is-night .g-my-voucher,
+.game.is-night .g-pause__stats > div,
+.game.is-night .g-intro__controls > div,
+.game.is-night .g-rotate__hint,
+.game.is-night .g-kios-empty {
+  background: #14261e;
+  border-color: #2c4a3a;
+  color: #ecf5ee;
+}
+
+.game.is-night .g-kios-stats,
+.game.is-night .g-harvest-summary,
+.game.is-night .g-wardrobe__preview {
+  background: #193126;
+  border-color: #2f5140;
+}
+
+.game.is-night .g-petcard__info strong,
+.game.is-night .g-icon-btn,
+.game.is-night .g-zoom__btn,
+.game.is-night .g-zoom__pct {
+  color: #dff2e2;
+}
+
+.game.is-night .g-shop-cat {
+  background: #15281f;
+  border-color: #2d4c3b;
+  color: #cbe3cf;
+}
+
+.game.is-night .g-shop-cat.is-active {
+  background: #2f7443;
+  border-color: #a8d66d;
+  color: #ffffff;
+}
+
+@media (max-width: 720px) {
+  .g-moon {
+    right: 22px;
+    top: max(76px, calc(env(safe-area-inset-top) + 68px));
+    width: 56px;
+    height: 56px;
+  }
+
+  .g-moon__svg {
+    width: 48px;
+    height: 48px;
+  }
+}
+
 .g-world--pixel {
   image-rendering: pixelated;
   image-rendering: crisp-edges;

@@ -32,6 +32,7 @@ import {
   Sprout,
   Star,
   Store,
+  Sun,
   Ticket,
   Trophy,
   Users,
@@ -64,6 +65,7 @@ import {
   PotiSleepPillow,
 } from './PixelGardenArt'
 import { useApp } from '../store/AppStore'
+import { useUI } from '../store/UIStore'
 import { useGardenMultiplayer } from '../lib/useGardenMultiplayer'
 import { downloadCuteVoucherImage } from '../lib/voucherDownload'
 import { COSMETICS, PRODUCT_CATEGORIES, PRODUCTS, SPECIES, VOUCHER_CATALOG, formatIDR, levelFromXp } from '../data/appData'
@@ -849,6 +851,7 @@ export default function GardenGame({ plants, onClose }) {
     vouchers = [],
     cartCount = 0,
   } = useApp()
+  const { isDark, toggleTheme } = useUI()
   const navigate = useNavigate()
   const [guestTag] = useState(() => Math.floor(10 + Math.random() * 89))
   const myPlayerName = user?.name && !guest ? user.name : `Tamu #${guestTag}`
@@ -1876,6 +1879,7 @@ export default function GardenGame({ plants, onClose }) {
       if (k === 'v') openHarvestFnRef.current()
       if (k === 'h') harvestFnRef.current()
       if (k === 'c') setChatOpen((o) => !o)
+      if (k === 'n') toggleTheme()
       if (k === '1') careRef.current('feed')
       if (k === '2') careRef.current('play')
       if (k === '3') careRef.current('bath')
@@ -2176,8 +2180,8 @@ export default function GardenGame({ plants, onClose }) {
     <div
       ref={rootRef}
       className={`game game--pixel ${sleeping ? 'is-sleeping' : ''} ${
-        isFs ? 'is-fullscreen' : ''
-      } ${portrait && allowPortrait ? 'is-portrait-play' : ''}`}
+        isDark ? 'is-night' : ''
+      } ${isFs ? 'is-fullscreen' : ''} ${portrait && allowPortrait ? 'is-portrait-play' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Mode petualangan Kebun Pixel POTIVA"
@@ -2588,7 +2592,33 @@ export default function GardenGame({ plants, onClose }) {
         </div>
       </div>
 
-      <div className="g-sunrays" aria-hidden="true" />
+      {!isDark && <div className="g-sunrays" aria-hidden="true" />}
+      {isDark && (
+        <div className="g-nightveil" aria-hidden="true">
+          <div className="g-moon" aria-hidden="true">
+            <span className="g-moon__halo" />
+            <svg className="g-moon__svg" viewBox="0 0 64 64">
+              <defs>
+                <radialGradient id="potiMoonGrad" cx="38%" cy="34%" r="65%">
+                  <stop offset="0%" stopColor="#fffbe4" />
+                  <stop offset="68%" stopColor="#fae79c" />
+                  <stop offset="100%" stopColor="#e5c86b" />
+                </radialGradient>
+              </defs>
+              <circle cx="32" cy="32" r="22" fill="url(#potiMoonGrad)" />
+              <circle cx="24" cy="24" r="3.4" fill="rgba(189, 152, 68, 0.28)" />
+              <circle cx="39" cy="36" r="4.6" fill="rgba(189, 152, 68, 0.24)" />
+              <circle cx="27" cy="40" r="2.2" fill="rgba(189, 152, 68, 0.22)" />
+            </svg>
+          </div>
+          <span className="g-night-star g-night-star--1">✦</span>
+          <span className="g-night-star g-night-star--2">✧</span>
+          <span className="g-night-star g-night-star--3">✦</span>
+          <span className="g-night-star g-night-star--4">·</span>
+          <span className="g-night-star g-night-star--5">✦</span>
+          <span className="g-night-star g-night-star--6">✧</span>
+        </div>
+      )}
       <div className="g-pollen" aria-hidden="true">
         {Array.from({ length: 10 }, (_, i) => (
           <i key={i} style={{ '--i': i }} />
@@ -2701,6 +2731,19 @@ export default function GardenGame({ plants, onClose }) {
             title="Sapa & Chat Singkat (C)"
           >
             <MessageCircle size={19} />
+          </button>
+          <button
+            type="button"
+            className={`g-icon-btn g-icon-btn--night ${isDark ? 'is-active' : ''}`}
+            onClick={() => {
+              toggleTheme()
+              say(isDark ? 'Selamat pagi di Kebun Poti! ☀️' : 'Mode malam rembulan aktif 🌙✨', 2200)
+            }}
+            aria-pressed={isDark}
+            aria-label={isDark ? 'Ganti ke mode siang' : 'Ganti ke mode malam'}
+            title={isDark ? 'Mode Siang (N)' : 'Mode Malam Rembulan (N)'}
+          >
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
           <span className="g-wallet">
             <Coins size={14} /> {wallet.coins}
@@ -3002,7 +3045,8 @@ export default function GardenGame({ plants, onClose }) {
             <p className="g-intro__keys">
               Keyboard: <kbd>WASD</kbd>/panah gerak · <kbd>M</kbd> toko · <kbd>K</kbd> kios panen ·{' '}
               <kbd>E</kbd> siram · <kbd>F</kbd> pupuk · <kbd>B</kbd>/<kbd>T</kbd> tanam ·{' '}
-              <kbd>H</kbd> panen · <kbd>V</kbd> voucher · <kbd>C</kbd> sapa · <kbd>G</kbd> gaya
+              <kbd>H</kbd> panen · <kbd>V</kbd> voucher · <kbd>N</kbd> malam · <kbd>C</kbd> sapa ·{' '}
+              <kbd>G</kbd> gaya
             </p>
           </div>
         </div>

@@ -1,0 +1,298 @@
+/* ───────────────────────────────────────────────────────────
+   POTIVA — Global Dark Mode (html[data-theme="dark"])
+   Covers Public, App, Shop, Checkout, Auth, Modals, & Chrome
+   ─────────────────────────────────────────────────────────── */
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --cream: #0d1812;
+  --cream-deep: #13221a;
+  --white: #15261e;
+  --mint: #1b3226;
+  --mint-deep: #254333;
+  --sky: #162e36;
+  --ink: #ecf5ee;
+  --muted: #a4bbae;
+  --muted-light: #7c9587;
+  --border: #284235;
+  --danger-soft: #3a1f22;
+  --warning-soft: #332712;
+  --soil-light: #e2996d;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.32), 0 10px 24px -16px rgba(0, 0, 0, 0.55);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4), 0 22px 44px -24px rgba(0, 0, 0, 0.65);
+  --shadow-lg: 0 30px 70px -28px rgba(0, 0, 0, 0.72);
+}
+
+/* Navbar & chrome */
+:root[data-theme='dark'] .nav {
+  background: rgba(13, 24, 18, 0.8);
+}
+
+:root[data-theme='dark'] .nav--scrolled,
+:root[data-theme='dark'] .nav--app.nav--scrolled {
+  background: rgba(16, 30, 23, 0.94);
+  border-color: var(--border);
+  box-shadow: 0 10px 30px -20px rgba(0, 0, 0, 0.7);
+}
+
+:root[data-theme='dark'] .nav--app {
+  background: rgba(16, 30, 23, 0.84);
+}
+
+:root[data-theme='dark'] .nav__panel,
+:root[data-theme='dark'] .drawer__panel,
+:root[data-theme='dark'] .modal__card,
+:root[data-theme='dark'] .account__menu,
+:root[data-theme='dark'] .toast,
+:root[data-theme='dark'] .mobile-nav {
+  background: #15261e;
+  border-color: var(--border);
+}
+
+@media (max-width: 920px) {
+  :root[data-theme='dark'] .mobile-nav {
+    background: rgba(21, 38, 30, 0.96);
+  }
+}
+
+:root[data-theme='dark'] .nav__link:hover {
+  color: var(--fresh);
+  background: rgba(168, 214, 109, 0.1);
+}
+
+:root[data-theme='dark'] .nav__link.is-active {
+  color: var(--fresh);
+  background: rgba(168, 214, 109, 0.16);
+}
+
+:root[data-theme='dark'] .logo__word,
+:root[data-theme='dark'] .nav__login,
+:root[data-theme='dark'] .icon-btn,
+:root[data-theme='dark'] .account__btn,
+:root[data-theme='dark'] .account__head strong,
+:root[data-theme='dark'] .drawer__head h2,
+:root[data-theme='dark'] .drawer__total strong,
+:root[data-theme='dark'] .toast__title {
+  color: var(--ink);
+}
+
+:root[data-theme='dark'] .icon-btn.nav__theme.is-dark {
+  background: rgba(168, 214, 109, 0.16);
+  color: #ffd95e;
+}
+
+:root[data-theme='dark'] .icon-btn.nav__theme.is-dark:hover {
+  background: rgba(168, 214, 109, 0.26);
+}
+
+:root[data-theme='dark'] .nav__badge {
+  background: var(--fresh);
+  color: #0d1812;
+  border-color: #15261e;
+}
+
+/* Text colors that originally referenced dark --forest */
+:root[data-theme='dark'] .eyebrow,
+:root[data-theme='dark'] .panel-head__link,
+:root[data-theme='dark'] .btn--outline,
+:root[data-theme='dark'] .btn--ghost,
+:root[data-theme='dark'] .link-btn,
+:root[data-theme='dark'] .bento__link,
+:root[data-theme='dark'] .hero__pill,
+:root[data-theme='dark'] .how__icon,
+:root[data-theme='dark'] .float-card strong,
+:root[data-theme='dark'] .badge,
+:root[data-theme='dark'] .ebook-reader__head strong,
+:root[data-theme='dark'] .pdp__price,
+:root[data-theme='dark'] .shop-cart-list__qty,
+:root[data-theme='dark'] .account-side__help,
+:root[data-theme='dark'] .voucher-pick__disc,
+:root[data-theme='dark'] .product-card__coin {
+  color: #bce698;
+}
+
+:root[data-theme='dark'] .badge--fresh {
+  background: var(--fresh);
+  color: #0e261a;
+}
+
+:root[data-theme='dark'] .btn--outline {
+  border-color: rgba(168, 214, 109, 0.35);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+:root[data-theme='dark'] .btn--outline:hover {
+  background: rgba(168, 214, 109, 0.14);
+  border-color: var(--fresh);
+  color: #ffffff;
+}
+
+:root[data-theme='dark'] .btn--ghost:hover,
+:root[data-theme='dark'] .account__item:hover {
+  background: rgba(168, 214, 109, 0.12);
+  color: #ffffff;
+}
+
+:root[data-theme='dark'] button.chip:hover {
+  border-color: var(--fresh);
+  color: var(--fresh);
+}
+
+:root[data-theme='dark'] .chip.is-active {
+  background: #2f7443;
+  border-color: var(--fresh);
+  color: #ffffff;
+}
+
+/* Form controls */
+:root[data-theme='dark'] .input,
+:root[data-theme='dark'] .select,
+:root[data-theme='dark'] .textarea,
+:root[data-theme='dark'] .search-box,
+:root[data-theme='dark'] .qty {
+  background: #102018;
+  border-color: var(--border);
+  color: var(--ink);
+}
+
+:root[data-theme='dark'] .search-box input,
+:root[data-theme='dark'] .input::placeholder,
+:root[data-theme='dark'] .textarea::placeholder {
+  color: var(--muted-light);
+}
+
+/* Landing page & scenes */
+:root[data-theme='dark'] .hero__pill {
+  background: rgba(27, 50, 38, 0.9);
+  border-color: var(--border);
+}
+
+:root[data-theme='dark'] .hero__scene {
+  background: linear-gradient(165deg, #163024 0%, #1a3a2b 55%, #12261c 100%);
+  border: 1px solid var(--border);
+}
+
+:root[data-theme='dark'] .float-card,
+:root[data-theme='dark'] .game-shortcut__tip {
+  background: rgba(21, 38, 30, 0.94);
+  border-color: var(--border);
+  color: var(--ink);
+}
+
+:root[data-theme='dark'] .how__card,
+:root[data-theme='dark'] .testimonial,
+:root[data-theme='dark'] .bento__card--journal,
+:root[data-theme='dark'] .bento__card--care {
+  background: #15261e;
+  border-color: var(--border);
+}
+
+:root[data-theme='dark'] .bento__card--garden,
+:root[data-theme='dark'] .bento__card--library,
+:root[data-theme='dark'] .shop-style-banner,
+:root[data-theme='dark'] .shop-help,
+:root[data-theme='dark'] .auth-art,
+:root[data-theme='dark'] .pdp__art-note,
+:root[data-theme='dark'] .cart-empty {
+  background: linear-gradient(155deg, #1a3326 0%, #15261e 65%, #122019 100%);
+  border-color: var(--border);
+}
+
+:root[data-theme='dark'] .mini-tasks li,
+:root[data-theme='dark'] .how__note {
+  background: #102018;
+  border-color: var(--border);
+}
+
+:root[data-theme='dark'] .garden-preview {
+  background: linear-gradient(180deg, #13252a 0%, #182e25 68%, #1d3625 100%);
+}
+
+:root[data-theme='dark'] .garden-preview__chip {
+  background: #15261e;
+  border: 1px solid var(--border);
+  color: var(--fresh);
+}
+
+:root[data-theme='dark'] .feature-tabs__nav button.is-active,
+:root[data-theme='dark'] .auth-tabs button.is-active,
+:root[data-theme='dark'] .tab-bar button.is-active {
+  background: #254333;
+  color: var(--fresh);
+}
+
+/* App pages (Dashboard, Garden, Care, Journal, Library, Shop, Checkout, Community, Account) */
+:root[data-theme='dark'] .today-card,
+:root[data-theme='dark'] .task-row,
+:root[data-theme='dark'] .plant-tile,
+:root[data-theme='dark'] .journal-card,
+:root[data-theme='dark'] .post-card,
+:root[data-theme='dark'] .product-card,
+:root[data-theme='dark'] .ebook-card,
+:root[data-theme='dark'] .option,
+:root[data-theme='dark'] .faq,
+:root[data-theme='dark'] .setting-row,
+:root[data-theme='dark'] .order-card,
+:root[data-theme='dark'] .account-plant,
+:root[data-theme='dark'] .voucher-pick,
+:root[data-theme='dark'] .mission-row,
+:root[data-theme='dark'] .checkout-summary,
+:root[data-theme='dark'] .shop-cart-card,
+:root[data-theme='dark'] .pdp__gallery,
+:root[data-theme='dark'] .pdp__perks > div,
+:root[data-theme='dark'] .pdp__ship > div,
+:root[data-theme='dark'] .auth-panel,
+:root[data-theme='dark'] .guest-banner {
+  background: #15261e;
+  border-color: var(--border);
+  color: var(--ink);
+}
+
+:root[data-theme='dark'] .plant-tile__art,
+:root[data-theme='dark'] .product-card__media,
+:root[data-theme='dark'] .pdp__main,
+:root[data-theme='dark'] .account-plant__art,
+:root[data-theme='dark'] .cart-item__art,
+:root[data-theme='dark'] .empty {
+  background: #1b3226;
+}
+
+:root[data-theme='dark'] .plant-tile--add {
+  background: rgba(27, 50, 38, 0.55);
+  border-color: rgba(168, 214, 109, 0.32);
+}
+
+:root[data-theme='dark'] .garden-stage {
+  background: linear-gradient(180deg, #10202e 0%, #172e2b 55%, #1d3625 100%);
+  border-color: var(--border);
+}
+
+:root[data-theme='dark'] .garden-stage__sun {
+  background: radial-gradient(circle at 35% 35%, #fff8dc, #e5d89e 70%);
+  box-shadow: 0 0 36px rgba(246, 234, 168, 0.35);
+}
+
+:root[data-theme='dark'] .garden-stage__cloud,
+:root[data-theme='dark'] .garden-stage__pill,
+:root[data-theme='dark'] .garden-ring-card {
+  background: rgba(21, 38, 30, 0.88);
+  border-color: var(--border);
+  color: var(--ink);
+}
+
+:root[data-theme='dark'] .app-footer {
+  background: #111f17;
+  border-color: var(--border);
+}
+
+:root[data-theme='dark'] .option.is-selected,
+:root[data-theme='dark'] .voucher-pick.is-selected {
+  background: #1d382a;
+  border-color: var(--fresh);
+}
+
+:root[data-theme='dark'] .cta-banner__scan {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.35);
+}

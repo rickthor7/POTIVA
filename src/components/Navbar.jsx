@@ -5,8 +5,10 @@ import {
   ChevronDown,
   LogOut,
   Menu,
+  Moon,
   ShoppingBag,
   Sprout,
+  Sun,
   UserRound,
   X,
   Settings,
@@ -38,7 +40,7 @@ export default function Navbar({ mode = 'public' }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [accountOpen, setAccountOpen] = useState(false)
   const { user, guest, cartCount, actions } = useApp()
-  const { openCart } = useUI()
+  const { openCart, isDark, toggleTheme } = useUI()
   const location = useLocation()
   const navigate = useNavigate()
   const accountRef = useRef(null)
@@ -99,6 +101,17 @@ export default function Navbar({ mode = 'public' }) {
         </nav>
 
         <div className="nav__actions">
+          <button
+            type="button"
+            className={`icon-btn nav__theme ${isDark ? 'is-dark' : ''}`}
+            onClick={toggleTheme}
+            aria-pressed={isDark}
+            aria-label={isDark ? 'Aktifkan mode terang' : 'Aktifkan mode gelap'}
+            title={isDark ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap (Malam di Game)'}
+          >
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+
           {mode === 'app' && (
             <Link to="/care" className="icon-btn nav__bell" aria-label="Notifikasi perawatan">
               <Bell size={19} />
@@ -201,6 +214,14 @@ export default function Navbar({ mode = 'public' }) {
             )}
           </nav>
           <div className="nav__panel-foot">
+            <button
+              type="button"
+              className="btn btn--outline btn--block nav__panel-theme"
+              onClick={toggleTheme}
+            >
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+              {isDark ? 'Mode Terang' : 'Mode Gelap'}
+            </button>
             {loggedIn ? (
               <Link to="/app" className="btn btn--primary btn--block" onClick={() => setMenuOpen(false)}>
                 <Sprout size={17} /> Buka Kebun
