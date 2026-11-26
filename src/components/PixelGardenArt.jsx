@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react'
 
 export const PIXEL_WORLD = {
-  w: 2560,
-  h: 1600,
+  w: 3360,
+  h: 2240,
   px: 4,
-  cw: 640, // 2560 / 4
-  ch: 400, // 1600 / 4
+  cw: 840, // 3360 / 4
+  ch: 560, // 2240 / 4
 }
 
 // Deterministic PRNG so the pixel meadow looks identical every load.
@@ -44,7 +44,8 @@ const WEST_RIVER = [
   [164, 212],
   [156, 286],
   [146, 360],
-  [140, 412],
+  [136, 444],
+  [124, 576],
 ]
 
 const EAST_RIVER = [
@@ -53,6 +54,8 @@ const EAST_RIVER = [
   [488, 158],
   [544, 174],
   [652, 178],
+  [748, 184],
+  [856, 198],
 ]
 
 export function PixelTerrainCanvas() {
@@ -132,6 +135,8 @@ export function PixelTerrainCanvas() {
 
     // Top-left elevated plateau (trimmed slightly so Toko POTIVA sits right beside Farmhouse)
     drawCliff(96, -4, 78, 64, 1)
+    // Top-east elevated sakura bluff
+    drawCliff(680, -4, 134, 62, 1)
     // Mid-left cliff shelf (above barn)
     drawCliff(0, 198, 114, 48, 0)
     // Wooden stairs built into mid-left cliff (x: 74..98, y: 218..246)
@@ -182,6 +187,15 @@ export function PixelTerrainCanvas() {
     drawCobbleStrip(508, 336, 74, 24) // Greenhouse front walkway
     drawCobbleStrip(220, 308, 264, 22) // South avenue below fenced garden
     drawCobbleStrip(314, 296, 26, 40) // South garden gate link
+    // Expanded South, West-South & East avenues
+    drawCobbleStrip(318, 326, 20, 178) // Spine down into Kebun Selatan
+    drawCobbleStrip(238, 420, 180, 18) // Kebun Selatan cross-path
+    drawCobbleStrip(66, 366, 24, 114) // Path down to Kebun Lumbung Barat
+    drawCobbleStrip(48, 404, 80, 18) // Kebun Lumbung front lane
+    drawCobbleStrip(502, 200, 214, 22) // East avenue toward Kebun Timur
+    drawCobbleStrip(698, 72, 24, 150) // Path from East Windmill across wooden footbridge
+    drawCobbleStrip(640, 214, 26, 232) // Kebun Timur north-south avenue
+    drawCobbleStrip(568, 386, 178, 22) // Greenhouse to Kebun Timur connector
 
     // 4. Winding Rivers (West River & East River)
     const paintRiver = (polyline) => {
@@ -216,11 +230,14 @@ export function PixelTerrainCanvas() {
       [162, 152],
       [158, 244],
       [148, 326],
-      [142, 376],
+      [138, 426],
+      [128, 514],
       [468, 34],
       [468, 114],
       [512, 168],
       [576, 178],
+      [646, 178],
+      [776, 188],
     ]
     for (const [lx, ly] of lilypads) {
       rect(lx - 4, ly - 3, 8, 5, '#4c9c3d')
@@ -252,6 +269,26 @@ export function PixelTerrainCanvas() {
       for (let px = bx; px <= bx + bw - 3; px += 12) {
         rect(px, by - 2, 4, 6, '#5c371d')
         rect(px, by + bh - 4, 4, 6, '#5c371d')
+      }
+    }
+
+    // East-South Wooden Footbridge (x: 696..726, y: 162..204)
+    {
+      const bx = 696
+      const by = 162
+      const bw = 30
+      const bh = 42
+      rect(bx + 2, by + bh, bw - 4, 4, 'rgba(20, 50, 75, 0.28)')
+      rect(bx, by, bw, bh, '#4a2e1a')
+      for (let py = by + 2; py < by + bh - 2; py += 4) {
+        rect(bx + 3, py, bw - 6, 3, '#c78c52')
+        rect(bx + 3, py, bw - 6, 1, '#e0ac70')
+      }
+      rect(bx, by - 1, 3, bh + 2, '#8b5732')
+      rect(bx + bw - 3, by - 1, 3, bh + 2, '#8b5732')
+      for (let py = by; py <= by + bh - 3; py += 12) {
+        rect(bx - 1, py, 5, 4, '#5c371d')
+        rect(bx + bw - 4, py, 5, 4, '#5c371d')
       }
     }
 
@@ -294,39 +331,29 @@ export function PixelTerrainCanvas() {
     drawCobbleStrip(gx + 8, gy + 64, gw - 16, 18) // Horizontal walkway
     drawCobbleStrip(gx + 84, gy + 6, 24, gh - 12) // Vertical walkway
 
-    // 4 Tilled Soil Quadrants
-    const quads = [
-      { x: gx + 12, y: gy + 12, w: 68, h: 48, crop: 'carrot' },
-      { x: gx + 112, y: gy + 12, w: 68, h: 48, crop: 'cabbage' },
-      { x: gx + 12, y: gy + 86, w: 68, h: 48, crop: 'sprout' },
-      { x: gx + 112, y: gy + 86, w: 68, h: 48, crop: 'pumpkin' },
-    ]
-
-    for (const q of quads) {
-      rect(q.x - 1, q.y - 1, q.w + 2, q.h + 2, '#5a361e')
-      rect(q.x, q.y, q.w, q.h, '#8d5935')
-      // Furrows
-      for (let fy = q.y + 4; fy < q.y + q.h - 4; fy += 10) {
-        rect(q.x + 3, fy, q.w - 6, 7, '#754626')
-        rect(q.x + 3, fy + 1, q.w - 6, 2, '#9e6740')
+    // Reusable tilled soil bed drawer with optional border crops (center open for POTIVA plants)
+    const drawSoilBed = (bx, by, bw, bh, crop = 'sprout', padX = 10, padY = 10) => {
+      rect(bx - 1, by - 1, bw + 2, bh + 2, '#5a361e')
+      rect(bx, by, bw, bh, '#8d5935')
+      for (let fy = by + 4; fy < by + bh - 4; fy += 10) {
+        rect(bx + 3, fy, bw - 6, 7, '#754626')
+        rect(bx + 3, fy + 1, bw - 6, 2, '#9e6740')
       }
-      // Decorative pixel crops on outer rows (leaving center space clear for POTIVA plants)
-      for (let cx = q.x + 7; cx < q.x + q.w - 6; cx += 11) {
-        for (let cy = q.y + 6; cy < q.y + q.h - 4; cy += 12) {
-          // Leave some clear tilled soil patches where user's POTIVA plant beds sit
-          const midX = cx > q.x + 18 && cx < q.x + q.w - 18
-          if (midX && cy > q.y + 10 && cy < q.y + q.h - 14) continue
+      for (let cx = bx + 6; cx < bx + bw - 6; cx += 11) {
+        for (let cy = by + 6; cy < by + bh - 4; cy += 12) {
+          const midX = cx > bx + padX && cx < bx + bw - padX
+          if (midX && cy > by + padY && cy < by + bh - padY - 2) continue
 
-          if (q.crop === 'carrot') {
+          if (crop === 'carrot') {
             rect(cx, cy - 2, 5, 3, '#3c9638')
             rect(cx + 1, cy - 4, 3, 2, '#62c44d')
             rect(cx + 1, cy + 1, 3, 3, '#ee7828')
             rect(cx + 2, cy + 4, 1, 1, '#c75617')
-          } else if (q.crop === 'cabbage') {
+          } else if (crop === 'cabbage') {
             rect(cx - 1, cy - 1, 7, 6, '#2f7438')
             rect(cx, cy, 5, 4, '#5eb857')
             rect(cx + 1, cy + 1, 3, 2, '#96de7b')
-          } else if (q.crop === 'pumpkin') {
+          } else if (crop === 'pumpkin') {
             rect(cx - 1, cy, 7, 6, '#964014')
             rect(cx, cy, 5, 5, '#eb7b23')
             rect(cx + 1, cy + 1, 3, 3, '#f89e3c')
@@ -339,6 +366,15 @@ export function PixelTerrainCanvas() {
         }
       }
     }
+
+    // 4 Tilled Soil Quadrants inside Ladang Utama
+    const quads = [
+      { x: gx + 12, y: gy + 12, w: 68, h: 48, crop: 'carrot' },
+      { x: gx + 112, y: gy + 12, w: 68, h: 48, crop: 'cabbage' },
+      { x: gx + 12, y: gy + 86, w: 68, h: 48, crop: 'sprout' },
+      { x: gx + 112, y: gy + 86, w: 68, h: 48, crop: 'pumpkin' },
+    ]
+    for (const q of quads) drawSoilBed(q.x, q.y, q.w, q.h, q.crop, 10, 10)
 
     // Wooden fence around the garden (with gates on N, S, E, W)
     const drawFencePost = (fx, fy) => {
@@ -368,6 +404,33 @@ export function PixelTerrainCanvas() {
     // East fence with gate gap (216..244)
     drawFenceV(gx + gw, gy, 214)
     drawFenceV(gx + gw, 246, gy + gh)
+
+    // 6b. Expanded Kebun Selatan (4 quadrants at x: 236..418, y: 356..498)
+    const sgQuads = [
+      { x: 244, y: 362, w: 70, h: 52, crop: 'cabbage' },
+      { x: 342, y: 362, w: 70, h: 52, crop: 'carrot' },
+      { x: 244, y: 442, w: 70, h: 52, crop: 'pumpkin' },
+      { x: 342, y: 442, w: 70, h: 52, crop: 'sprout' },
+    ]
+    for (const q of sgQuads) drawSoilBed(q.x, q.y, q.w, q.h, q.crop, 11, 10)
+    // South Garden wooden rails with 4 wide gates
+    drawFenceH(236, 314, 356)
+    drawFenceH(342, 418, 356)
+    drawFenceH(236, 314, 498)
+    drawFenceH(342, 418, 498)
+    drawFenceV(236, 356, 416)
+    drawFenceV(236, 442, 498)
+    drawFenceV(418, 356, 416)
+    drawFenceV(418, 442, 498)
+
+    // 6c. Expanded Kebun Timur & Rumah Kaca Selatan beds
+    drawSoilBed(674, 244, 98, 60, 'sprout', 12, 12)
+    drawSoilBed(674, 316, 98, 60, 'carrot', 12, 12)
+    drawSoilBed(544, 418, 86, 60, 'cabbage', 11, 12)
+    drawSoilBed(674, 418, 98, 60, 'pumpkin', 12, 12)
+
+    // 6d. Kebun Lumbung Barat Daya (below Barn)
+    drawSoilBed(40, 424, 72, 68, 'carrot', 10, 10)
 
     // Small animal pen fence near Greenhouse (x: 492..546, y: 266..312)
     drawFenceH(492, 546, 268)
@@ -409,8 +472,12 @@ export function PixelTerrainCanvas() {
       [34, 144, 64, 32, 20], // West meadow above cliff
       [34, 240, 38, 56, 22], // Left below cliff
       [256, 346, 94, 46, 36], // Bottom-center meadow
-      [372, 346, 94, 46, 36], // Bottom-right meadow
+      [372, 346, 94, 46, 20], // Bottom-right meadow
       [536, 128, 72, 34, 18], // East river bank
+      [730, 82, 86, 66, 34], // Sakura East Valley meadow
+      [680, 494, 128, 48, 36], // South-East Botanical blossoms
+      [446, 488, 120, 50, 32], // South-Central flower meadow
+      [152, 496, 70, 48, 22], // South-West riverbank blossoms
     ]
     for (const [fx, fy, fw, fh, count] of flowerZones) {
       for (let i = 0; i < count; i += 1) {
@@ -430,6 +497,7 @@ export function PixelTerrainCanvas() {
       ref={canvasRef}
       width={PIXEL_WORLD.cw}
       height={PIXEL_WORLD.ch}
+      style={{ width: PIXEL_WORLD.w, height: PIXEL_WORLD.h }}
       className="g-pixel-canvas"
       aria-hidden="true"
     />

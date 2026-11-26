@@ -83,20 +83,44 @@ const cameraTarget = (px, py, vw, vh, z) => {
   }
 }
 
-// Plants sit cleanly inside the 4 fenced garden quadrants first, then expand to greenhouse & meadow beds.
+// Plants fill Ladang Utama (12), Kebun Selatan (8), Kebun Timur & Rumah Kaca (8), and Kebun Lumbung (4) = 32 garden plots!
 const PLANT_SLOTS = [
-  { x: 1096, y: 786 },
-  { x: 1496, y: 786 },
-  { x: 1096, y: 1080 },
-  { x: 1496, y: 1080 },
-  { x: 1188, y: 786 },
-  { x: 1588, y: 786 },
-  { x: 1188, y: 1080 },
-  { x: 1588, y: 1080 },
-  { x: 2040, y: 1440 },
-  { x: 1850, y: 1360 },
-  { x: 810, y: 1420 },
-  { x: 420, y: 690 },
+  // Ladang Utama (Tengah - 4 kuadran)
+  { x: 1026, y: 786 },
+  { x: 1112, y: 786 },
+  { x: 1198, y: 786 },
+  { x: 1426, y: 786 },
+  { x: 1512, y: 786 },
+  { x: 1598, y: 786 },
+  { x: 1026, y: 1082 },
+  { x: 1112, y: 1082 },
+  { x: 1198, y: 1082 },
+  { x: 1426, y: 1082 },
+  { x: 1512, y: 1082 },
+  { x: 1598, y: 1082 },
+  // Kebun Selatan (Ladang baru selatan)
+  { x: 1050, y: 1560 },
+  { x: 1180, y: 1560 },
+  { x: 1436, y: 1560 },
+  { x: 1566, y: 1560 },
+  { x: 1050, y: 1876 },
+  { x: 1180, y: 1876 },
+  { x: 1436, y: 1876 },
+  { x: 1566, y: 1876 },
+  // Kebun Timur & Halaman Rumah Kaca
+  { x: 2790, y: 1115 },
+  { x: 2950, y: 1115 },
+  { x: 2790, y: 1405 },
+  { x: 2950, y: 1405 },
+  { x: 2260, y: 1790 },
+  { x: 2410, y: 1790 },
+  { x: 2790, y: 1790 },
+  { x: 2950, y: 1790 },
+  // Kebun Lumbung Barat Daya
+  { x: 236, y: 1795 },
+  { x: 372, y: 1795 },
+  { x: 236, y: 1900 },
+  { x: 372, y: 1900 },
 ]
 
 const DEW_SEED = [
@@ -104,21 +128,29 @@ const DEW_SEED = [
   { x: 840, y: 560 },
   { x: 1620, y: 510 },
   { x: 2120, y: 310 },
-  { x: 2380, y: 560 },
+  { x: 2960, y: 460 },
+  { x: 3140, y: 980 },
+  { x: 2610, y: 1280 },
   { x: 1840, y: 940 },
-  { x: 1960, y: 1470 },
-  { x: 980, y: 1460 },
+  { x: 1960, y: 1540 },
+  { x: 1310, y: 1700 },
+  { x: 840, y: 1980 },
+  { x: 2720, y: 2040 },
+  { x: 360, y: 2060 },
+  { x: 1020, y: 1360 },
 ]
 
 const ZONES = [
   { id: 'hutan', name: 'Tebing Barat', hint: 'Padang bunga & anak tangga', x: 0, y: 0, w: 960, h: 760 },
-  { id: 'padang', name: 'Halaman Rumah', hint: 'Rumah utama Poti', x: 940, y: 0, w: 800, h: 580 },
-  { id: 'kincir', name: 'Bukit Kincir', hint: 'Jembatan batu & kincir angin', x: 1740, y: 0, w: 820, h: 660 },
-  { id: 'gudang', name: 'Gudang Barat', hint: 'Jembatan kayu & gudang', x: 0, y: 760, w: 860, h: 840 },
-  { id: 'ladang', name: 'Ladang Utama', hint: 'Petak tanaman berpagar', x: 860, y: 580, w: 880, h: 700 },
-  { id: 'pasar', name: 'Stan Pasar', hint: 'Hasil panen & tepi sungai', x: 1740, y: 660, w: 820, h: 420 },
-  { id: 'kaca', name: 'Rumah Kaca', hint: 'Kelinci, ayam & bibit', x: 1740, y: 1080, w: 820, h: 520 },
-  { id: 'buah', name: 'Kebun Buah', hint: 'Pohon buah & bunga liar', x: 860, y: 1280, w: 880, h: 320 },
+  { id: 'padang', name: 'Halaman Rumah', hint: 'Rumah Poti & Toko POTIVA', x: 940, y: 0, w: 800, h: 580 },
+  { id: 'kincir', name: 'Bukit Kincir & Sakura', hint: 'Jembatan, kincir & taman timur', x: 1740, y: 0, w: 1620, h: 680 },
+  { id: 'gudang', name: 'Gudang Barat', hint: 'Jembatan kayu & gudang', x: 0, y: 760, w: 860, h: 760 },
+  { id: 'lumbung_s', name: 'Kebun Lumbung', hint: 'Ladang subur barat daya', x: 0, y: 1520, w: 860, h: 720 },
+  { id: 'ladang', name: 'Ladang Utama', hint: '12 petak tanaman berpagar', x: 860, y: 580, w: 880, h: 780 },
+  { id: 'selatan', name: 'Kebun Selatan', hint: '8 petak sayur & kebun buah', x: 860, y: 1360, w: 880, h: 880 },
+  { id: 'pasar', name: 'Stan Pasar', hint: 'Hasil panen & tepi sungai', x: 1740, y: 680, w: 820, h: 420 },
+  { id: 'kaca', name: 'Rumah Kaca', hint: 'Kelinci, ayam & bibit', x: 1740, y: 1100, w: 820, h: 1140 },
+  { id: 'timur', name: 'Kebun Timur', hint: 'Petak subur & padang bunga', x: 2560, y: 680, w: 800, h: 1560 },
 ]
 
 const INTERACTIVE_SPOTS = [
@@ -193,6 +225,26 @@ const INTERACTIVE_SPOTS = [
     cooldown: 24000,
     message: 'Alat berkebun rapi tersimpan! +3 koin · +4 XP',
   },
+  {
+    id: 'kebun_selatan',
+    name: 'Kebun Selatan',
+    x: 1312,
+    y: 1712,
+    coins: 5,
+    xp: 4,
+    cooldown: 25000,
+    message: 'Ladang selatan subur melimpah! +5 koin · +4 XP',
+  },
+  {
+    id: 'taman_timur',
+    name: 'Taman Sakura Timur',
+    x: 2980,
+    y: 440,
+    coins: 6,
+    xp: 5,
+    cooldown: 28000,
+    message: 'Angin kelopak sakura menyegarkan! +6 koin · +5 XP',
+  },
 ]
 
 // Solid world footprints (buildings, fences, cliffs)
@@ -203,12 +255,13 @@ const OBSTACLES = [
   { x: 88, y: 1220, w: 240, h: 168 }, // Barn / Tool shed
   { x: 2000, y: 760, w: 224, h: 140 }, // Market stall
   { x: 2188, y: 1140, w: 256, h: 220 }, // Greenhouse
-  // Top-left cliff wall
+  // Top-left & top-east cliff walls
   { x: 384, y: 166, w: 304, h: 72 },
+  { x: 2720, y: 158, w: 536, h: 72 },
   // Mid-left cliff wall split around wooden stairs (x: 292..392)
   { x: 0, y: 882, w: 292, h: 78 },
   { x: 392, y: 882, w: 64, h: 78 },
-  // Fenced garden outer rails with 4 wide gates
+  // Ladang Utama fenced outer rails with 4 wide gates
   { x: 920, y: 612, w: 312, h: 24 }, // North-west rail
   { x: 1384, y: 612, w: 320, h: 24 }, // North-east rail
   { x: 920, y: 1204, w: 312, h: 24 }, // South-west rail
@@ -217,6 +270,15 @@ const OBSTACLES = [
   { x: 916, y: 984, w: 24, h: 244 }, // West-south rail
   { x: 1684, y: 612, w: 24, h: 244 }, // East-north rail
   { x: 1684, y: 984, w: 24, h: 244 }, // East-south rail
+  // Kebun Selatan fenced outer rails with 4 wide gates
+  { x: 936, y: 1412, w: 320, h: 24 },
+  { x: 1368, y: 1412, w: 312, h: 24 },
+  { x: 936, y: 1980, w: 320, h: 24 },
+  { x: 1368, y: 1980, w: 312, h: 24 },
+  { x: 932, y: 1412, w: 24, h: 252 },
+  { x: 932, y: 1768, w: 24, h: 236 },
+  { x: 1660, y: 1412, w: 24, h: 252 },
+  { x: 1660, y: 1768, w: 24, h: 236 },
 ]
 
 const WEST_RIVER_WORLD = [
@@ -227,7 +289,8 @@ const WEST_RIVER_WORLD = [
   [656, 848],
   [624, 1144],
   [584, 1440],
-  [560, 1648],
+  [544, 1776],
+  [496, 2304],
 ]
 
 const EAST_RIVER_WORLD = [
@@ -236,11 +299,14 @@ const EAST_RIVER_WORLD = [
   [1952, 632],
   [2176, 696],
   [2608, 712],
+  [2992, 736],
+  [3424, 792],
 ]
 
 const BRIDGES = [
   { x: 528, y: 728, w: 240, h: 120 }, // West wooden bridge
   { x: 1748, y: 272, w: 248, h: 128 }, // East stone arch bridge
+  { x: 2776, y: 644, w: 140, h: 180 }, // East-South wooden footbridge
 ]
 
 function distToSegment(px, py, ax, ay, bx, by) {
@@ -345,20 +411,30 @@ const WORLD_TREES = [
   // Near farmhouse & sakura
   { x: 1620, y: 160, v: 'sakura', s: 1.15 },
   { x: 1730, y: 220, v: 'pine', s: 0.92 },
-  // Near windmill & east river
+  // Near windmill, east sakura valley & east river
   { x: 2140, y: 165, v: 'apple', s: 1.05 },
   { x: 2480, y: 520, v: 'oak', s: 1.08 },
+  { x: 2790, y: 155, v: 'sakura', s: 1.16 },
+  { x: 3060, y: 160, v: 'sakura', s: 1.12 },
+  { x: 3220, y: 380, v: 'orange', s: 1.08 },
+  { x: 3210, y: 1120, v: 'oak', s: 1.06 },
+  { x: 3230, y: 1560, v: 'sakura', s: 1.14 },
+  { x: 3190, y: 2040, v: 'apple', s: 1.1 },
   // West meadow
   { x: 110, y: 580, v: 'apple', s: 1.05 },
   { x: 420, y: 600, v: 'orange', s: 1.0 },
   { x: 105, y: 1030, v: 'oak', s: 1.02 },
+  { x: 120, y: 2090, v: 'apple', s: 1.06 },
+  { x: 740, y: 1940, v: 'oak', s: 1.04 },
   // Near greenhouse & market
   { x: 2490, y: 960, v: 'sakura', s: 1.12 },
-  // Bottom fruit orchard
-  { x: 1140, y: 1470, v: 'apple', s: 1.12 },
-  { x: 1480, y: 1470, v: 'orange', s: 1.12 },
-  { x: 740, y: 1480, v: 'oak', s: 1.0 },
-  { x: 1960, y: 1520, v: 'apple', s: 1.04 },
+  // South orchard & botanical meadow
+  { x: 1050, y: 2140, v: 'apple', s: 1.12 },
+  { x: 1560, y: 2140, v: 'orange', s: 1.12 },
+  { x: 760, y: 1520, v: 'oak', s: 1.0 },
+  { x: 1920, y: 1680, v: 'apple', s: 1.04 },
+  { x: 1940, y: 2060, v: 'orange', s: 1.08 },
+  { x: 2560, y: 2110, v: 'sakura', s: 1.1 },
 ]
 
 const WORLD_LAMPS = [
@@ -368,12 +444,20 @@ const WORLD_LAMPS = [
   { x: 1780, y: 240 },
   { x: 2050, y: 260 },
   { x: 820, y: 1210 },
+  { x: 1240, y: 1380 },
+  { x: 1700, y: 1680 },
+  { x: 2610, y: 860 },
+  { x: 2610, y: 1580 },
+  { x: 2910, y: 610 },
 ]
 
 const WORLD_BENCHES = [
   { x: 1080, y: 470 },
   { x: 2150, y: 260 },
   { x: 2060, y: 1150 },
+  { x: 1840, y: 1820 },
+  { x: 3040, y: 520 },
+  { x: 800, y: 1720 },
 ]
 
 const WORLD_BIRDHOUSES = [
@@ -381,18 +465,24 @@ const WORLD_BIRDHOUSES = [
   { x: 650, y: 100 },
   { x: 2240, y: 380 },
   { x: 2020, y: 1240 },
+  { x: 2940, y: 310 },
+  { x: 1180, y: 2090 },
 ]
 
 const WORLD_CRITTERS = [
   { kind: 'chicken', x: 860, y: 440, d: '0s' },
   { kind: 'chicken', x: 910, y: 465, d: '1.1s' },
   { kind: 'chicken', x: 1730, y: 220, d: '0.6s' },
+  { kind: 'chicken', x: 760, y: 1780, d: '0.4s' },
   { kind: 'rabbit', x: 2010, y: 1210, d: '0.3s' },
   { kind: 'rabbit', x: 2090, y: 1270, d: '1.4s' },
   { kind: 'rabbit', x: 620, y: 88, d: '0.9s' },
+  { kind: 'rabbit', x: 3090, y: 480, d: '0.5s' },
   { kind: 'duck', x: 2040, y: 560, d: '0s' },
   { kind: 'duck', x: 2480, y: 690, d: '1.5s' },
   { kind: 'duck', x: 120, y: 440, d: '0.8s' },
+  { kind: 'duck', x: 3120, y: 740, d: '1.2s' },
+  { kind: 'duck', x: 520, y: 2040, d: '0.7s' },
 ]
 
 const WORLD_BUTTERFLIES = [
@@ -402,6 +492,10 @@ const WORLD_BUTTERFLIES = [
   [780, 740, 1.8, '#bfe0f5'],
   [2160, 960, 4.2, '#f7b4c8'],
   [360, 1180, 6.3, '#ffe6a6'],
+  [1310, 1720, 1.5, '#c7e59c'],
+  [2880, 1340, 3.1, '#f7b4c8'],
+  [2980, 450, 0.9, '#ffe6a6'],
+  [290, 1840, 4.7, '#bfe0f5'],
 ]
 
 const cooldownLeft = (timestamp, ms, now) =>
@@ -546,8 +640,15 @@ function PixelMinimap({ plants, dew, peers, playerDotRef, peerDotsRef }) {
         {/* Bridges */}
         <rect x="528" y="728" width="240" height="120" fill="#c78c52" />
         <rect x="1748" y="272" width="248" height="128" fill="#b8beb8" />
-        {/* Central Fenced Garden */}
+        <rect x="2776" y="644" width="140" height="180" fill="#c78c52" />
+        {/* Fenced & Tilled Gardens */}
         <rect x="928" y="624" width="768" height="592" fill="#8d5935" stroke="#c88c58" strokeWidth="24" />
+        <rect x="944" y="1424" width="728" height="568" fill="#8d5935" stroke="#c88c58" strokeWidth="24" />
+        <rect x="2696" y="976" width="392" height="240" fill="#8d5935" />
+        <rect x="2696" y="1264" width="392" height="240" fill="#8d5935" />
+        <rect x="2176" y="1672" width="344" height="240" fill="#8d5935" />
+        <rect x="2696" y="1672" width="392" height="240" fill="#8d5935" />
+        <rect x="160" y="1696" width="288" height="272" fill="#8d5935" />
         {/* Buildings */}
         <rect x="752" y="204" width="248" height="202" fill="#2f7e4d" />
         <rect x="1112" y="120" width="336" height="268" fill="#2c5858" />
@@ -844,7 +945,7 @@ export default function GardenGame({ plants, onClose }) {
 
   const scale = clamp(viewport.h / 780, 0.62, 1.16)
   const minZoom = useMemo(
-    () => clamp(Math.min(0.9, Math.max(viewport.w / WORLD.w, viewport.h / WORLD.h)), 0.42, 0.9),
+    () => clamp(Math.min(0.9, Math.max(viewport.w / WORLD.w, viewport.h / WORLD.h)), 0.36, 0.9),
     [viewport.w, viewport.h],
   )
   minZoomRef.current = minZoom
@@ -877,7 +978,7 @@ export default function GardenGame({ plants, onClose }) {
         y: clamp(slot.y + lap * 64, 240, WORLD.h - 90),
       }
     })
-    const empties = PLANT_SLOTS.slice(0, 8)
+    const empties = PLANT_SLOTS
       .map((pos, idx) => ({ slotIndex: idx, ...pos }))
       .filter((s) => !used.has(s.slotIndex))
     return { placed: items, emptySlots: empties }
@@ -2018,10 +2119,11 @@ export default function GardenGame({ plants, onClose }) {
             <span style={{ left: 260, top: 430 }} />
             <span style={{ left: 640, top: 620 }} />
             <span style={{ left: 610, top: 1080 }} />
-            <span style={{ left: 565, top: 1410 }} />
+            <span style={{ left: 530, top: 1760 }} />
             <span style={{ left: 1870, top: 160 }} />
             <span style={{ left: 2150, top: 690 }} />
-            <span style={{ left: 2420, top: 710 }} />
+            <span style={{ left: 2990, top: 730 }} />
+            <span style={{ left: 3250, top: 775 }} />
           </div>
 
           {/* Pixel-art Buildings */}

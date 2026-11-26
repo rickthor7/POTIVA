@@ -71,8 +71,8 @@ body.g-fs-lock {
 .g-pixel-canvas {
   position: absolute;
   inset: 0;
-  width: 2560px;
-  height: 1600px;
+  width: 3360px;
+  height: 2240px;
   display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
