@@ -137,20 +137,22 @@ export const PRODUCTS = [
     name: 'Pupuk Organik 250 g',
     category: 'Perawatan',
     price: 25000,
+    coinPrice: 20,
     stock: 54,
     rating: 4.7,
     sold: 720,
     art: 'fertilizer',
     tag: 'Organik',
     description:
-      'Pupuk kompos matang dari bahan nabati. Lembut untuk akar muda dan membantu media tetap gembur.',
-    includes: ['Pupuk organik 250 g', 'Sendok takar', 'Panduan dosis per tanaman'],
+      'Pupuk kompos matang dari bahan nabati. Lembut untuk akar muda dan membantu media tetap gembur. Bisa dipakai langsung di Kebun Poti.',
+    includes: ['Pupuk organik 250 g', 'Sendok takar', 'Panduan dosis per tanaman', '1× Pupuk Spesial Kebun Poti'],
   },
   {
     id: 'sprayer',
     name: 'Sprayer Kabut 300 ml',
     category: 'Perawatan',
     price: 22000,
+    coinPrice: 18,
     stock: 33,
     rating: 4.6,
     sold: 410,
@@ -158,7 +160,7 @@ export const PRODUCTS = [
     tag: null,
     description:
       'Botol semprot halus untuk membasahi daun dan media tanpa membuatnya tergenang. Mudah dibersihkan.',
-    includes: ['1 sprayer 300 ml', 'Nozzle kabut halus'],
+    includes: ['1 sprayer 300 ml', 'Nozzle kabut halus', '1× Siram Kabut Kebun Poti'],
   },
   {
     id: 'benih-tomat',
@@ -245,6 +247,7 @@ export const PRODUCTS = [
     name: 'Media Tanam 1 L',
     category: 'Perawatan',
     price: 18000,
+    coinPrice: 22,
     stock: 61,
     rating: 4.8,
     sold: 505,
@@ -252,7 +255,7 @@ export const PRODUCTS = [
     tag: 'Praktis',
     description:
       'Campuran tanah, kompos, dan sekam bakar yang gembur. Siap pakai untuk pot mini maupun besar.',
-    includes: ['Media tanam 1 L', 'Panduan kelembapan', 'Sekop mini'],
+    includes: ['Media tanam 1 L', 'Panduan kelembapan', 'Sekop mini', '1× Media Subur Kebun Poti'],
   },
   {
     id: 'pot-gantung',

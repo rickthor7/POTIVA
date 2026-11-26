@@ -22,6 +22,7 @@ export function useGardenMultiplayer({ enabled, playerName, initialState }) {
     moving: false,
     look: initialState.look || {},
     expression: 'happy',
+    carry: initialState.carry || null,
     bubble: null,
   })
   const sendActionRef = useRef(null)
@@ -31,6 +32,7 @@ export function useGardenMultiplayer({ enabled, playerName, initialState }) {
   localRef.current.name = playerName || 'Poti Tamu'
   localRef.current.look = initialState.look || {}
   localRef.current.expression = initialState.expression || 'happy'
+  localRef.current.carry = initialState.carry || null
   localRef.current.bubble = initialState.bubble || null
 
   const syncPeerList = useCallback(() => {
@@ -41,6 +43,7 @@ export function useGardenMultiplayer({ enabled, playerName, initialState }) {
         name: p.name,
         look: p.look,
         expression: p.expression,
+        carry: p.carry,
         bubble: p.bubble,
         x: p.curX,
         y: p.curY,
@@ -91,12 +94,14 @@ export function useGardenMultiplayer({ enabled, playerName, initialState }) {
         const nextName = typeof data.name === 'string' && data.name.trim() ? data.name.slice(0, 18) : 'Poti Tamu'
         const nextLook = data.look && typeof data.look === 'object' ? data.look : {}
         const nextExpr = typeof data.expression === 'string' ? data.expression : 'happy'
+        const nextCarry = typeof data.carry === 'string' ? data.carry : null
         const nextBubble = typeof data.bubble === 'string' ? data.bubble.slice(0, 60) : null
 
         const metaChanged =
           !prev ||
           prev.name !== nextName ||
           prev.expression !== nextExpr ||
+          prev.carry !== nextCarry ||
           prev.bubble !== nextBubble ||
           JSON.stringify(prev.look) !== JSON.stringify(nextLook)
 
@@ -111,6 +116,7 @@ export function useGardenMultiplayer({ enabled, playerName, initialState }) {
           moving: Boolean(data.moving),
           look: nextLook,
           expression: nextExpr,
+          carry: nextCarry,
           bubble: nextBubble,
           lastSeen: Date.now(),
         })
@@ -174,7 +180,7 @@ export function useGardenMultiplayer({ enabled, playerName, initialState }) {
     const sender = sendActionRef.current
     if (!sender) return
     const now = Date.now()
-    const sig = `${Math.round(localRef.current.x)},${Math.round(localRef.current.y)},${localRef.current.facing},${localRef.current.moving},${localRef.current.expression},${localRef.current.bubble || ''}`
+    const sig = `${Math.round(localRef.current.x)},${Math.round(localRef.current.y)},${localRef.current.facing},${localRef.current.moving},${localRef.current.expression},${localRef.current.carry || ''},${localRef.current.bubble || ''}`
     if (!force && (now - lastSentAtRef.current < SEND_INTERVAL_MS || sig === lastSigRef.current)) {
       return
     }

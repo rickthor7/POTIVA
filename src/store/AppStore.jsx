@@ -173,6 +173,7 @@ const seedState = () => ({
   ownedCosmetics: ['gaya-topi-jerami'],
   potiLook: { hat: 'gaya-topi-jerami' },
   seedInventory: { 'tomat-ceri': 1 },
+  supplyInventory: { 'pupuk-organik': 1 },
   harvestBasket: [],
   vouchers: [],
   likedPosts: [],
@@ -199,6 +200,7 @@ const loadState = () => {
       ...base,
       ...parsed,
       seedInventory: parsed.seedInventory ?? base.seedInventory,
+      supplyInventory: parsed.supplyInventory ?? base.supplyInventory,
       harvestBasket: Array.isArray(parsed.harvestBasket) ? parsed.harvestBasket : base.harvestBasket,
       vouchers: Array.isArray(parsed.vouchers) ? parsed.vouchers : base.vouchers,
     }
@@ -337,21 +339,77 @@ export function AppProvider({ children }) {
       collectBonus: (coins = 2, xp = 1) =>
         setState((s) => ({ ...s, wallet: award(s.wallet, xp, coins) })),
 
-      buySeedWithCoins: (productId) =>
+      buySeedWithCoins: (productId) => {
+        let bought = false
         setState((s) => {
           const item = PRODUCTS.find((p) => p.id === productId && p.speciesId)
           if (!item || !item.coinPrice) return s
           if (s.wallet.coins < item.coinPrice) return s
           const prev = s.seedInventory?.[item.speciesId] || 0
+          bought = true
           return {
             ...s,
             wallet: { ...s.wallet, coins: s.wallet.coins - item.coinPrice },
             seedInventory: { ...(s.seedInventory || {}), [item.speciesId]: prev + 1 },
           }
-        }),
+        })
+        return bought
+      },
+
+      buySupplyWithCoins: (productId) => {
+        let bought = false
+        setState((s) => {
+          const item = PRODUCTS.find(
+            (p) => p.id === productId && p.category === 'Perawatan' && p.coinPrice,
+          )
+          if (!item || s.wallet.coins < item.coinPrice) return s
+          const prev = s.supplyInventory?.[productId] || 0
+          bought = true
+          return {
+            ...s,
+            wallet: { ...s.wallet, coins: s.wallet.coins - item.coinPrice },
+            supplyInventory: { ...(s.supplyInventory || {}), [productId]: prev + 1 },
+          }
+        })
+        return bought
+      },
+
+      useSupplyOnPlant: (productId, plantId) => {
+        let applied = false
+        setState((s) => {
+          const count = s.supplyInventory?.[productId] || 0
+          const plant = s.plants.find((p) => p.id === plantId)
+          if (count <= 0 || !plant) return s
+          const boost = productId === 'pupuk-organik' ? 16 : productId === 'tanah-media' ? 14 : 10
+          applied = true
+          return {
+            ...s,
+            wallet: award(s.wallet, 25, 15),
+            supplyInventory: { ...(s.supplyInventory || {}), [productId]: count - 1 },
+            plants: s.plants.map((p) =>
+              p.id === plantId
+                ? {
+                    ...p,
+                    growth: clamp(p.growth + boost, 0, 100),
+                    needs: {
+                      water: productId === 'sprayer' ? 100 : clamp(p.needs.water + 20, 0, 100),
+                      nutrient:
+                        productId === 'sprayer'
+                          ? p.needs.nutrient
+                          : clamp(p.needs.nutrient + 65, 0, 100),
+                      light: p.needs.light,
+                    },
+                  }
+                : p,
+            ),
+          }
+        })
+        return applied
+      },
 
       plantSeedInGarden: (speciesId, preferredSlot = null) => {
-        let planted = false
+        const id = `p_${Date.now()}`
+        let ok = false
         setState((s) => {
           const count = s.seedInventory?.[speciesId] || 0
           if (count <= 0) return s
@@ -365,8 +423,7 @@ export function AppProvider({ children }) {
             slotIndex = Array.from({ length: 12 }, (_, i) => i).find((i) => !usedSlots.has(i))
             if (slotIndex == null) slotIndex = s.plants.length % 12
           }
-          const id = `p_${Date.now()}`
-          planted = true
+          ok = true
           return {
             ...s,
             wallet: award(s.wallet, 15, 5),
@@ -398,7 +455,7 @@ export function AppProvider({ children }) {
             ].slice(0, 40),
           }
         })
-        return planted
+        return ok ? id : id
       },
 
       harvestPlant: (plantId) => {
@@ -693,9 +750,14 @@ export function AppProvider({ children }) {
                 : 9000
 
           const nextSeeds = { ...(s.seedInventory || {}) }
+          const nextSupplies = { ...(s.supplyInventory || {}) }
           items.forEach((it) => {
             if (it.speciesId) {
               nextSeeds[it.speciesId] = (nextSeeds[it.speciesId] || 0) + it.qty
+            }
+            const prod = PRODUCTS.find((p) => p.id === it.productId)
+            if (prod?.category === 'Perawatan') {
+              nextSupplies[it.productId] = (nextSupplies[it.productId] || 0) + it.qty
             }
           })
 
@@ -703,6 +765,7 @@ export function AppProvider({ children }) {
             ...s,
             cart: [],
             seedInventory: nextSeeds,
+            supplyInventory: nextSupplies,
             vouchers: voucher
               ? (s.vouchers || []).map((v) =>
                   v.id === voucher.id

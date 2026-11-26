@@ -130,8 +130,8 @@ export function PixelTerrainCanvas() {
       }
     }
 
-    // Top-left elevated plateau
-    drawCliff(96, -4, 152, 64, 1)
+    // Top-left elevated plateau (trimmed slightly so Toko POTIVA sits right beside Farmhouse)
+    drawCliff(96, -4, 78, 64, 1)
     // Mid-left cliff shelf (above barn)
     drawCliff(0, 198, 114, 48, 0)
     // Wooden stairs built into mid-left cliff (x: 74..98, y: 218..246)
@@ -164,7 +164,8 @@ export function PixelTerrainCanvas() {
       }
     }
 
-    // Farmhouse plaza & main cross-roads
+    // Farmhouse & Toko POTIVA plazas + main cross-roads
+    drawCobbleStrip(192, 92, 74, 38) // Toko POTIVA front patio
     drawCobbleStrip(276, 86, 88, 36) // Farmhouse front patio
     drawCobbleStrip(308, 118, 28, 38) // Farmhouse to garden north gate
     drawCobbleStrip(206, 128, 240, 22) // Upper east-west main avenue
@@ -395,8 +396,6 @@ export function PixelTerrainCanvas() {
     drawHay(398, 84)
     drawBarrel(140, 56)
     drawBarrel(152, 56)
-    drawBarrel(232, 62)
-    drawBarrel(232, 76)
     drawBarrel(384, 62)
     drawBarrel(482, 186)
     drawBarrel(482, 199)
@@ -879,6 +878,100 @@ export function PixelCritter({ kind = 'chicken' }) {
       <rect x="11" y="7" width="2" height="1" fill="#f2992c" />
       <rect x="6" y="11" width="1" height="2" fill="#f2992c" />
       <rect x="9" y="11" width="1" height="2" fill="#f2992c" />
+    </svg>
+  )
+}
+
+export function PixelShopBuilding() {
+  return (
+    <svg
+      className="g-px-building g-px-shop"
+      viewBox="0 0 80 74"
+      shapeRendering="crispEdges"
+      aria-hidden="true"
+    >
+      <rect x="6" y="64" width="68" height="7" fill="#1b3a22" opacity="0.28" />
+      {/* Warm cream-stone & timber walls */}
+      <rect x="10" y="28" width="60" height="38" fill="#3a2315" />
+      <rect x="12" y="30" width="56" height="34" fill="#f4e6c8" />
+      <rect x="12" y="30" width="4" height="34" fill="#8b5a36" />
+      <rect x="64" y="30" width="4" height="34" fill="#8b5a36" />
+      <rect x="12" y="58" width="56" height="6" fill="#858c87" />
+      {/* Green tiled pitched roof */}
+      <rect x="14" y="8" width="52" height="6" fill="#256b41" />
+      <rect x="10" y="14" width="60" height="8" fill="#2f7e4d" />
+      <rect x="6" y="22" width="68" height="8" fill="#1d4d32" />
+      <rect x="10" y="18" width="60" height="2" fill="#3f9a60" />
+      {/* Shop rooftop wooden sign "TOKO" */}
+      <rect x="26" y="2" width="28" height="10" fill="#4e301d" />
+      <rect x="28" y="4" width="24" height="6" fill="#ffe9b0" />
+      <rect x="30" y="6" width="4" height="2" fill="#256b41" />
+      <rect x="36" y="6" width="14" height="2" fill="#5c3820" />
+      {/* Green & cream striped storefront awning */}
+      <rect x="8" y="30" width="64" height="10" fill="#1d4d32" />
+      {[10, 22, 34, 46, 58].map((ax) => (
+        <rect key={ax} x={ax} y="30" width="6" height="8" fill="#4aa45d" />
+      ))}
+      {[16, 28, 40, 52, 64].map((ax) => (
+        <rect key={ax} x={ax} y="30" width="6" height="8" fill="#fff5d6" />
+      ))}
+      <rect x="8" y="38" width="64" height="2" fill="#173a25" />
+      {/* Display window left (seeds & pots) */}
+      <rect x="16" y="43" width="18" height="14" fill="#4e301d" />
+      <rect x="18" y="45" width="14" height="10" fill="#9fd9e3" />
+      <rect x="20" y="50" width="3" height="5" fill="#d97a46" />
+      <rect x="20" y="48" width="3" height="2" fill="#65b84b" />
+      <rect x="26" y="49" width="4" height="6" fill="#e8c454" />
+      {/* Wooden shop door */}
+      <rect x="37" y="43" width="14" height="21" fill="#4e301d" />
+      <rect x="39" y="45" width="10" height="19" fill="#a86d42" />
+      <rect x="40" y="46" width="8" height="7" fill="#ffe38c" />
+      <rect x="46" y="55" width="2" height="2" fill="#f2b84b" />
+      {/* Fertilizer bags & seed crate outside shop */}
+      <rect x="54" y="49" width="10" height="13" fill="#4a2e1a" />
+      <rect x="55" y="50" width="8" height="11" fill="#c79558" />
+      <rect x="56" y="52" width="6" height="2" fill="#3f8f55" />
+      <rect x="15" y="59" width="14" height="6" fill="#704528" />
+      <rect x="17" y="57" width="3" height="3" fill="#e85848" />
+      <rect x="21" y="57" width="3" height="3" fill="#6bc24d" />
+      <rect x="25" y="57" width="3" height="3" fill="#f7cf52" />
+      {/* Front stone step */}
+      <rect x="36" y="64" width="16" height="3" fill="#b4bcb4" />
+    </svg>
+  )
+}
+
+export function PotiCarryProp({ kind = 'seed' }) {
+  if (kind === 'fertilizer' || kind === 'care') {
+    return (
+      <svg className="g-carry-svg" viewBox="0 0 28 24" shapeRendering="crispEdges" aria-hidden="true">
+        {/* Burlap fertilizer sack slung on Poti's shoulder */}
+        <rect x="5" y="4" width="18" height="17" fill="#3a2315" />
+        <rect x="7" y="6" width="14" height="13" fill="#c79558" />
+        <rect x="9" y="8" width="10" height="4" fill="#dfaf74" />
+        <rect x="10" y="13" width="8" height="3" fill="#3f8f55" />
+        <rect x="10" y="2" width="8" height="4" fill="#9c6c39" />
+      </svg>
+    )
+  }
+  if (kind === 'pot') {
+    return (
+      <svg className="g-carry-svg" viewBox="0 0 24 24" shapeRendering="crispEdges" aria-hidden="true">
+        <rect x="5" y="6" width="14" height="4" fill="#d98b60" />
+        <rect x="7" y="10" width="10" height="10" fill="#c9794d" />
+        <rect x="8" y="11" width="4" height="6" fill="#e29b72" />
+      </svg>
+    )
+  }
+  return (
+    <svg className="g-carry-svg" viewBox="0 0 26 24" shapeRendering="crispEdges" aria-hidden="true">
+      {/* Wooden seedling crate with sprout */}
+      <rect x="4" y="10" width="18" height="11" fill="#4e301d" />
+      <rect x="5" y="11" width="16" height="9" fill="#b87d4b" />
+      <rect x="5" y="14" width="16" height="2" fill="#8b5732" />
+      <rect x="12" y="5" width="2" height="6" fill="#2f7443" />
+      <rect x="8" y="4" width="4" height="3" fill="#6bc24d" />
+      <rect x="14" y="3" width="5" height="3" fill="#a8d66d" />
     </svg>
   )
 }
