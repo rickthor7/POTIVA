@@ -975,3 +975,52 @@ export function PotiCarryProp({ kind = 'seed' }) {
     </svg>
   )
 }
+
+/** Cozy pixel pillow for Poti's sleeping animation. */
+export function PotiSleepPillow() {
+  return (
+    <svg className="g-sleep-pillow__svg" viewBox="0 0 36 24" shapeRendering="crispEdges" aria-hidden="true">
+      {/* Ground nap mat edge */}
+      <rect x="1" y="16" width="34" height="6" fill="#3a2315" opacity="0.22" />
+      {/* Fluffy pixel pillow body */}
+      <rect x="3" y="4" width="30" height="16" fill="#5c3820" />
+      <rect x="2" y="6" width="32" height="12" fill="#5c3820" />
+      <rect x="4" y="5" width="28" height="14" fill="#fff9ea" />
+      <rect x="3" y="7" width="30" height="10" fill="#fff9ea" />
+      {/* Pillow corners & highlights */}
+      <rect x="4" y="5" width="28" height="3" fill="#ffffff" />
+      <rect x="4" y="15" width="28" height="3" fill="#e5d7be" />
+      {/* Soft mint trim & tiny embroidered star */}
+      <rect x="6" y="7" width="24" height="1" fill="#cfe9bf" />
+      <rect x="9" y="10" width="3" height="3" fill="#f3c74d" />
+      <rect x="10" y="9" width="1" height="5" fill="#f3c74d" />
+      <rect x="8" y="11" width="5" height="1" fill="#f3c74d" />
+    </svg>
+  )
+}
+
+/** Cozy patchwork quilt blanket that drapes over sleeping Poti. */
+export function PotiSleepBlanket() {
+  return (
+    <svg className="g-sleep-blanket__svg" viewBox="0 0 48 32" shapeRendering="crispEdges" aria-hidden="true">
+      {/* Pixel border */}
+      <rect x="3" y="4" width="42" height="24" fill="#3a2315" />
+      <rect x="2" y="7" width="44" height="19" fill="#3a2315" />
+      {/* Main soft leaf-green quilt */}
+      <rect x="4" y="6" width="40" height="20" fill="#4f9d5a" />
+      <rect x="3" y="8" width="42" height="16" fill="#4f9d5a" />
+      {/* Cream folded top cuff */}
+      <rect x="4" y="6" width="40" height="5" fill="#fff6df" />
+      <rect x="4" y="10" width="40" height="2" fill="#d9c6a3" />
+      {/* Patchwork tiles & stars */}
+      <rect x="8" y="13" width="9" height="7" fill="#74be6e" />
+      <rect x="20" y="13" width="9" height="7" fill="#3e8349" />
+      <rect x="32" y="13" width="9" height="7" fill="#74be6e" />
+      <rect x="11" y="15" width="3" height="3" fill="#ffd95e" />
+      <rect x="23" y="15" width="3" height="3" fill="#fff6df" />
+      <rect x="35" y="15" width="3" height="3" fill="#ffd95e" />
+      {/* Bottom shadow fold */}
+      <rect x="4" y="23" width="40" height="3" fill="#2f6b3a" />
+    </svg>
+  )
+}

@@ -2030,6 +2030,85 @@ body.g-fs-lock {
   animation: g-plant-action 0.85s ease;
 }
 
+.g-player.is-sleeping .g-player__shadow {
+  width: 112px;
+  height: 22px;
+  transition: width 0.45s ease, height 0.45s ease;
+}
+
+.g-player.is-sleeping .g-petfx--sleep {
+  left: 34%;
+  bottom: calc(var(--art, 150px) * 0.56);
+}
+
+.g-player__inner.is-sleeping .g-player__body {
+  position: relative;
+  z-index: 3;
+  transform-origin: 50% 84%;
+  animation: g-sleep-jump-lie 4.2s cubic-bezier(0.28, 0.84, 0.42, 1) forwards;
+}
+
+.g-sleep-pillow {
+  position: absolute;
+  left: -24px;
+  bottom: 2px;
+  width: 56px;
+  height: 36px;
+  z-index: 1;
+  pointer-events: none;
+  transform-origin: center bottom;
+  filter: drop-shadow(0 4px 5px rgba(23, 77, 53, 0.25));
+  animation: g-sleep-pillow-pop 4.2s ease forwards;
+}
+
+.g-sleep-pillow__svg,
+.g-sleep-blanket__svg {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.g-sleep-blanket {
+  position: absolute;
+  left: 14px;
+  bottom: 0;
+  width: calc(100% + 4px);
+  height: 64px;
+  z-index: 6;
+  pointer-events: none;
+  transform-origin: bottom center;
+  filter: drop-shadow(0 5px 7px rgba(23, 77, 53, 0.28));
+  animation: g-sleep-blanket-drape 4.2s ease forwards;
+}
+
+@keyframes g-sleep-jump-lie {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1, 1); }
+  7% { transform: translate(0, 6px) rotate(3deg) scale(1.08, 0.88); }
+  16% { transform: translate(12px, -46px) rotate(-28deg) scale(0.95, 1.07); }
+  23% { transform: translate(24px, 2px) rotate(-88deg) scale(1.05, 0.94); }
+  28% { transform: translate(23px, -2px) rotate(-80deg) scale(0.98, 1.02); }
+  33%, 63%, 91% { transform: translate(23px, 0) rotate(-83deg) scale(1, 1); }
+  48%, 78% { transform: translate(23px, -2px) rotate(-83deg) scale(1.02, 1.02); }
+  96% { transform: translate(10px, -22px) rotate(-24deg) scale(0.97, 1.04); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1, 1); }
+}
+
+@keyframes g-sleep-pillow-pop {
+  0%, 9% { opacity: 0; transform: translateY(-10px) scale(0.35); }
+  16% { opacity: 1; transform: translateY(2px) scale(1.08, 0.88); }
+  23% { opacity: 1; transform: translateY(3px) scale(1.14, 0.82); }
+  29%, 88% { opacity: 1; transform: translateY(0) scale(1, 1); }
+  95%, 100% { opacity: 0; transform: translateY(2px) scale(0.45); }
+}
+
+@keyframes g-sleep-blanket-drape {
+  0%, 22% { opacity: 0; transform: translateY(-28px) scale(0.76, 0.28); }
+  27% { opacity: 1; transform: translateY(-8px) scale(1.06, 0.86); }
+  33%, 63%, 90% { opacity: 1; transform: translateY(0) scale(1, 1); }
+  48%, 78% { opacity: 1; transform: translateY(-2px) scale(1.01, 1.04); }
+  95%, 100% { opacity: 0; transform: translateY(-14px) scale(0.82, 0.35); }
+}
+
 @keyframes g-plant-action {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   25% { transform: translateY(6px) rotate(12deg) scale(1.04, 0.94); }

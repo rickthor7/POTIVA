@@ -57,6 +57,8 @@ import {
   PixelTree,
   PixelWindmill,
   PotiCarryProp,
+  PotiSleepBlanket,
+  PotiSleepPillow,
 } from './PixelGardenArt'
 import { useApp } from '../store/AppStore'
 import { useGardenMultiplayer } from '../lib/useGardenMultiplayer'
@@ -1440,9 +1442,9 @@ export default function GardenGame({ plants, onClose }) {
       }))
       setStats((s) => ({ ...s, care: s.care + 1 }))
       setSleeping(true)
-      react('sleep')
-      showPetFx('sleep', 2900)
-      say('Zzz… aku tidur dulu ya', 3200)
+      setReaction(null)
+      showPetFx('sleep', 4200)
+      say('Hop… zzz… tidur nyenyak dulu ya 🛏️', 3800)
       actions.collectBonus(0, 5)
       window.clearTimeout(sleepTimer.current)
       sleepTimer.current = window.setTimeout(() => {
@@ -1450,7 +1452,7 @@ export default function GardenGame({ plants, onClose }) {
         setPetFx(null)
         react('happy')
         say('Aku segar! 🌞', 2400)
-      }, 2900)
+      }, 4200)
       return
     }
 
@@ -2324,7 +2326,7 @@ export default function GardenGame({ plants, onClose }) {
 
           {/* Poti Character */}
           <div
-            className="g-player"
+            className={`g-player ${sleeping ? 'is-sleeping' : ''}`}
             ref={playerEl}
             style={{ '--art': `${playerArt}px` }}
           >
@@ -2336,10 +2338,10 @@ export default function GardenGame({ plants, onClose }) {
             )}
             {petFx && <PetFx key={petFx.key} kind={petFx.kind} />}
             <div
-              className={`g-player__inner ${reaction ? 'is-cheer' : ''} ${
+              className={`g-player__inner ${sleeping ? 'is-sleeping' : reaction ? 'is-cheer' : ''} ${
                 plantingAnim ? 'is-planting' : ''
               }`}
-              key={reaction ? reaction.key : 'idle'}
+              key={sleeping ? 'sleep' : reaction ? reaction.key : 'idle'}
               style={{ width: playerArt }}
               role="button"
               tabIndex={0}
@@ -2355,6 +2357,11 @@ export default function GardenGame({ plants, onClose }) {
                 petPoti()
               }}
             >
+              {sleeping && (
+                <span className="g-sleep-pillow" aria-hidden="true">
+                  <PotiSleepPillow />
+                </span>
+              )}
               <div className="g-player__body">
                 <Mascot
                   size={playerArt}
@@ -2363,12 +2370,17 @@ export default function GardenGame({ plants, onClose }) {
                   waving={false}
                   look={potiLook}
                 />
-                {carrying && (
+                {carrying && !sleeping && (
                   <span className="g-player__carry" aria-hidden="true">
                     <PotiCarryProp kind={carrying.kind} />
                   </span>
                 )}
               </div>
+              {sleeping && (
+                <span className="g-sleep-blanket" aria-hidden="true">
+                  <PotiSleepBlanket />
+                </span>
+              )}
             </div>
             <span className="g-player__name">{myPlayerName}</span>
           </div>
