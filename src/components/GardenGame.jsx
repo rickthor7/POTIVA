@@ -28,6 +28,8 @@ import {
   Utensils,
   X,
   Zap,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react'
 import { Mascot, PottedPlant, ProductArt } from './illustrations'
 import {
@@ -54,6 +56,18 @@ const START = { x: 1312, y: 540 }
 const SPEED = 340
 const REACH = 175
 const QUEST = { care: 3, water: 3, dew: 3 }
+const DEFAULT_ZOOM = 1
+const MAX_ZOOM = 1.75
+const ZOOM_STEP = 0.15
+
+const cameraTarget = (px, py, vw, vh, z) => {
+  const sw = WORLD.w * z
+  const sh = WORLD.h * z
+  return {
+    x: sw <= vw ? -(vw - sw) / 2 : clamp(px * z - vw / 2, 0, sw - vw),
+    y: sh <= vh ? -(vh - sh) / 2 : clamp(py * z - vh * 0.58, 0, sh - vh),
+  }
+}
 
 // Plants sit cleanly inside the 4 fenced garden quadrants first, then expand to greenhouse & meadow beds.
 const PLANT_SLOTS = [
@@ -646,8 +660,10 @@ export default function GardenGame({ plants, onClose }) {
   const [wardrobeOpen, setWardrobeOpen] = useState(false)
   const [zone, setZone] = useState(() => zoneAt(START.x, START.y))
   const [spotCooldowns, setSpotCooldowns] = useState({})
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM)
 
   const rootRef = useRef(null)
+  const viewRef = useRef(null)
   const worldRef = useRef(null)
   const playerEl = useRef(null)
   const playerDotRef = useRef(null)
@@ -657,6 +673,10 @@ export default function GardenGame({ plants, onClose }) {
   const keys = useRef(new Set())
   const player = useRef({ ...START, facing: 1 })
   const cam = useRef({ x: 0, y: 0 })
+  const targetZoomRef = useRef(DEFAULT_ZOOM)
+  const smoothZoomRef = useRef(DEFAULT_ZOOM)
+  const minZoomRef = useRef(0.45)
+  const pinchedRef = useRef(false)
   const activeRef = useRef(null)
   const phaseRef = useRef(phase)
   const viewportRef = useRef(viewport)
@@ -698,6 +718,18 @@ export default function GardenGame({ plants, onClose }) {
   )
 
   const scale = clamp(viewport.h / 780, 0.62, 1.16)
+  const minZoom = useMemo(
+    () => clamp(Math.min(0.9, Math.max(viewport.w / WORLD.w, viewport.h / WORLD.h)), 0.42, 0.9),
+    [viewport.w, viewport.h],
+  )
+  minZoomRef.current = minZoom
+
+  const applyZoom = useCallback((next) => {
+    const clamped = clamp(Math.round(next * 100) / 100, minZoomRef.current, MAX_ZOOM)
+    targetZoomRef.current = clamped
+    setZoom(clamped)
+  }, [])
+
   const plantArt = Math.round(138 * scale)
   const playerArt = Math.round(126 * scale)
   const level = levelFromXp(wallet.xp)
@@ -837,10 +869,15 @@ export default function GardenGame({ plants, onClose }) {
   const onViewClick = useCallback(
     (event) => {
       if (phaseRef.current !== 'playing' || portrait) return
+      if (pinchedRef.current) {
+        pinchedRef.current = false
+        return
+      }
       const rect = event.currentTarget.getBoundingClientRect()
+      const z = smoothZoomRef.current || 1
       goTo(
-        cam.current.x + (event.clientX - rect.left),
-        cam.current.y + (event.clientY - rect.top),
+        (cam.current.x + (event.clientX - rect.left)) / z,
+        (cam.current.y + (event.clientY - rect.top)) / z,
       )
     },
     [goTo, portrait],
@@ -1181,6 +1218,9 @@ export default function GardenGame({ plants, onClose }) {
       if (k === 'p' || k === ' ') careRef.current('pet')
       if (k === 'e') actRef.current('water')
       if (k === 'f') actRef.current('feed')
+      if (k === '+' || k === '=') applyZoom(targetZoomRef.current + ZOOM_STEP)
+      if (k === '-' || k === '_') applyZoom(targetZoomRef.current - ZOOM_STEP)
+      if (k === '0') applyZoom(DEFAULT_ZOOM)
     }
     const up = (e) => {
       keys.current.delete(e.key.toLowerCase())
@@ -1194,7 +1234,63 @@ export default function GardenGame({ plants, onClose }) {
       window.removeEventListener('keyup', up)
       window.removeEventListener('blur', blur)
     }
-  }, [openWardrobe])
+  }, [openWardrobe, applyZoom])
+
+  // Mouse-wheel & two-finger pinch zoom on the game viewport.
+  useEffect(() => {
+    const el = viewRef.current
+    if (!el) return undefined
+    const pointers = new Map()
+    let pinchStartDist = 0
+    let pinchStartZoom = DEFAULT_ZOOM
+
+    const onWheel = (e) => {
+      if (phaseRef.current !== 'playing' || wardrobeRef.current) return
+      e.preventDefault()
+      const delta = -Math.sign(e.deltaY) * 0.12
+      applyZoom(targetZoomRef.current + delta)
+    }
+
+    const onPointerDown = (e) => {
+      if (e.pointerType !== 'touch') return
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+      if (pointers.size === 2) {
+        const [a, b] = [...pointers.values()]
+        pinchStartDist = Math.hypot(b.x - a.x, b.y - a.y)
+        pinchStartZoom = targetZoomRef.current
+        pinchedRef.current = true
+        waypoint.current = null
+      }
+    }
+
+    const onPointerMove = (e) => {
+      if (!pointers.has(e.pointerId)) return
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+      if (pointers.size === 2 && pinchStartDist > 10) {
+        const [a, b] = [...pointers.values()]
+        const dist = Math.hypot(b.x - a.x, b.y - a.y)
+        applyZoom(pinchStartZoom * (dist / pinchStartDist))
+      }
+    }
+
+    const onPointerEnd = (e) => {
+      pointers.delete(e.pointerId)
+      if (pointers.size < 2) pinchStartDist = 0
+    }
+
+    el.addEventListener('wheel', onWheel, { passive: false })
+    el.addEventListener('pointerdown', onPointerDown)
+    el.addEventListener('pointermove', onPointerMove)
+    el.addEventListener('pointerup', onPointerEnd)
+    el.addEventListener('pointercancel', onPointerEnd)
+    return () => {
+      el.removeEventListener('wheel', onWheel)
+      el.removeEventListener('pointerdown', onPointerDown)
+      el.removeEventListener('pointermove', onPointerMove)
+      el.removeEventListener('pointerup', onPointerEnd)
+      el.removeEventListener('pointercancel', onPointerEnd)
+    }
+  }, [applyZoom])
 
   useEffect(() => {
     const onKey = (e) => {
@@ -1309,12 +1405,18 @@ export default function GardenGame({ plants, onClose }) {
 
       const vw = viewportRef.current.w
       const vh = viewportRef.current.h
-      const targetX = clamp(p.x - vw / 2, 0, Math.max(0, WORLD.w - vw))
-      const targetY = clamp(p.y - vh * 0.58, 0, Math.max(0, WORLD.h - vh))
-      cam.current.x += (targetX - cam.current.x) * Math.min(1, dt * 7)
-      cam.current.y += (targetY - cam.current.y) * Math.min(1, dt * 7)
+      const zDiff = targetZoomRef.current - smoothZoomRef.current
+      if (Math.abs(zDiff) > 0.0005) {
+        smoothZoomRef.current += zDiff * Math.min(1, dt * 11)
+      } else {
+        smoothZoomRef.current = targetZoomRef.current
+      }
+      const z = smoothZoomRef.current
+      const target = cameraTarget(p.x, p.y, vw, vh, z)
+      cam.current.x += (target.x - cam.current.x) * Math.min(1, dt * 8)
+      cam.current.y += (target.y - cam.current.y) * Math.min(1, dt * 8)
       if (worldRef.current) {
-        worldRef.current.style.transform = `translate3d(${-cam.current.x}px, ${-cam.current.y}px, 0)`
+        worldRef.current.style.transform = `translate3d(${-cam.current.x}px, ${-cam.current.y}px, 0) scale(${z})`
       }
 
       raf = requestAnimationFrame(tick)
@@ -1325,14 +1427,20 @@ export default function GardenGame({ plants, onClose }) {
   }, [])
 
   useEffect(() => {
-    const vw = viewport.w
-    const vh = viewport.h
-    cam.current.x = clamp(player.current.x - vw / 2, 0, Math.max(0, WORLD.w - vw))
-    cam.current.y = clamp(player.current.y - vh * 0.58, 0, Math.max(0, WORLD.h - vh))
-    if (worldRef.current) {
-      worldRef.current.style.transform = `translate3d(${-cam.current.x}px, ${-cam.current.y}px, 0)`
+    const clamped = clamp(targetZoomRef.current, minZoom, MAX_ZOOM)
+    if (clamped !== targetZoomRef.current) {
+      targetZoomRef.current = clamped
+      smoothZoomRef.current = clamped
+      setZoom(clamped)
     }
-  }, [viewport])
+    const z = smoothZoomRef.current
+    const target = cameraTarget(player.current.x, player.current.y, viewport.w, viewport.h, z)
+    cam.current.x = target.x
+    cam.current.y = target.y
+    if (worldRef.current) {
+      worldRef.current.style.transform = `translate3d(${-cam.current.x}px, ${-cam.current.y}px, 0) scale(${z})`
+    }
+  }, [viewport, minZoom])
 
   const needsBars = (plant) => (
     <span className="g-plant__needs" aria-hidden="true">
@@ -1351,7 +1459,7 @@ export default function GardenGame({ plants, onClose }) {
       aria-label="Mode petualangan Kebun Pixel POTIVA"
       data-phase={phase}
     >
-      <div className="g-viewport" onClick={onViewClick}>
+      <div className="g-viewport" ref={viewRef} onClick={onViewClick}>
         <div
           className="g-world g-world--pixel"
           ref={worldRef}
@@ -1721,6 +1829,38 @@ export default function GardenGame({ plants, onClose }) {
 
           <PixelMinimap plants={placed} dew={dew} playerDotRef={playerDotRef} />
 
+          <div className="g-zoom" role="group" aria-label="Pengatur zoom layar kebun">
+            <button
+              type="button"
+              className="g-zoom__btn"
+              onClick={() => applyZoom(zoom - ZOOM_STEP)}
+              disabled={zoom <= minZoom + 0.01}
+              aria-label="Perkecil tampilan"
+              title="Perkecil (-)"
+            >
+              <ZoomOut size={15} />
+            </button>
+            <button
+              type="button"
+              className="g-zoom__pct"
+              onClick={() => applyZoom(DEFAULT_ZOOM)}
+              aria-label="Reset zoom ke 100%"
+              title="Reset zoom (0)"
+            >
+              {Math.round(zoom * 100)}%
+            </button>
+            <button
+              type="button"
+              className="g-zoom__btn"
+              onClick={() => applyZoom(zoom + ZOOM_STEP)}
+              disabled={zoom >= MAX_ZOOM - 0.01}
+              aria-label="Perbesar tampilan"
+              title="Perbesar (+)"
+            >
+              <ZoomIn size={15} />
+            </button>
+          </div>
+
           <Joystick onChange={onStick} disabled={portrait || sleeping} />
 
           <div className="g-pad" aria-label="Tombol aksi perawatan">
@@ -1818,7 +1958,7 @@ export default function GardenGame({ plants, onClose }) {
             <p className="g-intro__keys">
               Keyboard: <kbd>WASD</kbd>/panah gerak · <kbd>1</kbd> makan · <kbd>2</kbd> main ·{' '}
               <kbd>3</kbd> mandi · <kbd>4</kbd> tidur · <kbd>P</kbd> elus · <kbd>E</kbd> siram ·{' '}
-              <kbd>F</kbd> pupuk · <kbd>G</kbd> gaya · klik peta, tanaman, atau penanda lokasi
+              <kbd>F</kbd> pupuk · <kbd>G</kbd> gaya · <kbd>+</kbd>/<kbd>-</kbd> zoom · klik peta atau penanda
             </p>
           </div>
         </div>

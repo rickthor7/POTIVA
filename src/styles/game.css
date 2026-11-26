@@ -277,6 +277,63 @@
   display: block;
 }
 
+.g-zoom {
+  position: absolute;
+  top: max(168px, calc(env(safe-area-inset-top) + 160px));
+  right: max(14px, env(safe-area-inset-right));
+  z-index: 56;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+  width: 148px;
+  padding: 4px;
+  border-radius: 12px;
+  border: 2px solid #5c3820;
+  background: rgba(255, 248, 228, 0.94);
+  box-shadow: 0 3px 0 rgba(58, 35, 21, 0.28), var(--shadow-sm);
+}
+
+.g-zoom__btn,
+.g-zoom__pct {
+  display: grid;
+  place-items: center;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--forest-deep);
+  font-family: inherit;
+  transition: background 0.14s ease, transform 0.12s ease;
+}
+
+.g-zoom__btn {
+  width: 34px;
+  background: var(--mint);
+}
+
+.g-zoom__btn:hover:not(:disabled) {
+  background: var(--fresh);
+}
+
+.g-zoom__btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.g-zoom__btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.g-zoom__pct {
+  flex: 1;
+  font-size: 0.62rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.g-zoom__pct:hover {
+  background: rgba(23, 77, 53, 0.08);
+}
+
 .game--pixel .g-petcard,
 .game--pixel .g-icon-btn,
 .game--pixel .g-chip,
@@ -301,6 +358,24 @@
 @media (max-width: 820px), (max-height: 500px) {
   .g-minimap {
     display: none;
+  }
+
+  .g-zoom {
+    top: max(62px, calc(env(safe-area-inset-top) + 54px));
+    width: auto;
+    gap: 2px;
+    padding: 3px;
+  }
+
+  .g-zoom__btn {
+    width: 30px;
+    height: 26px;
+  }
+
+  .g-zoom__pct {
+    height: 26px;
+    padding: 0 6px;
+    font-size: 0.58rem;
   }
 
   .g-center-hud .g-zonechip span {
